@@ -1,0 +1,262 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Assign Responders{% endblock %}
+{% block content_title %}Assign Responders{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/assign_responders.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">people</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Responders</h3>
+        <p class="stat-value" id="totalResponders">24</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Available</h3>
+        <p class="stat-value" id="availableResponders">18</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">work</span>
+            </div>
+        </div>
+        <h3 class="stat-label">On Duty</h3>
+        <p class="stat-value" id="onDutyResponders">4</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">do_not_disturb</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Unavailable</h3>
+        <p class="stat-value" id="unavailableResponders">2</p>
+    </div>
+</div>
+
+<!-- Active Assignments -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Active Assignments</h2>
+        <button class="btn-action">
+            <span class="material-icons-round">add</span>
+            New Assignment
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table">
+            <thead>
+                <tr>
+                    <th>Assignment ID</th>
+                    <th>Responder</th>
+                    <th>Incident Type</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Assigned Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ASN-001</td>
+                    <td class="font-bold">John Smith</td>
+                    <td>Medical Emergency</td>
+                    <td>Building A - Floor 2</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>10 mins ago</td>
+                    <td><button class="btn-action">Complete</button></td>
+                </tr>
+                <tr>
+                    <td>ASN-002</td>
+                    <td class="font-bold">Sarah Johnson</td>
+                    <td>Fire Alert</td>
+                    <td>Building B - Floor 1</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>25 mins ago</td>
+                    <td><button class="btn-action">Complete</button></td>
+                </tr>
+                <tr>
+                    <td>ASN-003</td>
+                    <td class="font-bold">Mike Davis</td>
+                    <td>Security Issue</td>
+                    <td>Building C - Entrance</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td>45 mins ago</td>
+                    <td><button class="btn-action">Complete</button></td>
+                </tr>
+                <tr>
+                    <td>ASN-004</td>
+                    <td class="font-bold">Emily Wilson</td>
+                    <td>Medical Emergency</td>
+                    <td>Building A - Floor 3</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>1 hour ago</td>
+                    <td><button class="btn-action">Complete</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Responder Pool -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Responder Pool</h2>
+        <div class="filters-wrapper">
+            <div class="search-box">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" class="search-input glass-input" placeholder="Search responders...">
+            </div>
+            <div class="select-group">
+                <select class="glass-select filter-select">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="on-duty">On Duty</option>
+                    <option value="unavailable">Unavailable</option>
+                </select>
+                <select class="glass-select filter-select">
+                    <option value="">All Skills</option>
+                    <option value="medical">Medical</option>
+                    <option value="fire">Fire Safety</option>
+                    <option value="security">Security</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="responders-grid">
+        <div class="glass-card responder-card available">
+            <div class="responder-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="responder-info">
+                <h4>Alex Thompson</h4>
+                <p class="responder-role">Medical Responder</p>
+                <div class="responder-skills">
+                    <span class="skill-tag">Medical</span>
+                    <span class="skill-tag">First Aid</span>
+                </div>
+            </div>
+            <div class="responder-status">
+                <span class="status-dot available"></span>
+                <span>Available</span>
+            </div>
+            <button class="btn-secondary btn-assign">Assign</button>
+        </div>
+
+        <div class="glass-card responder-card on-duty">
+            <div class="responder-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="responder-info">
+                <h4>Lisa Chen</h4>
+                <p class="responder-role">Fire Safety Officer</p>
+                <div class="responder-skills">
+                    <span class="skill-tag">Fire Safety</span>
+                    <span class="skill-tag">Emergency</span>
+                </div>
+            </div>
+            <div class="responder-status">
+                <span class="status-dot on-duty"></span>
+                <span>On Duty</span>
+            </div>
+            <button class="btn-secondary btn-assign" disabled>Assign</button>
+        </div>
+
+        <div class="glass-card responder-card available">
+            <div class="responder-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="responder-info">
+                <h4>David Martinez</h4>
+                <p class="responder-role">Security Officer</p>
+                <div class="responder-skills">
+                    <span class="skill-tag">Security</span>
+                    <span class="skill-tag">Crowd Control</span>
+                </div>
+            </div>
+            <div class="responder-status">
+                <span class="status-dot available"></span>
+                <span>Available</span>
+            </div>
+            <button class="btn-secondary btn-assign">Assign</button>
+        </div>
+
+        <div class="glass-card responder-card unavailable">
+            <div class="responder-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="responder-info">
+                <h4>Jennifer Brown</h4>
+                <p class="responder-role">Medical Responder</p>
+                <div class="responder-skills">
+                    <span class="skill-tag">Medical</span>
+                    <span class="skill-tag">Trauma</span>
+                </div>
+            </div>
+            <div class="responder-status">
+                <span class="status-dot unavailable"></span>
+                <span>Unavailable</span>
+            </div>
+            <button class="btn-secondary btn-assign" disabled>Assign</button>
+        </div>
+
+        <div class="glass-card responder-card available">
+            <div class="responder-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="responder-info">
+                <h4>Robert Taylor</h4>
+                <p class="responder-role">Fire Safety Officer</p>
+                <div class="responder-skills">
+                    <span class="skill-tag">Fire Safety</span>
+                    <span class="skill-tag">Rescue</span>
+                </div>
+            </div>
+            <div class="responder-status">
+                <span class="status-dot available"></span>
+                <span>Available</span>
+            </div>
+            <button class="btn-secondary btn-assign">Assign</button>
+        </div>
+
+        <div class="glass-card responder-card on-duty">
+            <div class="responder-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="responder-info">
+                <h4>Maria Garcia</h4>
+                <p class="responder-role">Security Officer</p>
+                <div class="responder-skills">
+                    <span class="skill-tag">Security</span>
+                    <span class="skill-tag">Investigation</span>
+                </div>
+            </div>
+            <div class="responder-status">
+                <span class="status-dot on-duty"></span>
+                <span>On Duty</span>
+            </div>
+            <button class="btn-secondary btn-assign" disabled>Assign</button>
+        </div>
+    </div>
+</section>
+{% endblock %}

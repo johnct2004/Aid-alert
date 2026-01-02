@@ -1,0 +1,234 @@
+/* --- Reset & Base Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #e0e5ec;
+    /* Unified Theme BG */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* Fixed height */
+    padding: 20px;
+    overflow: hidden;
+    /* Hide overflow */
+    color: #fff;
+}
+
+/* --- Background Shapes --- */
+.bg-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+}
+
+/* ... shapes can remain ... */
+
+/* --- Main Container Card --- */
+.container {
+    background-color: #0d0d0d;
+    /* Unified Dark Theme */
+    width: 100%;
+    max-width: 1100px;
+    height: 100%;
+    /* Fill available height */
+    max-height: 900px;
+    border-radius: 30px;
+    padding: 30px 50px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1;
+}
+
+/* --- Header Navigation --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.logo {
+    display: none;
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.logo-dot {
+    height: 12px;
+    width: 12px;
+    background-color: #d1d5db;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+nav a {
+    color: #9ca3af;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+    color: #fff;
+}
+
+.btn-donate {
+    background-color: #ff6b35;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-donate:hover {
+    background-color: #e55a2b;
+}
+
+/* --- Main Body Content --- */
+.main-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    gap: 40px;
+}
+
+/* --- Contact Section --- */
+.contact-section {
+    flex: 1;
+    max-width: 450px;
+    /* Limit width of form side */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.contact-box {
+    background-color: #131728;
+    /* Slightly lighter dark bg for inner box */
+    padding: 30px;
+    border-radius: 25px;
+    width: 100%;
+}
+
+/* --- Orange Box Styling --- */
+.contact-box.orange-box {
+    background-color: rgba(255, 107, 53, 0.15);
+    /* Light orange background */
+    border: 2px solid #ff6b35;
+    /* Orange border */
+    box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+    /* Orange glow effect */
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-box.orange-box h2 {
+    color: #ff6b35;
+    /* Orange heading */
+    text-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+    margin-bottom: 5px;
+    font-size: 28px;
+}
+
+.contact-box.orange-box h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.info-block p,
+.cta-block h4 {
+    margin-bottom: 10px;
+}
+
+/* --- Illustration Section --- */
+.illustration-section {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+}
+
+.hero-image {
+    width: 100%;
+    max-width: 600px;
+    height: 450px;
+    /* Match other pages */
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 968px) {
+    body {
+        height: auto;
+        overflow: auto;
+    }
+
+    .container {
+        padding: 30px;
+        height: auto;
+        display: block;
+    }
+
+    header {
+        margin-bottom: 30px;
+    }
+
+    nav {
+        display: none;
+        /* Hide nav links on smaller screens */
+    }
+
+    .main-body {
+        flex-direction: column-reverse;
+        /* Form on top or bottom? Let's check logic. Usually text then image. If column-reverse, image is on top. */
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .contact-section,
+    .illustration-section {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .illustration-section {
+        justify-content: center;
+    }
+
+    .hero-image {
+        max-width: 100%;
+        height: 300px;
+    }
+}

@@ -1,0 +1,208 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}{% block page_title %}Responder Dashboard{% endblock %} - Aid Alert{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/responder/responder_theme.css' %}">
+{% block responder_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Glass Sidebar -->
+    <aside class="glass-sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'aid_app:responder_dashboard' %}" class="brand">
+                <span class="material-icons-round brand-icon">health_and_safety</span>
+                <span class="brand-text">Aid Alert</span>
+            </a>
+        </div>
+
+        <ul class="menu">
+            <li class="menu-item">
+                <a href="{% url 'aid_app:responder_dashboard' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'responder_dashboard' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:available_incidents' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'available_incidents' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">list_alt</span>
+                    <span>Available Incidents</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a href="{% url 'aid_app:update_incident_status' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'update_incident_status' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">update</span>
+                    <span>Update Status</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:availability_status' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'availability_status' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">toggle_on</span>
+                    <span>Availability Status</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:feedback_received' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'feedback_received' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">reviews</span>
+                    <span>Feedback Received</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:responder_history' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'responder_history' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">history</span>
+                    <span>Incident History</span>
+                </a>
+            </li>
+
+            <li class="menu-item mt-auto">
+                <a href="{% url 'aid_app:logout' %}" class="menu-link logout-link">
+                    <span class="material-icons-round menu-icon">logout</span>
+                    <span>Log Out</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Glass Top Bar -->
+        <header class="glass-top-bar">
+            <h1 class="page-title">{% block content_title %}{% endblock %}</h1>
+            <div class="header-controls">
+                <div class="availability-toggle-wrapper">
+                    <span class="availability-label">Status:</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="header-availability-toggle" class="toggle-input" {% if user.responder_profile.status == "available" %}checked{% endif %}>
+                        <label for="header-availability-toggle" class="toggle-label">
+                            <span class="toggle-text">Available</span>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <a href="{% url 'aid_app:responder_profile' %}" class="user-profile-link">
+                    <div class="user-profile">
+                        <span class="user-name">{{ user.username }}</span>
+                        <div class="avatar-circle">
+                            <span class="material-icons-round user-avatar-icon">person</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert glass-alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block responder_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block responder_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggle = document.getElementById('header-availability-toggle');
+        const textSpan = toggle.nextElementSibling.querySelector('.toggle-text');
+
+        // Function to update UI based on status
+        function updateUI(isAvailable) {
+            textSpan.textContent = isAvailable ? 'Available' : 'Unavailable';
+            // Optional: Change color or style if needed
+        }
+
+        // Initialize state based on actual responder status
+        toggle.checked = "{{ user.responder_profile.status }}" === 'available';
+        updateUI(toggle.checked);
+
+        toggle.addEventListener('change', function () {
+            const isAvailable = this.checked;
+            updateUI(isAvailable);
+
+            // Send API request
+            fetch("{% url 'aid_app:toggle_responder_status' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ active: isAvailable })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success feedback
+                        showNotification('Status updated to: ' + data.status, 'success');
+                        console.log('Status updated to:', data.status);
+                    } else {
+                        // Revert if error
+                        showNotification('Error updating status: ' + data.error, 'error');
+                        toggle.checked = !isAvailable;
+                        updateUI(!isAvailable);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Network error updating status', 'error');
+                    toggle.checked = !isAvailable;
+                    updateUI(!isAvailable);
+                });
+        });
+
+        // Simple notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `status-notification ${type}`;
+            notification.textContent = message;
+            // Kept specific dynamic positioning style in JS, but could be moved to CSS class .status-notification
+            // However, JS generated styles are often acceptable for dynamic elements
+            // cleaning up animation reference to use class if possible, or leave as style
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                background: ${type === 'success' ? '#4CAF50' : '#F44336'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: slideIn 0.3s ease-out;
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

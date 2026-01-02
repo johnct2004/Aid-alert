@@ -1,0 +1,492 @@
+/* Facility Incident Log CSS - White Glass Aesthetic */
+/* Extends facility_theme.css */
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.stat-icon.icon-blue {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.stat-icon.icon-green {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--success-color);
+}
+
+.stat-icon.icon-orange {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--primary-color);
+}
+
+.stat-icon.icon-red {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--danger-color);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 0 5px 0;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* Card Headers */
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* Filters */
+.filters-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--secondary-color);
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 20px;
+}
+
+.select-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.glass-select {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--secondary-color);
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.glass-select:hover,
+.glass-select:focus {
+    background: white;
+    border-color: var(--primary-color);
+}
+
+/* Table */
+.table-responsive {
+    overflow-x: auto;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+}
+
+.glass-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.glass-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--secondary-color);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.glass-table td {
+    padding: 16px;
+    color: #555;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: middle;
+}
+
+.glass-table tr:last-child td {
+    border-bottom: none;
+}
+
+.glass-table tr:hover td {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Badges */
+.id-badge {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: rgba(255, 107, 53, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.type-badge,
+.severity-badge,
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Type Badges */
+.type-badge.medical {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+.type-badge.fire {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.type-badge.security {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f39c12;
+}
+
+.type-badge.equipment {
+    background: rgba(155, 89, 182, 0.15);
+    color: #9b59b6;
+}
+
+.type-badge.other {
+    background: rgba(149, 165, 166, 0.15);
+    color: #95a5a6;
+}
+
+/* Severity Badges */
+.severity-badge.critical {
+    background: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.severity-badge.high {
+    background: rgba(241, 196, 15, 0.15);
+    color: #d35400;
+    border: 1px solid rgba(241, 196, 15, 0.3);
+}
+
+.severity-badge.medium {
+    background: rgba(255, 107, 53, 0.15);
+    color: #e67e22;
+    border: 1px solid rgba(255, 107, 53, 0.3);
+}
+
+.severity-badge.low {
+    background: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+/* Status Badges */
+.status-badge.open {
+    background: rgba(52, 152, 219, 0.15);
+    color: #2980b9;
+}
+
+.status-badge.investigating {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f39c12;
+}
+
+.status-badge.resolved {
+    background: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+}
+
+.status-badge.closed {
+    background: rgba(149, 165, 166, 0.15);
+    color: #7f8c8d;
+}
+
+.description {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 4px;
+}
+
+.btn-icon:hover {
+    color: var(--primary-color);
+}
+
+/* Summary Grid */
+.incidents-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+}
+
+.chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.chart-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bar-label {
+    min-width: 80px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.bar-container {
+    flex: 1;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: var(--primary-color);
+}
+
+.bar-fill.medical {
+    background: #3498db;
+}
+
+.bar-fill.fire {
+    background: #e74c3c;
+}
+
+.bar-fill.security {
+    background: #f1c40f;
+}
+
+.bar-fill.equipment {
+    background: #9b59b6;
+}
+
+.bar-fill.other {
+    background: #95a5a6;
+}
+
+.bar-value {
+    font-size: 0.85rem;
+    color: #666;
+    min-width: 30px;
+    text-align: right;
+}
+
+/* Severity Distribution List */
+.severity-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.severity-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.severity-item:hover {
+    background: white;
+    transform: translateX(5px);
+}
+
+.severity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.severity-item.critical .severity-icon {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.severity-item.high .severity-icon {
+    background: rgba(241, 196, 15, 0.1);
+    color: #d35400;
+}
+
+.severity-item.medium .severity-icon {
+    background: rgba(255, 107, 53, 0.1);
+    color: #e67e22;
+}
+
+.severity-item.low .severity-icon {
+    background: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+}
+
+.severity-info {
+    flex: 1;
+}
+
+.severity-label {
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+}
+
+.severity-count {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .incidents-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .select-group {
+        flex-direction: column;
+    }
+
+    .glass-select {
+        width: 100%;
+    }
+
+    .data-table .description {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 12px 8px;
+    }
+}

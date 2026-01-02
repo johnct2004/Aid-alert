@@ -1,0 +1,118 @@
+{% extends 'facility_manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Add First Aid Guide{% endblock %}
+
+{% block facility_css %}
+<style>
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .helper-text {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-top: 0.25rem;
+    }
+
+    .btn-submit {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-dark);
+    }
+</style>
+{% endblock %}
+
+{% block facility_content %}
+<div class="form-card">
+    <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span class="material-icons-round">post_add</span>
+        Add New First Aid Guide
+    </h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="title">Guide Title</label>
+            <input type="text" id="title" name="title" class="form-control" required placeholder="e.g., Snake Bite">
+        </div>
+
+        <div class="row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="urgency">Urgency Level</label>
+                <select id="urgency" name="urgency" class="form-control">
+                    <option value="moderate">Moderate</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="critical">Critical (Life-Threatening)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="icon">Icon (Material Icons name)</label>
+                <input type="text" id="icon" name="icon" class="form-control" value="health_and_safety"
+                    placeholder="e.g., healing">
+                <p class="helper-text"><a href="https://fonts.google.com/icons" target="_blank">Browse Icons</a></p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="steps">Steps (One per line)</label>
+            <textarea id="steps" name="steps" class="form-control" rows="8" required
+                placeholder="1. Step one detail...&#10;2. Step two detail...&#10;3. Step three detail..."></textarea>
+            <p class="helper-text">Enter each step on a new line. Numbering will be handled automatically.</p>
+        </div>
+
+        <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 1rem;">
+            <a href="{% url 'aid_app:facility_dashboard' %}" class="btn btn-secondary"
+                style="padding: 0.75rem 1.5rem; text-decoration: none; color: #666;">Cancel</a>
+            <button type="submit" class="btn-submit">
+                <span class="material-icons-round">save</span>
+                Save Guide
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

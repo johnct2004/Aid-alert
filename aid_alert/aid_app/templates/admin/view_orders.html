@@ -1,0 +1,246 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Orders - Admin Dashboard{% endblock %}
+{% block page_title %}Manage Orders{% endblock %}
+
+{% block admin_css %}
+<!-- Reuse manage_users.css but override specific needs if necessary, or just use inline for now since we want to mirror it -->
+<link rel="stylesheet" href="{% static 'css/admin/manage_users.css' %}">
+<style>
+    /* Specific overrides for Order columns if needed */
+    .orders-table th:nth-child(1) { width: 40px; } /* Checkbox */
+    .orders-table th:nth-child(2) { width: 100px; } /* Order ID */
+    .orders-table th:nth-child(5) { width: 120px; } /* Amount */
+    .orders-table th:nth-child(7) { width: 120px; } /* Status */
+    .orders-table th:nth-child(8) { width: 100px; } /* Actions */
+    
+    /* Reuse stat cards styles from manage_users.css */
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Statistics Cards -->
+<div class="stats-grid" style="margin-bottom: 30px;">
+    <div class="stat-card total">
+        <div class="stat-icon">
+            <span class="material-icons-round">shopping_bag</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Total Orders</h3>
+            <p class="stat-value">{{ total_orders }}</p>
+            <span style="font-size: 0.8rem; color: #2ecc71;">All time</span>
+        </div>
+    </div>
+    <div class="stat-card active">
+        <div class="stat-icon">
+            <span class="material-icons-round">pending</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Pending</h3>
+            <p class="stat-value">{{ pending_orders }}</p>
+            <span style="font-size: 0.8rem; color: #f1c40f;">Action needed</span>
+        </div>
+    </div>
+    <div class="stat-card new">
+        <div class="stat-icon">
+            <span class="material-icons-round">local_shipping</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">In Transit</h3>
+            <p class="stat-value">{{ in_transit_orders }}</p>
+            <span style="font-size: 0.8rem; color: #3498db;">On the way</span>
+        </div>
+    </div>
+    <div class="stat-card admins">
+        <div class="stat-icon">
+            <span class="material-icons-round">attach_money</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Revenue</h3>
+            <p class="stat-value">${{ total_revenue|floatformat:0 }}</p>
+            <span style="font-size: 0.8rem; color: #666;">Total generated</span>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Management Section -->
+<div class="glass-card">
+    <div class="card-header-row">
+        <div class="filter-actions">
+            <div class="search-bar">
+                <span class="material-icons-round search-icon" style="color: #999;">search</span>
+                <input type="text" id="orderSearch" class="search-input" placeholder="Search orders by ID, customer...">
+            </div>
+            
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            
+            <select id="sortBy" class="filter-select">
+                <option value="date">Sort by Date</option>
+                <option value="amount">Amount: High first</option>
+                <option value="status">Status</option>
+            </select>
+            
+            <button class="btn btn-secondary export-btn" style="padding: 8px 15px; margin-left: auto; display: flex; align-items: center; gap: 5px;">
+                <span class="material-icons-round" style="font-size: 18px;">download</span> 
+                Export
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="users-table orders-table"> <!-- Reuse users-table class for base styles -->
+            <thead>
+                <tr>
+                    <th width="40"><input type="checkbox" class="select-all-checkbox"></th>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Products</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr class="user-row table-row">
+                    <td><input type="checkbox" class="user-checkbox" value="{{ order.id }}"></td>
+                    <td>
+                        <span style="font-family: monospace; font-weight: 600; color: #333;">#{{ order.order_id }}</span>
+                    </td>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar" style="width: 32px; height: 32px; min-width: 32px;">
+                                <div style="width: 100%; height: 100%; background: #eef2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6c5ce7; font-weight: 600; font-size: 12px;">
+                                    {{ order.customer.first_name|first|default:order.customer.username|first|upper }}
+                                </div>
+                            </div>
+                            <div class="user-details">
+                                <h4 class="user-name" style="font-size: 0.9rem;">{{ order.customer.get_full_name|default:order.customer.username }}</h4>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="color: #666; font-size: 0.9rem;">{{ order.product.name }} <span style="color: #999;">x{{ order.quantity }}</span></span>
+                    </td>
+                    <td>
+                        <span style="font-weight: 600; color: #2d3436;">${{ order.total_price }}</span>
+                    </td>
+                    <td>
+                        <div class="date-info">
+                            <p style="margin:0;">{{ order.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" 
+                            style="padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+                            {% if order.status == 'pending' %}background:#fff3cd; color:#856404;{% endif %}
+                            {% if order.status == 'processing' %}background:#cce5ff; color:#004085;{% endif %}
+                            {% if order.status == 'shipped' %}background:#e8dac6; color:#e67e22;{% endif %}
+                            {% if order.status == 'delivered' %}background:#d4edda; color:#155724;{% endif %}
+                            {% if order.status == 'cancelled' %}background:#f8d7da; color:#721c24;{% endif %}">
+                            {{ order.status|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon view-btn" title="View Details" onclick="viewOrder('{{ order.order_id }}')">
+                                <span class="material-icons-round">visibility</span>
+                            </button>
+                            {% if order.status != 'cancelled' and order.status != 'delivered' %}
+                            <button class="btn-icon edit-btn" title="Update Status" onclick="updateAdminStatus({{ order.id }}, '{{ order.status }}')">
+                                <span class="material-icons-round">edit</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #888;">
+                        <span class="material-icons-round" style="font-size: 48px; opacity: 0.5; display: block; margin: 0 auto 10px;">shopping_cart</span>
+                        No orders found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination (Placeholder using consistent structure) -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+        <div style="font-size: 0.9rem; color: #666;">Showing {{ orders|length }} orders</div>
+        <div style="display: flex; gap: 5px;">
+            <button class="btn btn-sm btn-secondary" disabled>
+                <span class="material-icons-round" style="font-size: 16px;">chevron_left</span>
+            </button>
+            <button class="btn btn-sm btn-primary">1</button>
+            <button class="btn btn-sm btn-secondary">
+                <span class="material-icons-round" style="font-size: 16px;">chevron_right</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_js %}
+<script>
+    function viewOrder(orderId) {
+        // Implement view details logic (modal or page redirect)
+        alert(`Viewing details for Order #${orderId}`);
+    }
+
+    function updateAdminStatus(id, currentStatus) {
+        const newStatus = prompt(`Update status for Order #${id} (pending, processing, shipped, delivered, cancelled):`, currentStatus);
+        const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+        
+        if (newStatus && validStatuses.includes(newStatus) && newStatus !== currentStatus) {
+             let url = "{% url 'aid_app:update_order_status' 999999 'placeholder' %}";
+             url = url.replace('999999', id).replace('placeholder', newStatus);
+             window.location.href = url;
+        } else if (newStatus) {
+            alert('Invalid status or no change.');
+        }
+    }
+
+    // Search functionality
+    document.getElementById('orderSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.table-row');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Filter functionality
+    document.getElementById('statusFilter').addEventListener('change', filterOrders);
+
+    function filterOrders() {
+        const status = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.table-row');
+
+        rows.forEach(row => {
+            // Find status badge inside the row
+            const badge = row.querySelector('.status-badge');
+            if (badge) {
+                const statusText = badge.textContent.trim().toLowerCase();
+                const statusMatch = !status || statusText.includes(status.toLowerCase());
+                
+                if (row.style.display !== 'none') {
+                    row.style.display = statusMatch ? '' : 'none';
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

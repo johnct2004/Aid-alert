@@ -1,0 +1,360 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}User Profile{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/user_profile.css' %}">
+{% endblock %}
+
+{% block user_content %}
+<div class="profile-container">
+    <!-- Profile Overview -->
+    <div class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Profile Overview</h2>
+            <div class="profile-actions">
+                <a href="{% url 'aid_app:dashboard' %}" class="btn btn-secondary">
+                    <span class="material-icons-round">home</span>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="profile-overview">
+            <div class="profile-avatar">
+                <div class="avatar-large">
+                    <span class="material-icons-round">person</span>
+                </div>
+            </div>
+
+            <div class="profile-info">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h3 class="info-label">Full Name</h3>
+                        <p class="info-value">{{ user.first_name }} {{ user.last_name }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Email</h3>
+                        <p class="info-value">{{ user.email }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Phone</h3>
+                        <p class="info-value">+1 {{ user.profile.phone|default:"Not Provided" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">User ID</h3>
+                        <p class="info-value">USR-{{ user.id|stringformat:"06d" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Member Since</h3>
+                        <p class="info-value">{{ user.date_joined|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Account Type</h3>
+                        <p class="info-value">Standard User</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Personal Information</h2>
+            <div class="personal-actions">
+                <button class="btn btn-secondary edit-personal-btn" onclick="togglePersonalEdit()">
+                    <span class="material-icons-round">edit</span>
+                    Edit Personal Info
+                </button>
+                <button class="btn btn-primary save-personal-btn hidden" onclick="savePersonalInfo()">
+                    <span class="material-icons-round">save</span>
+                    Save Changes
+                </button>
+                <button class="btn btn-secondary cancel-personal-btn hidden" onclick="cancelPersonalEdit()">
+                    <span class="material-icons-round">close</span>
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="personal-info">
+            <div class="info-section">
+                <h3 class="section-title">Contact Details</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4 class="info-label">First Name</h4>
+                        <p class="info-value" id="first-name">{{ user.first_name }}</p>
+                        <input type="text" class="info-input hidden" id="first-name-input"
+                            value="{{ user.first_name }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Last Name</h4>
+                        <p class="info-value" id="last-name">{{ user.last_name }}</p>
+                        <input type="text" class="info-input hidden" id="last-name-input" value="{{ user.last_name }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Email Address</h4>
+                        <p class="info-value" id="email">{{ user.email }}</p>
+                        <input type="email" class="info-input hidden" id="email-input" value="{{ user.email }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Phone Number</h4>
+                        <p class="info-value" id="phone">{{ user.profile.phone|default:"Not Provided" }}</p>
+                        <input type="tel" class="info-input hidden" id="phone-input"
+                            value="{{ user.profile.phone|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3 class="section-title">Address Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4 class="info-label">Home Address</h4>
+                        <p class="info-value" id="home-address">{{ user.profile.address|default:"Address not provided"
+                            }}</p>
+                        <input type="text" class="info-input hidden" id="home-address-input"
+                            value="{{ user.profile.address|default:'' }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">City</h4>
+                        <p class="info-value" id="city">{{ user.profile.city|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="city-input"
+                            value="{{ user.profile.city|default:"" }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">State/Province</h4>
+                        <p class="info-value" id="state">{{ user.profile.state|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="state-input"
+                            value="{{ user.profile.state|default:"" }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Postal Code</h4>
+                        <p class="info-value" id="postal-code">{{ user.profile.postal_code|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="postal-code-input"
+                            value="{{ user.profile.postal_code|default:'' }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Country</h4>
+                        <p class="info-value" id="country">{{ user.profile.country|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="country-input"
+                            value="{{ user.profile.country|default:"" }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Information -->
+    <div class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Emergency Information</h2>
+            <div class="emergency-actions">
+                <button class="btn btn-secondary edit-emergency-btn" onclick="toggleEmergencyEdit()">
+                    <span class="material-icons-round">edit</span>
+                    Edit Emergency Info
+                </button>
+                <button class="btn btn-primary save-emergency-btn hidden" onclick="saveEmergencyInfo()">
+                    <span class="material-icons-round">save</span>
+                    Save Changes
+                </button>
+                <button class="btn btn-secondary cancel-emergency-btn hidden" onclick="cancelEmergencyEdit()">
+                    <span class="material-icons-round">close</span>
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="emergency-info">
+            <div class="info-section">
+                <h3 class="section-title">Emergency Contacts</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4 class="info-label">Primary Contact</h4>
+                        <p class="info-value" id="primary-contact">{{ user.profile.emergency_contact|default:"Not
+                            Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="primary-contact-input"
+                            value="{{ user.profile.emergency_contact|default:'' }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Primary Contact Phone</h4>
+                        <p class="info-value" id="primary-contact-phone">{{ user.profile.emergency_phone|default:"Not
+                            Provided" }}</p>
+                        <input type="tel" class="info-input hidden" id="primary-contact-phone-input"
+                            value="{{ user.profile.emergency_phone|default:'' }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Blood Type</h4>
+                        <p class="info-value" id="blood-type">{{ user.profile.blood_type|default:"Not Provided" }}</p>
+                        <select class="info-input hidden" id="blood-type-input">
+                            <option value="">Select Blood Type</option>
+                            <option value="A+" {% if user.profile.blood_type == "A+" %} selected {% endif %}>A+</option>
+                            <option value="A-" {% if user.profile.blood_type == "A-" %} selected {% endif %}>A-</option>
+                            <option value="B+" {% if user.profile.blood_type == "B+" %} selected {% endif %}>B+</option>
+                            <option value="B-" {% if user.profile.blood_type == "B-" %} selected {% endif %}>B-</option>
+                            <option value="AB+" {% if user.profile.blood_type == "AB+" %} selected {% endif %}>AB+</option>
+                            <option value="AB-" {% if user.profile.blood_type == "AB-" %} selected {% endif %}>AB-</option>
+                            <option value="O+" {% if user.profile.blood_type == "O+" %} selected {% endif %}>O+</option>
+                            <option value="O-" {% if user.profile.blood_type == "O-" %} selected {% endif %}>O-</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Allergies</h4>
+                        <p class="info-value" id="allergies">{{ user.profile.allergies|default:"None" }}</p>
+                        <input type="text" class="info-input hidden" id="allergies-input"
+                            value="{{ user.profile.allergies|default:"" }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Account Settings</h2>
+        </div>
+
+        <div class="settings-sections">
+            <div class="settings-section">
+                <h3 class="section-title">Security Settings</h3>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Change Password</h4>
+                            <p class="setting-description">Update your account password</p>
+                        </div>
+                        <a href="{% url 'aid_app:forgot_password' %}" class="btn btn-secondary setting-btn">
+                            <span class="material-icons-round">lock</span>
+                            Change Password
+                        </a>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Two-Factor Authentication</h4>
+                            <p class="setting-description">Add an extra layer of security</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="twoFactor" class="toggle-input">
+                            <label for="twoFactor" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block user_js %}
+<script>
+    function togglePersonalEdit() {
+        document.querySelectorAll('#first-name, #last-name, #email, #phone, #home-address, #city, #state, #postal-code, #country').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('#first-name-input, #last-name-input, #email-input, #phone-input, #home-address-input, #city-input, #state-input, #postal-code-input, #country-input').forEach(el => el.classList.remove('hidden'));
+
+        document.querySelector('.edit-personal-btn').classList.add('hidden');
+        document.querySelector('.save-personal-btn').classList.remove('hidden');
+        document.querySelector('.cancel-personal-btn').classList.remove('hidden');
+    }
+
+    function cancelPersonalEdit() {
+        document.querySelectorAll('#first-name-input, #last-name-input, #email-input, #phone-input, #home-address-input, #city-input, #state-input, #postal-code-input, #country-input').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('#first-name, #last-name, #email, #phone, #home-address, #city, #state, #postal-code, #country').forEach(el => el.classList.remove('hidden'));
+
+        document.querySelector('.edit-personal-btn').classList.remove('hidden');
+        document.querySelector('.save-personal-btn').classList.add('hidden');
+        document.querySelector('.cancel-personal-btn').classList.add('hidden');
+    }
+
+    function savePersonalInfo() {
+        // Mock save implementation
+        document.getElementById('first-name').textContent = document.getElementById('first-name-input').value || 'Not Provided';
+        // Add other field updates here...
+
+        cancelPersonalEdit();
+        showMessage('Personal information updated successfully!', 'success');
+    }
+
+    function toggleEmergencyEdit() {
+        document.querySelectorAll('#primary-contact, #primary-contact-phone, #blood-type, #allergies').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('#primary-contact-input, #primary-contact-phone-input, #blood-type-input, #allergies-input').forEach(el => el.classList.remove('hidden'));
+
+        document.querySelector('.edit-emergency-btn').classList.add('hidden');
+        document.querySelector('.save-emergency-btn').classList.remove('hidden');
+        document.querySelector('.cancel-emergency-btn').classList.remove('hidden');
+    }
+
+    function cancelEmergencyEdit() {
+        document.querySelectorAll('#primary-contact-input, #primary-contact-phone-input, #blood-type-input, #allergies-input').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('#primary-contact, #primary-contact-phone, #blood-type, #allergies').forEach(el => el.classList.remove('hidden'));
+
+        document.querySelector('.edit-emergency-btn').classList.remove('hidden');
+        document.querySelector('.save-emergency-btn').classList.add('hidden');
+        document.querySelector('.cancel-emergency-btn').classList.add('hidden');
+    }
+
+    function saveEmergencyInfo() {
+        document.getElementById('primary-contact').textContent = document.getElementById('primary-contact-input').value || 'Not Provided';
+
+        cancelEmergencyEdit();
+        showMessage('Emergency information updated successfully!', 'success');
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        `;
+
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 300);
+        }, 3000);
+    }
+</script>
+
+<style>
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+</style>
+{% endblock %}

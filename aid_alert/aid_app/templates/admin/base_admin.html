@@ -1,0 +1,113 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/admin/admin_theme.css' %}">
+{% block admin_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="glass-sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'aid_app:admin_dashboard' %}" class="brand">
+                <span class="material-icons-round brand-icon">admin_panel_settings</span>
+                <span class="brand-text">Admin</span>
+            </a>
+        </div>
+
+        <ul class="menu">
+            <li class="menu-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <a href="{% url 'aid_app:admin_dashboard' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">home</span>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'manage_users' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:manage_users' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">group</span>
+                    <span>Manage Users</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'view_all_incidents' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:view_all_incidents' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">list_alt</span>
+                    <span>View Incidents</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'incident_reports' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:incident_reports' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">description</span>
+                    <span>Incident Reports</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'manage_responders' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:manage_responders' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">local_shipping</span>
+                    <span>Responders</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'manage_facilities' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:manage_facilities' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">apartment</span>
+                    <span>Facilities</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'approve_sellers' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:approve_sellers' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">verified_user</span>
+                    <span>Sellers</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'marketplace_monitor' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:marketplace_monitor' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">storefront</span>
+                    <span>Marketplace</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'system_reports' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:system_reports' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">analytics</span>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'feedback_analysis' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:feedback_analysis' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">rate_review</span>
+                    <span>Feedback</span>
+                </a>
+            </li>
+
+            <li class="menu-item mt-auto">
+                <a href="{% url 'aid_app:logout' %}" class="menu-link logout-link">
+                    <span class="material-icons-round menu-icon">logout</span>
+                    <span>Log Out</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">{% block page_title %}Admin Dashboard{% endblock %}</h1>
+            <a href="{% url 'aid_app:profile' %}" class="user-profile-link"
+                style="text-decoration: none; color: inherit;">
+                <div class="user-profile">
+                    <span class="user-name" style="font-weight: 500;">{{ user.username }}</span>
+                    <div class="avatar-circle">
+                        <span class="material-icons-round" style="font-size: 20px;">person</span>
+                    </div>
+                </div>
+            </a>
+        </header>
+
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block admin_js %}{% endblock %}
+{% endblock %}

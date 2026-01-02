@@ -1,0 +1,177 @@
+{% extends 'seller/base_seller.html' %}
+{% load static %}
+
+{% block page_title %}Seller Dashboard{% endblock %}
+{% block content_title %}Seller Dashboard{% endblock %}
+
+{% block seller_css %}
+<link rel="stylesheet" href="{% static 'css/seller/seller_dashboard.css' %}">
+{% endblock %}
+
+{% block seller_content %}
+<!-- Sales Overview -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon revenue-icon">
+                <span class="material-icons-round">attach_money</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>No recent orders</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Revenue</h3>
+        <p class="stat-value" id="totalRevenue">$0</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon orders-icon">
+                <span class="material-icons-round">shopping_bag</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>No recent orders</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Orders</h3>
+        <p class="stat-value" id="totalOrders">0</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon products-icon">
+                <span class="material-icons-round">inventory_2</span>
+            </div>
+            <div class="stat-change negative">
+                <span class="material-icons-round">trending_down</span>
+                <span>All products available</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Active Products</h3>
+        <p class="stat-value" id="activeProducts">12</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon delivery-icon">
+                <span class="material-icons-round">local_shipping</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>No deliveries</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Pending Deliveries</h3>
+        <p class="stat-value" id="pendingDeliveries">0</p>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <!-- Recent Orders -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Recent Orders</h2>
+            <div class="order-actions">
+                <a href="{% url 'aid_app:view_orders' %}" class="btn-action">
+                    View All Orders
+                </a>
+            </div>
+        </div>
+
+        <div class="orders-list">
+            <div class="no-orders-message">
+                <span class="material-icons-round">shopping_cart</span>
+                <p>No orders yet. Your products are ready for customers!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Performance -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Top Performing Products</h2>
+            <div class="product-actions">
+                <a href="{% url 'aid_app:view_products' %}" class="btn-action">
+                    Manage Products
+                </a>
+            </div>
+        </div>
+
+        <div class="products-grid">
+            <div class="product-item">
+                <div class="product-info">
+                    <div class="product-image">
+                        <span class="material-icons-round">medical_services</span>
+                    </div>
+                    <div class="product-details">
+                        <h4 class="product-name">Complete First Aid Kit</h4>
+                        <p class="product-category">First Aid</p>
+                    </div>
+                </div>
+                <div class="product-stats">
+                    <p class="product-sales">0 sold</p>
+                    <p class="product-revenue">$0</p>
+                </div>
+            </div>
+
+            <div class="product-item">
+                <div class="product-info">
+                    <div class="product-image">
+                        <span class="material-icons-round">emergency</span>
+                    </div>
+                    <div class="product-details">
+                        <h4 class="product-name">Emergency Radio</h4>
+                        <p class="product-category">Emergency</p>
+                    </div>
+                </div>
+                <div class="product-stats">
+                    <p class="product-sales">0 sold</p>
+                    <p class="product-revenue">$0</p>
+                </div>
+            </div>
+
+            <div class="product-item">
+                <div class="product-info">
+                    <div class="product-image">
+                        <span class="material-icons-round">healing</span>
+                    </div>
+                    <div class="product-details">
+                        <h4 class="product-name">Medical Gloves Box</h4>
+                        <p class="product-category">Medical</p>
+                    </div>
+                </div>
+                <div class="product-stats">
+                    <p class="product-sales">0 sold</p>
+                    <p class="product-revenue">$0</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="glass-card content-card">
+        <h2 class="card-title" style="margin-bottom: 20px;">Quick Actions</h2>
+
+        <div class="quick-actions-grid">
+            <a href="{% url 'aid_app:add_product' %}" class="quick-action-btn">
+                <span class="material-icons-round">add_circle</span>
+                <span>Add New Product</span>
+            </a>
+            <a href="{% url 'aid_app:manage_delivery' %}" class="quick-action-btn">
+                <span class="material-icons-round">local_shipping</span>
+                <span>View Deliveries</span>
+            </a>
+            <a href="{% url 'aid_app:seller_report' %}" class="quick-action-btn">
+                <span class="material-icons-round">analytics</span>
+                <span>Generate Report</span>
+            </a>
+            <a href="{% url 'aid_app:seller_profile' %}" class="quick-action-btn">
+                <span class="material-icons-round">settings</span>
+                <span>Account Settings</span>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

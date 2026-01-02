@@ -1,0 +1,237 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Facility Incident Log{% endblock %}
+{% block content_title %}Facility Incident Log{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/facility_incident_log.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">event</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Incidents</h3>
+        <p class="stat-value" id="totalIncidents">142</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">warning</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Critical</h3>
+        <p class="stat-value" id="criticalIncidents">8</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">priority_high</span>
+            </div>
+        </div>
+        <h3 class="stat-label">High Priority</h3>
+        <p class="stat-value" id="highPriorityIncidents">23</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Resolved Today</h3>
+        <p class="stat-value" id="resolvedToday">15</p>
+    </div>
+</div>
+
+<!-- Incident Log Table -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Incident Log</h2>
+        <button class="btn-action">
+            <span class="material-icons-round">add</span>
+            Report Incident
+        </button>
+    </div>
+
+    <div class="filters-wrapper">
+        <div class="search-box">
+            <span class="material-icons-round search-icon">search</span>
+            <input type="text" class="search-input glass-input" placeholder="Search incidents...">
+        </div>
+        <div class="select-group">
+            <select class="glass-select filter-select">
+                <option value="">All Severity</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <select class="glass-select filter-select">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="investigating">Investigating</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+            </select>
+            <select class="glass-select filter-select">
+                <option value="">All Types</option>
+                <option value="medical">Medical</option>
+                <option value="fire">Fire</option>
+                <option value="security">Security</option>
+                <option value="equipment">Equipment</option>
+                <option value="other">Other</option>
+            </select>
+            <select class="glass-select filter-select">
+                <option value="">Last 7 Days</option>
+                <option value="24h">Last 24 Hours</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table">
+            <thead>
+                <tr>
+                    <th>Incident ID</th>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tbody>
+                {% for incident in incidents %}
+                <tr>
+                    <td><span class="id-badge">{{ incident.incident_id }}</span></td>
+                    <td>{{ incident.created_at|date:"Y-m-d H:i" }}</td>
+                    <td><span class="type-badge {{ incident.incident_type }}">{{ incident.get_incident_type_display
+                            }}</span></td>
+                    <td><span class="severity-badge {{ incident.severity }}">{{ incident.get_severity_display }}</span>
+                    </td>
+                    <td>{{ incident.location }}</td>
+                    <td class="description" title="{{ incident.description }}">{{ incident.description|truncatechars:30
+                        }}</td>
+                    <td><span class="status-badge {{ incident.status }}">{{ incident.get_status_display }}</span></td>
+                    <td>Unassigned</td>
+                    <td><button class="btn-icon"><span class="material-icons-round">visibility</span></button></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align: center;">No incidents found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Recent Incidents Summary -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Recent Incidents Summary</h2>
+    </div>
+
+    <div class="incidents-summary-grid">
+        <div class="summary-chart-container">
+            <h3 class="chart-title">Incidents by Type</h3>
+            <div class="chart-bars">
+                <div class="chart-item">
+                    <div class="bar-label">Medical</div>
+                    <div class="bar-container">
+                        <div class="bar-fill medical" style="width: 75%;"></div>
+                        <div class="bar-value">45</div>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <div class="bar-label">Fire</div>
+                    <div class="bar-container">
+                        <div class="bar-fill fire" style="width: 25%;"></div>
+                        <div class="bar-value">15</div>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <div class="bar-label">Security</div>
+                    <div class="bar-container">
+                        <div class="bar-fill security" style="width: 40%;"></div>
+                        <div class="bar-value">24</div>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <div class="bar-label">Equipment</div>
+                    <div class="bar-container">
+                        <div class="bar-fill equipment" style="width: 30%;"></div>
+                        <div class="bar-value">18</div>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <div class="bar-label">Other</div>
+                    <div class="bar-container">
+                        <div class="bar-fill other" style="width: 20%;"></div>
+                        <div class="bar-value">12</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="severity-distribution-container">
+            <h3 class="chart-title">Severity Distribution</h3>
+            <div class="severity-stats-list">
+                <div class="severity-item critical">
+                    <div class="severity-icon">
+                        <span class="material-icons-round">warning</span>
+                    </div>
+                    <div class="severity-info">
+                        <div class="severity-label">Critical</div>
+                        <div class="severity-count">8 incidents</div>
+                    </div>
+                </div>
+                <div class="severity-item high">
+                    <div class="severity-icon">
+                        <span class="material-icons-round">priority_high</span>
+                    </div>
+                    <div class="severity-info">
+                        <div class="severity-label">High</div>
+                        <div class="severity-count">23 incidents</div>
+                    </div>
+                </div>
+                <div class="severity-item medium">
+                    <div class="severity-icon">
+                        <span class="material-icons-round">remove</span>
+                    </div>
+                    <div class="severity-info">
+                        <div class="severity-label">Medium</div>
+                        <div class="severity-count">67 incidents</div>
+                    </div>
+                </div>
+                <div class="severity-item low">
+                    <div class="severity-icon">
+                        <span class="material-icons-round">check_circle</span>
+                    </div>
+                    <div class="severity-info">
+                        <div class="severity-label">Low</div>
+                        <div class="severity-count">44 incidents</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

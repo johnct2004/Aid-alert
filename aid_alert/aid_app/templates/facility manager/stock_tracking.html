@@ -1,0 +1,258 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Stock Tracking{% endblock %}
+{% block content_title %}Stock Tracking{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/stock_tracking.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">inventory_2</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Items</h3>
+        <p class="stat-value" id="totalItems">156</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+        </div>
+        <h3 class="stat-label">In Stock</h3>
+        <p class="stat-value" id="inStock">142</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">warning</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Low Stock</h3>
+        <p class="stat-value" id="lowStock">8</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">error</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Out of Stock</h3>
+        <p class="stat-value" id="outOfStock">6</p>
+    </div>
+</div>
+
+<!-- Stock Chart -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Stock Overview</h2>
+        <div class="chart-filters">
+            <select class="glass-select filter-select">
+                <option value="week">Last Week</option>
+                <option value="month" selected>Last Month</option>
+                <option value="year">Last Year</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <!-- Placeholder for actual chart, simulating visual -->
+        <div class="chart-placeholder">
+            <div class="chart-graph">
+                <!-- Y-axis -->
+                <div class="y-axis">
+                    <div class="y-label">200</div>
+                    <div class="y-label">150</div>
+                    <div class="y-label">100</div>
+                    <div class="y-label">50</div>
+                    <div class="y-label">0</div>
+                </div>
+
+                <!-- Chart area with gridlines -->
+                <div class="chart-area">
+                    <div class="grid-lines">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                    </div>
+                    <div class="chart-bars">
+                        <div class="chart-bar bar-height-71">
+                            <div class="bar-value">142</div>
+                            <div class="bar-tooltip">Week 1: 142</div>
+                        </div>
+                        <div class="chart-bar bar-height-57-5">
+                            <div class="bar-value">115</div>
+                            <div class="bar-tooltip">Week 2: 115</div>
+                        </div>
+                        <div class="chart-bar bar-height-80">
+                            <div class="bar-value">160</div>
+                            <div class="bar-tooltip">Week 3: 160</div>
+                        </div>
+                        <div class="chart-bar bar-height-66-5">
+                            <div class="bar-value">133</div>
+                            <div class="bar-tooltip">Week 4: 133</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- X-axis labels -->
+            <div class="x-axis-labels">
+                <div class="x-label">Week 1</div>
+                <div class="x-label">Week 2</div>
+                <div class="x-label">Week 3</div>
+                <div class="x-label">Week 4</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Inventory Table -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Inventory Details</h2>
+    </div>
+
+    <div class="filters-wrapper">
+        <div class="search-box">
+            <span class="material-icons-round search-icon">search</span>
+            <input type="text" class="search-input glass-input" placeholder="Search items...">
+        </div>
+        <div class="select-group">
+            <select class="glass-select filter-select">
+                <option value="">All Categories</option>
+                <option value="first-aid">First Aid</option>
+                <option value="medical">Medical Supplies</option>
+                <option value="equipment">Equipment</option>
+                <option value="medication">Medication</option>
+            </select>
+            <select class="glass-select filter-select">
+                <option value="">All Status</option>
+                <option value="in-stock">In Stock</option>
+                <option value="low-stock">Low Stock</option>
+                <option value="out-of-stock">Out of Stock</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Current Stock</th>
+                    <th>Min Level</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ITM-001</td>
+                    <td class="font-bold">Bandages</td>
+                    <td>First Aid</td>
+                    <td>45</td>
+                    <td>20</td>
+                    <td><span class="status-badge status-available">In Stock</span></td>
+                    <td>2 hours ago</td>
+                    <td><button class="btn-action">Update</button></td>
+                </tr>
+                <tr>
+                    <td>ITM-002</td>
+                    <td class="font-bold">Gloves</td>
+                    <td>First Aid</td>
+                    <td>8</td>
+                    <td>10</td>
+                    <td><span class="status-badge status-maintenance">Low Stock</span></td>
+                    <td>5 hours ago</td>
+                    <td><button class="btn-action">Update</button></td>
+                </tr>
+                <tr>
+                    <td>ITM-003</td>
+                    <td class="font-bold">Antiseptic</td>
+                    <td>Medical Supplies</td>
+                    <td>0</td>
+                    <td>5</td>
+                    <td><span class="status-badge status-expired">Out of Stock</span></td>
+                    <td>1 day ago</td>
+                    <td><button class="btn-action">Update</button></td>
+                </tr>
+                <tr>
+                    <td>ITM-004</td>
+                    <td class="font-bold">Oxygen Mask</td>
+                    <td>Equipment</td>
+                    <td>12</td>
+                    <td>8</td>
+                    <td><span class="status-badge status-available">In Stock</span></td>
+                    <td>3 hours ago</td>
+                    <td><button class="btn-action">Update</button></td>
+                </tr>
+                <tr>
+                    <td>ITM-005</td>
+                    <td class="font-bold">Pain Relievers</td>
+                    <td>Medication</td>
+                    <td>28</td>
+                    <td>15</td>
+                    <td><span class="status-badge status-available">In Stock</span></td>
+                    <td>6 hours ago</td>
+                    <td><button class="btn-action">Update</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Stock Alerts -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Stock Alerts</h2>
+    </div>
+
+    <div class="alerts-list">
+        <div class="glass-alert-item alert-critical">
+            <div class="alert-icon">
+                <span class="material-icons-round">error</span>
+            </div>
+            <div class="alert-content">
+                <div class="alert-title">Critical: Antiseptic (ITM-003) is out of stock</div>
+                <div class="alert-time">1 day ago</div>
+            </div>
+            <button class="btn-secondary">Restock</button>
+        </div>
+        <div class="glass-alert-item alert-warning">
+            <div class="alert-icon">
+                <span class="material-icons-round">warning</span>
+            </div>
+            <div class="alert-content">
+                <div class="alert-title">Low Stock: Gloves (ITM-002) below minimum level</div>
+                <div class="alert-time">5 hours ago</div>
+            </div>
+            <button class="btn-secondary">Order</button>
+        </div>
+        <div class="glass-alert-item alert-info">
+            <div class="alert-icon">
+                <span class="material-icons-round">info</span>
+            </div>
+            <div class="alert-content">
+                <div class="alert-title">Scheduled restock for Bandages (ITM-001) tomorrow</div>
+                <div class="alert-time">2 hours ago</div>
+            </div>
+            <button class="btn-secondary">View</button>
+        </div>
+    </div>
+</section>
+{% endblock %}

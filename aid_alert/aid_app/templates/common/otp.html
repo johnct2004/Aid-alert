@@ -1,0 +1,97 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}OTP Verification - Aid Alert{% endblock %}
+
+{% block extra_css %}
+<style>
+    .otp-inputs {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        gap: 10px;
+    }
+
+    .otp-field {
+        width: 40px;
+        height: 50px;
+        text-align: center;
+        font-size: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .otp-field:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="center-container">
+    <div class="glass-card auth-card">
+        <a href="{% url 'aid_app:home' %}" class="logo-text">AID ALERT</a>
+        <h2>Enter OTP</h2>
+        <p style="margin-bottom: 20px; color: #666;">Enter the code sent to your email.</p>
+
+        <!-- Display Django messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'aid_app:otp_verification' %}">
+            {% csrf_token %}
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" class="otp-field" name="otp_code[]" autofocus>
+                <input type="text" maxlength="1" class="otp-field" name="otp_code[]">
+                <input type="text" maxlength="1" class="otp-field" name="otp_code[]">
+                <input type="text" maxlength="1" class="otp-field" name="otp_code[]">
+                <input type="text" maxlength="1" class="otp-field" name="otp_code[]">
+                <input type="text" maxlength="1" class="otp-field" name="otp_code[]">
+                <!-- Hidden field to combine all OTP digits -->
+                <input type="hidden" name="otp_code" id="otp_code_combined">
+            </div>
+            <button type="submit" class="btn-verify">Verify OTP</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Combine OTP inputs into single field before submission
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const otpInputs = document.querySelectorAll('.otp-field');
+        let otpCode = '';
+        otpInputs.forEach(input => {
+            otpCode += input.value;
+        });
+        document.getElementById('otp_code_combined').value = otpCode;
+    });
+
+    // Auto-focus next input
+    document.querySelectorAll('.otp-field').forEach((input, index) => {
+        input.addEventListener('input', function (e) {
+            if (e.target.value.length === 1) {
+                if (index < 5) {
+                    document.querySelectorAll('.otp-field')[index + 1].focus();
+                }
+            }
+        });
+
+        // Handle backspace
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                document.querySelectorAll('.otp-field')[index - 1].focus();
+            }
+        });
+    });
+</script>
+{% endblock %}

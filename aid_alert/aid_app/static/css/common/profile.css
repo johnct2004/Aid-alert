@@ -1,0 +1,240 @@
+/* --- Reset & Base Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f2f4f8; /* Light gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden; /* Hide overflow from blurred shapes */
+    color: #fff;
+}
+
+/* --- Background Shapes --- */
+.bg-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+}
+
+.shape-orange-large {
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background-color: rgba(255, 107, 53, 0.5); /* Orange */
+}
+
+.shape-purple-large {
+    bottom: -200px;
+    left: 100px;
+    width: 700px;
+    height: 700px;
+    background-color: rgba(179, 163, 228, 0.5); /* Purple */
+}
+
+.shape-orange-small {
+    bottom: 100px;
+    left: 50px;
+    width: 60px;
+    height: 60px;
+    background-color: #ff6b35;
+    filter: blur(5px);
+}
+
+/* --- Main Container Card --- */
+.container {
+    background-color: #0a0e1a; /* Very dark blue bg */
+    width: 90%;
+    max-width: 1100px;
+    border-radius: 30px;
+    padding: 40px 60px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Header Navigation --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.logo-dot {
+    height: 12px;
+    width: 12px;
+    background-color: #d1d5db;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+nav a {
+    color: #9ca3af;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #fff;
+}
+
+.btn-donate {
+    background-color: #ff6b35;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-donate:hover {
+    background-color: #e55a2b;
+}
+
+/* --- Main Body Content --- */
+.main-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* --- Profile Section --- */
+.profile-section {
+    width: 45%;
+}
+
+.profile-box {
+    background-color: #131728; /* Slightly lighter dark bg for profile area */
+    padding: 40px;
+    border-radius: 25px;
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+.profile-details {
+    margin-bottom: 30px;
+}
+
+.detail-item {
+    margin-bottom: 15px;
+}
+
+.label {
+    display: block;
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 5px;
+}
+
+.value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-action {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background-color: #ff6b35;
+    color: #fff;
+    border: none;
+}
+
+.btn-edit:hover {
+    background-color: #e55a2b;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #ff6b35;
+    border: 1px solid #ff6b35;
+}
+
+.btn-outline:hover {
+    background-color: rgba(255, 107, 53, 0.1);
+}
+
+/* --- Illustration Section --- */
+.illustration-section {
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.illustration-section img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 968px) {
+    .container {
+        padding: 30px;
+    }
+
+    header {
+        margin-bottom: 30px;
+    }
+
+    nav {
+        display: none; /* Hide nav links on smaller screens */
+    }
+
+    .main-body {
+        flex-direction: column-reverse;
+        gap: 40px;
+    }
+
+    .profile-section, .illustration-section {
+        width: 100%;
+    }
+    
+    .illustration-section {
+        justify-content: center;
+    }
+}

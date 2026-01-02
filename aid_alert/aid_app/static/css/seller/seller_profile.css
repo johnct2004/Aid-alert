@@ -1,0 +1,386 @@
+/* Seller Profile CSS - White Glass Aesthetic */
+/* Extends seller_theme.css */
+
+/* Hidden Util */
+.hidden {
+    display: none !important;
+}
+
+/* Profile Card */
+.profile-card {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Profile Overview */
+.profile-overview {
+    display: flex;
+    gap: 48px;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.profile-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 165, 2, 0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 48px;
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.15);
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-large .material-icons-round {
+    font-size: 56px;
+}
+
+
+
+.profile-info {
+    flex: 1;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    margin: 0;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.info-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--secondary-color);
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.info-input:focus {
+    outline: none;
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* Business Information */
+.business-info {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 107, 53, 0.1);
+}
+
+.edit-mode {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.05);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--secondary-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary:hover {
+    background: #e05e2e;
+}
+
+/* Account Settings */
+.settings-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.settings-section {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.setting-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin: 0 0 4px 0;
+}
+
+.setting-description {
+    font-size: 0.85rem;
+    color: #888;
+    margin: 0;
+}
+
+.setting-btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 26px;
+}
+
+.toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #e0e0e0;
+    border-radius: 26px;
+    transition: all 0.3s ease;
+}
+
+.toggle-label::before {
+    position: absolute;
+    content: '';
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-input:checked+.toggle-label {
+    background: var(--primary-color);
+}
+
+.toggle-input:checked+.toggle-label::before {
+    transform: translateX(24px);
+}
+
+/* Account Actions */
+.account-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 24px;
+    border-radius: 12px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.action-btn .material-icons-round {
+    font-size: 32px;
+    color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .profile-overview {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .profile-avatar {
+        align-self: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .toggle-switch,
+    .setting-btn {
+        align-self: flex-end;
+    }
+}
+
+/* Toast Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Toast Messages */
+.message-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease forwards;
+}
+
+.message-success {
+    background: #4CAF50;
+}
+
+.message-error {
+    background: #f44336;
+}
+
+.message-info {
+    background: #2196F3;
+}

@@ -1,0 +1,344 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}Report Incident{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/report_incident_new.css' %}">
+{% endblock %}
+
+{% block user_content %}
+<div class="content-wrapper">
+    <section class="glass-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Emergency Report Form</h2>
+            <span class="badge badge-active">Urgent</span>
+        </div>
+
+        <form id="incidentForm" class="incident-form" method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="incidentType">
+                        <span class="material-icons-round">warning</span>
+                        Incident Type
+                    </label>
+                    <select id="incidentType" name="incidentType" class="glass-input" required>
+                        <option value="">Select incident type</option>
+                        <option value="medical">Medical Emergency</option>
+                        <option value="fire">Fire Hazard</option>
+                        <option value="accident">Accident</option>
+                        <option value="crime">Crime/Security</option>
+                        <option value="natural">Natural Disaster</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="severity">
+                        <span class="material-icons-round">priority_high</span>
+                        Severity Level
+                    </label>
+                    <select id="severity" name="severity" class="glass-input" required>
+                        <option value="">Select severity</option>
+                        <option value="critical">Critical - Life Threatening</option>
+                        <option value="high">High - Urgent</option>
+                        <option value="medium">Medium - Serious</option>
+                        <option value="low">Low - Minor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="location">
+                    <span class="material-icons-round">location_on</span>
+                    Location
+                </label>
+                <div class="location-input-group">
+                    <input type="text" id="location" name="location" class="glass-input"
+                        placeholder="Enter incident location or address" required style="border-radius: 8px 0 0 8px;">
+                    <button type="button" id="detectLocation" class="btn-location" title="Detect current location">
+                        <span class="material-icons-round">my_location</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="contactPhone">
+                        <span class="material-icons-round">phone</span>
+                        Contact Phone
+                    </label>
+                    <input type="tel" id="contactPhone" name="contactPhone" class="glass-input"
+                        placeholder="Your 10-digit phone number" maxlength="10" pattern="[0-9]{10}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="peopleInvolved">
+                        <span class="material-icons-round">people</span>
+                        People Involved
+                    </label>
+                    <input type="number" id="peopleInvolved" name="peopleInvolved" class="glass-input" min="1"
+                        placeholder="Number of people involved">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">
+                    <span class="material-icons-round">description</span>
+                    Detailed Description
+                </label>
+                <textarea id="description" name="description" class="glass-input" rows="4"
+                    placeholder="Provide detailed description of the incident..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="immediateAction">
+                    <span class="material-icons-round">emergency</span>
+                    Immediate Action Taken
+                </label>
+                <textarea id="immediateAction" name="immediateAction" class="glass-input" rows="2"
+                    placeholder="Describe any immediate actions you've taken..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    <span class="material-icons-round" style="font-size: 18px; margin-right: 5px;">refresh</span>
+                    Clear Form
+                </button>
+                <button type="submit" class="btn btn-primary"
+                    style="width: auto; padding: 10px 24px; min-width: 150px;">
+                    <span class="material-icons-round" style="font-size: 18px; margin-right: 5px;">send</span>
+                    Submit Report
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="glass-card" style="margin-top: 20px;">
+        <div class="card-header-row">
+            <h2 class="card-title">Emergency Contacts</h2>
+        </div>
+
+        <div class="emergency-contacts">
+            <div class="contact-item">
+                <div class="contact-icon icon-red">
+                    <span class="material-icons-round">local_hospital</span>
+                </div>
+                <div class="contact-info">
+                    <h4>Ambulance/Emergency</h4>
+                    <p>108 or 112</p>
+                </div>
+                <button class="btn btn-sm btn-primary" style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
+                    onclick="callEmergency('108')">Call Now</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon icon-orange">
+                    <span class="material-icons-round">local_fire_department</span>
+                </div>
+                <div class="contact-info">
+                    <h4>Fire Department</h4>
+                    <p>101</p>
+                </div>
+                <button class="btn btn-sm btn-primary" style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
+                    onclick="callEmergency('101')">Call Now</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon icon-blue">
+                    <span class="material-icons-round">local_police</span>
+                </div>
+                <div class="contact-info">
+                    <h4>Police</h4>
+                    <p>100</p>
+                </div>
+                <button class="btn btn-sm btn-primary" style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
+                    onclick="callEmergency('100')">Call Now</button>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block user_js %}
+<script>
+    function resetForm() {
+        document.getElementById('incidentForm').reset();
+        showNotification('Form cleared successfully');
+    }
+
+    function callEmergency(number) {
+        if (confirm(`Are you sure you want to call emergency number ${number}?`)) {
+            showNotification(`Calling ${number}...`);
+            // In a real app, this would initiate a phone call
+            setTimeout(() => {
+                showNotification(`Emergency dial initiated for ${number}`);
+            }, 1000);
+        }
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'glass-card'; // Reuse glass card style for notification
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(230, 57, 70, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-weight: 500;
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Form submission
+    document.getElementById('incidentForm').addEventListener('submit', function (e) {
+        const formData = new FormData(this);
+        const incidentData = Object.fromEntries(formData);
+
+        // Validate required fields
+        if (!incidentData.incidentType || !incidentData.severity || !incidentData.location || !incidentData.description) {
+            e.preventDefault();
+            showNotification('Please fill in all required fields');
+            return;
+        }
+
+        // Validate phone number - exactly 10 digits
+        if (!incidentData.contactPhone || incidentData.contactPhone.length !== 10 || !/^[0-9]{10}$/.test(incidentData.contactPhone)) {
+            e.preventDefault();
+            showNotification('Please enter a valid 10-digit phone number');
+            return;
+        }
+
+        // Allow form to submit normally
+        showNotification('Submitting report...');
+    });
+
+    // Phone number validation - only allow numbers and limit to 10 digits
+    const phoneInput = document.getElementById('contactPhone');
+
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function () {
+            // Remove any non-numeric characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Limit to 10 digits
+            if (this.value.length > 10) {
+                this.value = this.value.slice(0, 10);
+            }
+        });
+
+        // Prevent paste of non-numeric characters
+        phoneInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+            const numericData = pastedData.replace(/[^0-9]/g, '').slice(0, 10);
+            this.value = numericData;
+        });
+    }
+
+    // Location detection functionality
+    const detectLocationBtn = document.getElementById('detectLocation');
+    const locationInput = document.getElementById('location');
+
+    if (detectLocationBtn && locationInput) {
+        detectLocationBtn.addEventListener('click', function () {
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                showNotification('Geolocation is not supported by your browser');
+                return;
+            }
+
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<span class="material-icons-round">hourglass_empty</span>';
+            showNotification('Detecting your location...');
+
+            // Get current position
+            navigator.geolocation.getCurrentPosition(
+                // Success callback
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    // Reverse geocoding
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.display_name) {
+                                locationInput.value = data.display_name;
+                                showNotification('Location detected successfully!');
+                            } else {
+                                locationInput.value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                                showNotification('Coordinates detected.');
+                            }
+                        })
+                        .catch(error => {
+                            locationInput.value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                            showNotification('Coordinates detected.');
+                        })
+                        .finally(() => {
+                            detectLocationBtn.disabled = false;
+                            detectLocationBtn.innerHTML = '<span class="material-icons-round">my_location</span>';
+                        });
+                },
+                // Error callback
+                function (error) {
+                    showNotification('Unable to detect location. Please allow access.');
+                    detectLocationBtn.disabled = false;
+                    detectLocationBtn.innerHTML = '<span class="material-icons-round">my_location</span>';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+
+        locationInput.addEventListener('click', function () {
+            if (!this.value) {
+                detectLocationBtn.click();
+            }
+        });
+    }
+</script>
+<style>
+    /* Inline Slide Animations for Notification */
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,267 @@
+/* Specific styles for User Management */
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 8px 15px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    margin-left: 10px;
+}
+
+.search-icon {
+    color: #999;
+}
+
+.filter-select {
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: white;
+    color: #555;
+}
+
+.filter-btn,
+.add-user-btn {
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.filter-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.add-user-btn {
+    background: #2ecc71;
+    color: white;
+}
+
+.filter-btn:hover,
+.add-user-btn:hover {
+    opacity: 0.9;
+}
+
+.user-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-name {
+    margin: 0;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.user-email {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Role Badges */
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-badge.admin {
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--primary-color);
+}
+
+.role-badge.responder {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.role-badge.user {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.role-badge.seller {
+    background: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
+}
+
+.role-badge.facility_manager {
+    background: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.status-badge.active {
+    background: #e6fffa;
+    color: #047857;
+}
+
+.status-badge.inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.status-badge.suspended {
+    background: #fff5f5;
+    color: #c53030;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s;
+    padding: 4px;
+}
+
+.btn-icon:hover {
+    color: var(--primary-color);
+}
+
+/* Filter Bar */
+.filter-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-bar {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 250px;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    margin-left: 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.filter-select {
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
+    color: #555;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus,
+.filter-select:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Stats Cards Specific Overrides if needed */
+.stat-card.total .stat-icon {
+    color: #54a0ff;
+    background: rgba(84, 160, 255, 0.1);
+}
+
+.stat-card.active .stat-icon {
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.stat-card.new .stat-icon {
+    color: #ff9f43;
+    background: rgba(255, 159, 67, 0.1);
+}
+
+.stat-card.admins .stat-icon {
+    color: #ee5253;
+    background: rgba(238, 82, 83, 0.1);
+}
+
+/* Match approve_sellers glass theme */
+.table-container {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}

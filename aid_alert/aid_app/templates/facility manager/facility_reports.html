@@ -1,0 +1,409 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Facility Reports{% endblock %}
+{% block content_title %}Facility Reports{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/facility_reports.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<!-- Report Period Selection -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Report Period</h2>
+        <div class="report-actions">
+            <button class="btn-action export-btn">
+                <span class="material-icons-round">download</span>
+                Export Report
+            </button>
+        </div>
+    </div>
+
+    <div class="period-selector">
+        <div class="period-options">
+            <button class="glass-btn period-btn active" data-period="week">Last Week</button>
+            <button class="glass-btn period-btn" data-period="month">Last Month</button>
+            <button class="glass-btn period-btn" data-period="quarter">Last Quarter</button>
+            <button class="glass-btn period-btn" data-period="year">Last Year</button>
+            <button class="glass-btn period-btn" data-period="custom">Custom Range</button>
+        </div>
+        <div class="date-range">
+            <input type="date" class="glass-input date-input" id="startDate">
+            <span class="date-separator">to</span>
+            <input type="date" class="glass-input date-input" id="endDate">
+        </div>
+    </div>
+</section>
+
+<!-- Key Metrics Overview -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">event</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Incidents</h3>
+        <p class="stat-value" id="totalIncidents">142</p>
+        <div class="stat-change positive">
+            <span class="material-icons-round">trending_up</span>
+            <span>12% from last period</span>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Response Rate</h3>
+        <p class="stat-value" id="responseRate">94.2%</p>
+        <div class="stat-change positive">
+            <span class="material-icons-round">trending_up</span>
+            <span>3.1% improvement</span>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">timer</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Avg Response Time</h3>
+        <p class="stat-value" id="avgResponseTime">4.2 min</p>
+        <div class="stat-change negative">
+            <span class="material-icons-round">trending_down</span>
+            <span>0.3 min slower</span>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">warning</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Critical Incidents</h3>
+        <p class="stat-value" id="criticalIncidents">8</p>
+        <div class="stat-change positive">
+            <span class="material-icons-round">trending_down</span>
+            <span>2 fewer than last period</span>
+        </div>
+    </div>
+</div>
+
+<!-- Incident Trends Chart -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Incident Trends</h2>
+        <div class="chart-controls">
+            <select class="glass-select chart-select">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Incident Volume Over Time</div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color medical"></div>
+                    <span>Medical</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color fire"></div>
+                    <span>Fire</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color security"></div>
+                    <span>Security</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color equipment"></div>
+                    <span>Equipment</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color other"></div>
+                    <span>Other</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="trend-chart">
+            <div class="y-axis">
+                <div class="y-label">50</div>
+                <div class="y-label">40</div>
+                <div class="y-label">30</div>
+                <div class="y-label">20</div>
+                <div class="y-label">10</div>
+                <div class="y-label">0</div>
+            </div>
+
+            <div class="chart-area">
+                <div class="grid-lines">
+                    <div class="grid-line"></div>
+                    <div class="grid-line"></div>
+                    <div class="grid-line"></div>
+                    <div class="grid-line"></div>
+                    <div class="grid-line"></div>
+                </div>
+
+                <div class="chart-data">
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 70%;"></div>
+                        <div class="bar fire" style="height: 20%;"></div>
+                        <div class="bar security" style="height: 30%;"></div>
+                        <div class="bar equipment" style="height: 15%;"></div>
+                        <div class="bar other" style="height: 10%;"></div>
+                        <div class="x-label">Mon</div>
+                    </div>
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 60%;"></div>
+                        <div class="bar fire" style="height: 25%;"></div>
+                        <div class="bar security" style="height: 35%;"></div>
+                        <div class="bar equipment" style="height: 20%;"></div>
+                        <div class="bar other" style="height: 15%;"></div>
+                        <div class="x-label">Tue</div>
+                    </div>
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 80%;"></div>
+                        <div class="bar fire" style="height: 15%;"></div>
+                        <div class="bar security" style="height: 25%;"></div>
+                        <div class="bar equipment" style="height: 25%;"></div>
+                        <div class="bar other" style="height: 5%;"></div>
+                        <div class="x-label">Wed</div>
+                    </div>
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 65%;"></div>
+                        <div class="bar fire" style="height: 30%;"></div>
+                        <div class="bar security" style="height: 40%;"></div>
+                        <div class="bar equipment" style="height: 10%;"></div>
+                        <div class="bar other" style="height: 20%;"></div>
+                        <div class="x-label">Thu</div>
+                    </div>
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 75%;"></div>
+                        <div class="bar fire" style="height: 20%;"></div>
+                        <div class="bar security" style="height: 30%;"></div>
+                        <div class="bar equipment" style="height: 30%;"></div>
+                        <div class="bar other" style="height: 10%;"></div>
+                        <div class="x-label">Fri</div>
+                    </div>
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 50%;"></div>
+                        <div class="bar fire" style="height: 10%;"></div>
+                        <div class="bar security" style="height: 20%;"></div>
+                        <div class="bar equipment" style="height: 15%;"></div>
+                        <div class="bar other" style="height: 25%;"></div>
+                        <div class="x-label">Sat</div>
+                    </div>
+                    <div class="data-group">
+                        <div class="bar medical" style="height: 40%;"></div>
+                        <div class="bar fire" style="height: 5%;"></div>
+                        <div class="bar security" style="height: 15%;"></div>
+                        <div class="bar equipment" style="height: 10%;"></div>
+                        <div class="bar other" style="height: 30%;"></div>
+                        <div class="x-label">Sun</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Detailed Analytics -->
+<div class="analytics-grid">
+    <!-- Incident Distribution -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Incident Distribution</h2>
+        </div>
+
+        <div class="distribution-chart">
+            <div class="pie-chart">
+                <!-- Simple CSS Pie Chart Representation -->
+                <div class="pie-slice medical" style="transform: rotate(0deg) skewY(-30deg);"></div>
+                <div class="pie-slice fire" style="transform: rotate(72deg) skewY(-30deg);"></div>
+                <div class="pie-slice security" style="transform: rotate(144deg) skewY(-30deg);"></div>
+                <div class="pie-slice equipment" style="transform: rotate(216deg) skewY(-30deg);"></div>
+                <div class="pie-slice other" style="transform: rotate(288deg) skewY(-30deg);"></div>
+                <div class="pie-center-hole"></div>
+            </div>
+
+            <div class="distribution-legend">
+                <div class="legend-item">
+                    <div class="legend-color medical"></div>
+                    <div class="legend-info">
+                        <span class="legend-label">Medical</span>
+                        <span class="legend-value">45 incidents (32%)</span>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color fire"></div>
+                    <div class="legend-info">
+                        <span class="legend-label">Fire</span>
+                        <span class="legend-value">15 incidents (11%)</span>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color security"></div>
+                    <div class="legend-info">
+                        <span class="legend-label">Security</span>
+                        <span class="legend-value">24 incidents (17%)</span>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color equipment"></div>
+                    <div class="legend-info">
+                        <span class="legend-label">Equipment</span>
+                        <span class="legend-value">18 incidents (13%)</span>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color other"></div>
+                    <div class="legend-info">
+                        <span class="legend-label">Other</span>
+                        <span class="legend-value">40 incidents (27%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Response Performance -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Response Performance</h2>
+        </div>
+
+        <div class="performance-metrics">
+            <div class="metric-item">
+                <div class="metric-header">
+                    <span class="metric-label">Average Response Time</span>
+                    <span class="metric-value">4.2 min</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 84%;"></div>
+                </div>
+                <div class="metric-target">Target: 5 min</div>
+            </div>
+
+            <div class="metric-item">
+                <div class="metric-header">
+                    <span class="metric-label">Resolution Rate</span>
+                    <span class="metric-value">94.2%</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 94.2%;"></div>
+                </div>
+                <div class="metric-target">Target: 90%</div>
+            </div>
+
+            <div class="metric-item">
+                <div class="metric-header">
+                    <span class="metric-label">Critical Response Time</span>
+                    <span class="metric-value">2.1 min</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill critical" style="width: 70%;"></div>
+                </div>
+                <div class="metric-target">Target: 3 min</div>
+            </div>
+
+            <div class="metric-item">
+                <div class="metric-header">
+                    <span class="metric-label">Staff Utilization</span>
+                    <span class="metric-value">78%</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 78%;"></div>
+                </div>
+                <div class="metric-target">Target: 85%</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Top Performers -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Top Performers</h2>
+        <div class="performer-filters">
+            <select class="glass-select filter-select">
+                <option value="response">Fastest Response</option>
+                <option value="resolved">Most Resolved</option>
+                <option value="critical">Critical Handling</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="performers-list">
+        <div class="glass-card performer-item">
+            <div class="performer-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="performer-info">
+                <div class="performer-name">John Smith</div>
+                <div class="performer-role">Senior Responder</div>
+            </div>
+            <div class="performer-stats">
+                <div class="stat-value">2.1 min</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+            <div class="performer-badge">
+                <span class="material-icons-round">emoji_events</span>
+                <span>Top Performer</span>
+            </div>
+        </div>
+
+        <div class="glass-card performer-item">
+            <div class="performer-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="performer-info">
+                <div class="performer-name">Sarah Johnson</div>
+                <div class="performer-role">Medical Specialist</div>
+            </div>
+            <div class="performer-stats">
+                <div class="stat-value">2.8 min</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+        </div>
+
+        <div class="glass-card performer-item">
+            <div class="performer-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="performer-info">
+                <div class="performer-name">Mike Davis</div>
+                <div class="performer-role">Security Lead</div>
+            </div>
+            <div class="performer-stats">
+                <div class="stat-value">3.2 min</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+        </div>
+
+        <div class="glass-card performer-item">
+            <div class="performer-avatar">
+                <span class="material-icons-round">person</span>
+            </div>
+            <div class="performer-info">
+                <div class="performer-name">Emily Wilson</div>
+                <div class="performer-role">Fire Safety</div>
+            </div>
+            <div class="performer-stats">
+                <div class="stat-value">3.5 min</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

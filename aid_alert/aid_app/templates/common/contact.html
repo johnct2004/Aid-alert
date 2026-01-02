@@ -1,0 +1,30 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - Aid Alert{% endblock %}
+
+{% block content %}
+<div class="center-container">
+    <div class="glass-card" style="max-width: 500px; text-align: center;">
+        <a href="{% url 'aid_app:home' %}" class="logo-text">AID ALERT</a>
+        <h2>Contact Us</h2>
+        <h3 style="font-size: 1.2rem; margin-bottom: 30px; font-weight: normal; color: #666;">How can we support you?
+        </h3>
+
+        <div
+            style="text-align: left; background: rgba(255,255,255,0.5); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h4 style="margin-top: 0; color: var(--primary-color);">Contact Information:</h4>
+            <p style="margin: 10px 0;"><strong>Email:</strong> support@aidalert.com</p>
+            <p style="margin: 10px 0;"><strong>Phone:</strong> +1 (555) 123-4567</p>
+        </div>
+
+        <div
+            style="text-align: left; background: rgba(255,255,255,0.5); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <h4 style="margin-top: 0; color: var(--primary-color);">Location:</h4>
+            <p style="margin: 10px 0;">123 Hope Street, Anytown, USA</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="history.back()">Go Back</button>
+    </div>
+</div>
+{% endblock %}

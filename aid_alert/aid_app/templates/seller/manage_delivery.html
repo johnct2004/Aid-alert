@@ -1,0 +1,551 @@
+{% extends 'seller/base_seller.html' %}
+{% load static %}
+
+{% block page_title %}Manage Delivery{% endblock %}
+{% block content_title %}Manage Delivery{% endblock %}
+
+{% block seller_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="{% static 'css/seller/manage_delivery.css' %}">
+{% endblock %}
+
+{% block seller_content %}
+<!-- Delivery Stats -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-icon icon-blue">
+            <span class="material-icons-round">local_shipping</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ total_deliveries }}</h3>
+            <p class="stat-label">Total Deliveries</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon icon-orange">
+            <span class="material-icons-round">pending_actions</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ pending_shipments }}</h3>
+            <p class="stat-label">Pending Shipments</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon icon-purple">
+            <span class="material-icons-round">inventory</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ in_transit }}</h3>
+            <p class="stat-label">In Transit</p>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-icon icon-green">
+            <span class="material-icons-round">today</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ delivered_today }}</h3>
+            <p class="stat-label">Delivered Today</p>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <!-- Delivery Management -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Delivery Management</h2>
+            <div class="delivery-actions">
+                <button class="btn-secondary schedule-btn">
+                    <span class="material-icons-round">schedule</span>
+                    Schedule Pickup
+                </button>
+                <button class="btn-action bulk-ship-btn">
+                    <span class="material-icons-round">playlist_add_check</span>
+                    Bulk Ship
+                </button>
+            </div>
+        </div>
+
+        <div class="filters-wrapper">
+            <div class="search-box">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" id="deliverySearch" class="search-input"
+                    placeholder="Search by order ID, customer, or tracking number...">
+            </div>
+
+            <div class="filter-controls">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="picked-up">Picked Up</option>
+                    <option value="in-transit">In Transit</option>
+                    <option value="out-for-delivery">Out for Delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="failed">Failed</option>
+                </select>
+
+                <select id="carrierFilter" class="filter-select">
+                    <option value="">All Carriers</option>
+                    <option value="fedex">FedEx</option>
+                    <option value="ups">UPS</option>
+                    <option value="dhl">DHL</option>
+                    <option value="usps">USPS</option>
+                    <option value="local">Local Delivery</option>
+                </select>
+
+                <select id="priorityFilter" class="filter-select">
+                    <option value="">All Priority</option>
+                    <option value="standard">Standard</option>
+                    <option value="express">Express</option>
+                    <option value="overnight">Overnight</option>
+                    <option value="same-day">Same Day</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="deliveries-table-container">
+            <div class="deliveries-table">
+                <div class="table-header">
+                    <div class="header-cell">Order ID</div>
+                    <div class="header-cell">Customer</div>
+                    <div class="header-cell">Carrier</div>
+                    <div class="header-cell">Tracking</div>
+                    <div class="header-cell">Priority</div>
+                    <div class="header-cell">Status</div>
+                    <div class="header-cell">Actions</div>
+                </div>
+
+                <div class="table-body">
+                    {% for delivery in deliveries %}
+                    <div class="table-row">
+                        <div class="table-cell order-id-cell">
+                            <span class="order-id">#{{ delivery.order.order_id }}</span>
+                        </div>
+                        <div class="table-cell customer-cell">
+                            <div class="customer-info">
+                                <h4 class="customer-name">{{ delivery.order.customer.username }}</h4>
+
+                            </div>
+                        </div>
+                        <div class="table-cell carrier-cell">
+                            <span class="carrier-badge {{ delivery.carrier|lower }}">{{ delivery.carrier }}</span>
+                        </div>
+                        <div class="table-cell tracking-cell">
+                            <span class="tracking-number">{{ delivery.tracking_number }}</span>
+                        </div>
+                        <div class="table-cell priority-cell">
+                            {{ delivery.priority }}
+                        </div>
+                        <div class="table-cell status-cell">
+                            {{ delivery.order.get_status_display }}
+                        </div>
+                        <div class="table-cell actions-cell">
+                            <button class="action-btn track-btn" title="Track">
+                                <span class="material-icons-round">location_on</span>
+                            </button>
+                            {% if delivery.order.status == 'pending' %}
+                            <button class="action-btn ship-btn" title="Ship">
+                                <span class="material-icons-round">local_shipping</span>
+                            </button>
+                            <button class="action-btn edit-btn" title="Edit">
+                                <span class="material-icons-round">edit</span>
+                            </button>
+                            {% elif delivery.order.status == 'shipped' %}
+                            <button class="action-btn notify-btn" title="Notify">
+                                <span class="material-icons-round">notifications</span>
+                            </button>
+                            {% elif delivery.order.status == 'delivered' %}
+                            <button class="action-btn details-btn" title="Details">
+                                <span class="material-icons-round">info</span>
+                            </button>
+                            {% elif delivery.order.status == 'cancelled' %}
+                            <button class="action-btn retry-btn" title="Retry">
+                                <span class="material-icons-round">refresh</span>
+                            </button>
+                            <button class="action-btn contact-btn" title="Contact">
+                                <span class="material-icons-round">phone</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-deliveries">
+                        <div class="no-deliveries-icon">
+                            <span class="material-icons-round">local_shipping</span>
+                        </div>
+                        <h3>No deliveries found</h3>
+                        <p>When customers place orders, they will appear here for delivery management.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <button class="pagination-btn prev-btn">
+                <span class="material-icons-round">chevron_left</span>
+            </button>
+            <div class="pagination-numbers">
+                <button class="pagination-number active">1</button>
+                <button class="pagination-number">2</button>
+                <button class="pagination-number">3</button>
+                <span class="pagination-dots">...</span>
+            </div>
+            <button class="pagination-btn next-btn">
+                <span class="material-icons-round">chevron_right</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Delivery Map -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Live Delivery Tracking</h2>
+            <div class="map-actions">
+                <button class="btn-secondary refresh-btn">
+                    <span class="material-icons-round">refresh</span>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="delivery-map-container">
+            <div class="delivery-map" id="deliveryMap">
+                <div id="mapContainer"></div>
+                <div class="map-overlay">
+                    <div class="tracking-info glass-card">
+                        <div class="tracking-header">
+                            <span class="material-icons-round">location_on</span>
+                            <h3>Live Tracking</h3>
+                        </div>
+                        <div class="tracking-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Active</span>
+                                <span class="stat-value" id="activeDeliveries">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">In Transit</span>
+                                <span class="stat-value" id="inTransitCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Delivered</span>
+                                <span class="stat-value" id="deliveredToday">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block seller_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scheduleBtn = document.querySelector('.schedule-btn');
+        const bulkShipBtn = document.querySelector('.bulk-ship-btn');
+
+        if (scheduleBtn) {
+            scheduleBtn.addEventListener('click', function () {
+                alert('Schedule Pickup feature coming soon!\nThis will allow you to schedule a carrier pickup for multiple packages.');
+            });
+        }
+
+        if (bulkShipBtn) {
+            bulkShipBtn.addEventListener('click', function () {
+                const confirmed = confirm('Prepare bulk shipment for all pending orders?');
+                if (confirmed) {
+                    alert('Bulk shipment processing initiated! Labels are being generated.');
+                }
+            });
+        }
+
+        // Row Action Buttons
+        document.querySelectorAll('.track-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const row = this.closest('.table-row');
+                const orderId = row.querySelector('.order-id').innerText;
+                alert(`Opening detailed tracking for ${orderId}...\nCurrent Location: Distribution Center`);
+            });
+        });
+
+        document.querySelectorAll('.ship-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const row = this.closest('.table-row');
+                const orderId = row.querySelector('.order-id').innerText;
+                if (confirm(`Mark ${orderId} as Shipped?`)) {
+                    alert(`${orderId} has been marked as Shipped.`);
+                    // In a real app, this would update via AJAX
+                }
+            });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const row = this.closest('.table-row');
+                const orderId = row.querySelector('.order-id').innerText;
+                alert(`Editing delivery details for ${orderId}`);
+            });
+        });
+    });
+</script>
+
+<script>
+    // Live Delivery Tracking Implementation
+    class DeliveryTracker {
+        constructor() {
+            this.map = null;
+            this.markers = [];
+            this.routes = [];
+            this.refreshInterval = null;
+            this.init();
+        }
+
+        init() {
+            this.initMap();
+            this.setupEventListeners();
+            this.startLiveTracking();
+        }
+
+        initMap() {
+            const mapContainer = document.getElementById('mapContainer');
+            if (!mapContainer) return;
+
+            // Create map centered on a default location
+            this.map = L.map('mapContainer').setView([40.7128, -74.0060], 12);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(this.map);
+        }
+
+        setupEventListeners() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    this.refreshTrackingData();
+                    this.showRefreshAnimation();
+                });
+            }
+        }
+
+        startLiveTracking() {
+            // Load initial data
+            this.loadDeliveryData();
+
+            // Set up automatic refresh every 30 seconds
+            this.refreshInterval = setInterval(() => {
+                this.loadDeliveryData();
+            }, 30000);
+        }
+
+        async loadDeliveryData() {
+            try {
+                // Simulate API call - replace with actual API endpoint
+                const deliveryData = await this.fetchDeliveryData();
+                this.updateMap(deliveryData);
+                this.updateStats(deliveryData);
+            } catch (error) {
+                console.error('Error loading delivery data:', error);
+                this.showError('Failed to load delivery data');
+            }
+        }
+
+        async fetchDeliveryData() {
+            // Mock data for demonstration - replace with actual API call
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        deliveries: [
+                            {
+                                id: 'DEL-001',
+                                status: 'in_transit',
+                                driver_name: 'John Smith',
+                                customer_name: 'Alice Johnson',
+                                pickup_lat: 40.7128,
+                                pickup_lng: -74.0060,
+                                delivery_lat: 40.7580,
+                                delivery_lng: -73.9855,
+                                current_lat: 40.7350,
+                                current_lng: -73.9950,
+                                estimated_arrival: '2:30 PM',
+                                progress: 65
+                            },
+                            {
+                                id: 'DEL-002',
+                                status: 'delivered',
+                                driver_name: 'Sarah Wilson',
+                                customer_name: 'Bob Brown',
+                                pickup_lat: 40.7489,
+                                pickup_lng: -73.9680,
+                                delivery_lat: 40.7614,
+                                delivery_lng: -73.9776,
+                                current_lat: 40.7614,
+                                current_lng: -73.9776,
+                                estimated_arrival: 'Completed',
+                                progress: 100
+                            },
+                            {
+                                id: 'DEL-003',
+                                status: 'pending',
+                                driver_name: 'Mike Davis',
+                                customer_name: 'Carol White',
+                                pickup_lat: 40.7282,
+                                pickup_lng: -73.9942,
+                                delivery_lat: 40.7411,
+                                delivery_lng: -73.9903,
+                                current_lat: 40.7282,
+                                current_lng: -73.9942,
+                                estimated_arrival: '3:15 PM',
+                                progress: 0
+                            }
+                        ]
+                    });
+                }, 1000);
+            });
+        }
+
+        updateMap(data) {
+            if (!this.map) return;
+
+            // Clear existing markers and routes
+            this.clearMap();
+
+            // Add delivery routes and markers
+            data.deliveries.forEach(delivery => {
+                this.addDeliveryMarker(delivery);
+                this.addDeliveryRoute(delivery);
+            });
+
+            // Fit map to show all deliveries
+            if (this.markers.length > 0) {
+                const group = new L.featureGroup(this.markers);
+                this.map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        addDeliveryMarker(delivery) {
+            const markerIcon = L.divIcon({
+                className: 'delivery-marker',
+                html: `
+                <div class="marker-content" data-status="${delivery.status}">
+                    <span class="material-icons-round">
+                        ${delivery.status === 'delivered' ? 'check_circle' : 'local_shipping'}
+                    </span>
+                </div>
+            `,
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+
+            const marker = L.marker([delivery.current_lat, delivery.current_lng], { icon: markerIcon })
+                .addTo(this.map)
+                .bindPopup(this.createPopupContent(delivery));
+
+            this.markers.push(marker);
+        }
+
+        addDeliveryRoute(delivery) {
+            if (delivery.status === 'delivered') return;
+
+            const routeCoordinates = [
+                [delivery.pickup_lat, delivery.pickup_lng],
+                [delivery.current_lat, delivery.current_lng],
+                [delivery.delivery_lat, delivery.delivery_lng]
+            ];
+
+            const route = L.polyline(routeCoordinates, {
+                color: delivery.status === 'in_transit' ? '#3b82f6' : '#f59e0b',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: delivery.status === 'pending' ? '10, 10' : null
+            }).addTo(this.map);
+
+            this.routes.push(route);
+        }
+
+        createPopupContent(delivery) {
+            return `
+            <div class="delivery-popup">
+                <h4>${delivery.id}</h4>
+                <p><strong>Status:</strong> ${delivery.status.replace('_', ' ').toUpperCase()}</p>
+                <p><strong>Driver:</strong> ${delivery.driver_name}</p>
+                <p><strong>Customer:</strong> ${delivery.customer_name}</p>
+                <p><strong>ETA:</strong> ${delivery.estimated_arrival}</p>
+                <p><strong>Progress:</strong> ${delivery.progress}%</p>
+            </div>
+        `;
+        }
+
+        updateStats(data) {
+            const activeDeliveries = data.deliveries.filter(d => d.status === 'in_transit').length;
+            const inTransitCount = data.deliveries.filter(d => d.status === 'in_transit' || d.status === 'pending').length;
+            const deliveredToday = data.deliveries.filter(d => d.status === 'delivered').length;
+
+            document.getElementById('activeDeliveries').textContent = activeDeliveries;
+            document.getElementById('inTransitCount').textContent = inTransitCount;
+            document.getElementById('deliveredToday').textContent = deliveredToday;
+        }
+
+        clearMap() {
+            this.markers.forEach(marker => this.map.removeLayer(marker));
+            this.markers = [];
+            this.routes.forEach(route => this.map.removeLayer(route));
+            this.routes = [];
+        }
+
+        refreshTrackingData() {
+            this.loadDeliveryData();
+        }
+
+        showRefreshAnimation() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.querySelector('.material-icons-round').style.animation = 'spin 1s linear';
+                setTimeout(() => {
+                    refreshBtn.querySelector('.material-icons-round').style.animation = '';
+                }, 1000);
+            }
+        }
+
+        showLoadingIndicator() {
+            const mapContainer = document.getElementById('mapContainer');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div class="map-loading">Loading map...</div>';
+            }
+        }
+
+        showError(message) {
+            const mapContainer = document.getElementById('mapContainer');
+            if (mapContainer) {
+                mapContainer.innerHTML = `<div class="map-error">${message}</div>`;
+            }
+        }
+
+        destroy() {
+            if (this.refreshInterval) clearInterval(this.refreshInterval);
+            this.clearMap();
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        window.deliveryTracker = new DeliveryTracker();
+    });
+
+    // Clean up
+    window.addEventListener('beforeunload', () => {
+        if (window.deliveryTracker) window.deliveryTracker.destroy();
+    });
+</script>
+{% endblock %}

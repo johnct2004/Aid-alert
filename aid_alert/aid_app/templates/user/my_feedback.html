@@ -1,0 +1,84 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}My Feedback History{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/my_feedback.css' %}">
+{% endblock %}
+
+{% block user_content %}
+<div class="feedback-container">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert glass-card {{ message.tags }}"
+            style="padding: 1rem; background: rgba(46, 204, 113, 0.1); color: #27ae60; border-radius: 8px; margin-bottom: 1rem; backdrop-filter: blur(5px);">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="glass-card feedback-list-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Past Feedback</h2>
+        </div>
+
+        <div class="feedback-list">
+            {% for feedback in feedbacks %}
+            <div class="feedback-item">
+                <div class="feedback-header">
+                    <div class="feedback-meta">
+                        <span class="tag-badge tag-{{ feedback.tags|lower|default:'general' }}">{{ feedback.tags
+                            }}</span>
+                        <span class="feedback-date">{{ feedback.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="feedback-rating">
+                        {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= feedback.rating %} <span class="material-icons-round">star</span>
+                            {% else %}
+                            <span class="material-icons-round inactive">star</span>
+                            {% endif %}
+                            {% endfor %}
+                    </div>
+                </div>
+
+                <div class="feedback-message">
+                    {{ feedback.message }}
+                </div>
+
+                {% if feedback.reply %}
+                <div class="feedback-reply">
+                    <div class="reply-header">
+                        <span>Admin Response</span>
+                        <span class="reply-date">{{ feedback.replied_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="reply-text">
+                        {{ feedback.reply }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="feedback-status">
+                    <span class="material-icons-round" style="font-size: 14px;">pending</span>
+                    Status: {{ feedback.get_status_display }}
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <span class="material-icons-round">inbox</span>
+                <p>You haven't submitted any feedback yet.</p>
+                <a href="{% url 'aid_app:give_feedback' %}" class="btn btn-primary">Submit Feedback</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{% url 'aid_app:give_feedback' %}" class="back-link">
+                &larr; Back to Give Feedback
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

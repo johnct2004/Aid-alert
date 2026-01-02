@@ -1,0 +1,276 @@
+{% extends 'responder/base_responder.html' %}
+{% load static %}
+
+{% block page_title %}Update Incident Status{% endblock %}
+{% block content_title %}Update Incident Status{% endblock %}
+
+{% block responder_css %}
+<link rel="stylesheet" href="{% static 'css/responder/update_incident_status.css' %}">
+{% endblock %}
+
+{% block responder_content %}
+<!-- Current Incident Card -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Current Incident</h2>
+    </div>
+
+    <div class="incident-summary">
+        <div class="incident-header">
+            <h3 class="incident-id">{{ incident.incident_id }}</h3>
+            <div class="incident-info">
+                <p class="incident-location">{{ incident.location }}</p>
+                <p class="incident-time">Started: {{ incident.created_at|timesince }} ago</p>
+            </div>
+        </div>
+
+        <div class="current-status current-status-container">
+            <span class="status-label status-label-text">Current Status:</span>
+            <span class="badge badge-status badge-{{ incident.status }}">
+                {{ incident.get_status_display }}
+            </span>
+        </div>
+    </div>
+</section>
+
+<!-- Status Update Form -->
+<section class="glass-card content-card">
+    <h2 class="card-title mb-20">Update Status</h2>
+
+    <form class="status-form" id="statusUpdateForm" method="POST" action="{% url 'aid_app:update_incident_status' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label">New Status</label>
+            <div class="status-options">
+                <label class="status-option">
+                    <input type="radio" name="status" value="en-route" class="status-radio" {% if incident.status == "en_route" %}checked{% endif %}>
+                    <div class="status-radio-custom"></div>
+                    <div class="status-content">
+                        <span class="material-icons-round status-icon">directions_car</span>
+                        <div class="status-text">
+                            <span class="status-title">En Route</span>
+                            <span class="status-desc">On the way to incident location</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="status-option">
+                    <input type="radio" name="status" value="on-scene" class="status-radio" {% if "on_scene" == incident.status %}checked{% endif %}>
+                    <div class="status-radio-custom"></div>
+                    <div class="status-content">
+                        <span class="material-icons-round status-icon">location_on</span>
+                        <div class="status-text">
+                            <span class="status-title">On Scene</span>
+                            <span class="status-desc">Arrived at incident location</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="status-option">
+                    <input type="radio" name="status" value="providing-aid" class="status-radio" {% if "providing_aid" == incident.status %}checked{% endif %}>
+                    <div class="status-radio-custom"></div>
+                    <div class="status-content">
+                        <span class="material-icons-round status-icon">medical_services</span>
+                        <div class="status-text">
+                            <span class="status-title">Providing Aid</span>
+                            <span class="status-desc">Currently assessing patient condition</span>
+                            <span class="status-desc">Currently assisting patients</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="status-option">
+                    <input type="radio" name="status" value="transporting" class="status-radio" {% if "transporting" == incident.status %}checked{% endif %}>
+                    <div class="status-radio-custom"></div>
+                    <div class="status-content">
+                        <span class="material-icons-round status-icon">local_hospital</span>
+                        <div class="status-text">
+                            <span class="status-title">Transporting</span>
+                            <span class="status-desc">En route to medical facility</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="status-option">
+                    <input type="radio" name="status" value="completed" class="status-radio">
+                    <div class="status-radio-custom"></div>
+                    <div class="status-content">
+                        <span class="material-icons-round status-icon">check_circle</span>
+                        <div class="status-text">
+                            <span class="status-title">Completed</span>
+                            <span class="status-desc">Incident successfully resolved</span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="status-notes">Status Notes</label>
+            <textarea class="form-textarea" id="status-notes" name="notes"
+                placeholder="Provide details about the current situation, patient condition, or any additional information..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Additional Actions</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="backup-requested" name="backup_requested">
+                    <span class="checkmark"></span>
+                    Request backup support
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="equipment-needed" name="equipment_needed">
+                    <span class="checkmark"></span>
+                    Additional equipment required
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="family-notified" name="family_notified">
+                    <span class="checkmark"></span>
+                    Family members notified
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large">
+                <span class="material-icons-round">update</span>
+                Update Status
+            </button>
+            <button type="button" class="btn btn-secondary btn-large" onclick="cancelUpdate()">
+                <span class="material-icons-round">close</span>
+                Cancel
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Status History -->
+<section class="glass-card content-card">
+    <h2 class="card-title mb-20">Status History</h2>
+
+    <div class="timeline">
+        {% for log in history %}
+        <div class="timeline-item {% if forloop.first %}current{% endif %}">
+            <div class="timeline-marker">
+                <span class="material-icons-round">
+                    {% if log.status == 'open' %}emergency
+                    {% elif log.status == 'en_route' %}directions_car
+                    {% elif log.status == 'on_scene' %}location_on
+                    {% elif log.status == 'providing_aid' %}medical_services
+                    {% elif log.status == 'transporting' %}local_hospital
+                    {% elif log.status == 'resolved' or log.status == 'completed' %}check_circle
+                    {% elif log.status == 'closed' %}lock
+                    {% else %}info{% endif %}
+                </span>
+            </div>
+            <div class="timeline-content">
+                <h4 class="timeline-title">{{ log.get_status_display }}</h4>
+                <p class="timeline-desc">{{ log.notes|default:"Status updated" }}</p>
+                <span class="timeline-time">{{ log.timestamp|timesince }} ago</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="timeline-item timeline-empty">
+            <div class="timeline-marker">
+                <span class="material-icons-round">info</span>
+            </div>
+            <div class="timeline-content">
+                <h4 class="timeline-title">No History</h4>
+                <p class="timeline-desc">No updates recorded yet.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="glass-card content-card">
+    <h2 class="card-title mb-20">Quick Actions</h2>
+
+    <div class="quick-actions-grid">
+        <button class="quick-action-btn" onclick="emergencyCall()">
+            <span class="material-icons-round">call</span>
+            <span>Emergency Call</span>
+        </button>
+
+        <button class="quick-action-btn" onclick="requestBackup()">
+            <span class="material-icons-round">group_add</span>
+            <span>Request Backup</span>
+        </button>
+
+        <button class="quick-action-btn" onclick="contactHospital()">
+            <span class="material-icons-round">local_hospital</span>
+            <span>Contact Hospital</span>
+        </button>
+
+        <button class="quick-action-btn" onclick="updateLocation()">
+            <span class="material-icons-round">my_location</span>
+            <span>Update Location</span>
+        </button>
+    </div>
+</section>
+{% endblock %}
+
+{% block responder_js %}
+<script>
+    document.getElementById('statusUpdateForm').addEventListener('submit', function (e) {
+
+        const selectedStatus = document.querySelector('input[name="status"]:checked');
+
+        if (!selectedStatus) {
+            e.preventDefault();
+            alert('Please select a status update.');
+            return;
+        }
+
+        // Form will submit normally to the backend
+        showNotification('Updating status...');
+    });
+
+    function cancelUpdate() {
+        if (confirm('Are you sure you want to cancel the status update?')) {
+            document.getElementById('statusUpdateForm').reset();
+        }
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'glass-alert';
+        notification.innerHTML = `<span class="material-icons-round">info</span> <span>${message}</span>`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    function emergencyCall() { if (confirm('Call emergency services?')) showNotification('Connecting to emergency dispatch...'); }
+    function requestBackup() { if (confirm('Request backup support?')) showNotification('Backup request sent.'); }
+    function contactHospital() { if (confirm('Contact hospital?')) showNotification('Connecting to hospital...'); }
+    function updateLocation() {
+        showNotification('Location updated successfully!');
+    }
+</script>
+{% endblock %}

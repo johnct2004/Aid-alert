@@ -1,0 +1,399 @@
+{% extends 'seller/base_seller.html' %}
+{% load static %}
+
+{% block page_title %}Sales Report{% endblock %}
+{% block content_title %}Sales Report{% endblock %}
+
+{% block seller_css %}
+<link rel="stylesheet" href="{% static 'css/seller/sales_report.css' %}">
+{% endblock %}
+
+{% block seller_content %}
+<!-- Report Period Selection -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Report Period</h2>
+        <div class="report-actions">
+            <button class="btn-secondary export-btn" onclick="exportToPDF()">
+                <span class="material-icons-round">download</span>
+                Export PDF
+            </button>
+            <button class="btn-secondary generate-btn" onclick="generateSampleOrders()">
+                <span class="material-icons-round">add_shopping_cart</span>
+                Generate Sample Orders
+            </button>
+            <button class="btn-action generate-btn" onclick="generateSellerReport()">
+                <span class="material-icons-round">auto_graph</span>
+                Generate Report
+            </button>
+        </div>
+    </div>
+
+    <div class="period-selector">
+        <div class="period-options">
+            <button class="period-btn active" data-period="today">Today</button>
+            <button class="period-btn" data-period="week">This Week</button>
+            <button class="period-btn" data-period="month">This Month</button>
+            <button class="period-btn" data-period="quarter">This Quarter</button>
+            <button class="period-btn" data-period="year">This Year</button>
+            <button class="period-btn custom-btn" data-period="custom">
+                <span class="material-icons-round">date_range</span>
+                Custom Range
+            </button>
+        </div>
+
+        <div class="custom-range" id="customRange">
+            <div class="date-inputs">
+                <div class="date-group">
+                    <label for="startDate">From</label>
+                    <input type="date" id="startDate" class="date-input">
+                </div>
+                <div class="date-group">
+                    <label for="endDate">To</label>
+                    <input type="date" id="endDate" class="date-input">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Key Metrics -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">attach_money</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>+12%</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Revenue</h3>
+        <p class="stat-value" id="totalRevenue">${{ total_revenue|floatformat:2 }}</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">shopping_bag</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>+8%</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Orders</h3>
+        <p class="stat-value" id="totalOrders">{{ total_orders }}</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">trending_up</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>+3.5%</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Avg Order Value</h3>
+        <p class="stat-value" id="avgOrderValue">${{ average_order_value|floatformat:2 }}</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">people</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>+15%</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Unique Customers</h3>
+        <p class="stat-value" id="uniqueCustomers">{{ unique_customers }}</p>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <!-- Sales Trends Chart -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Sales Trends</h2>
+            <div class="chart-controls">
+                <button class="chart-btn active" data-chart="revenue">Revenue</button>
+                <button class="chart-btn" data-chart="orders">Orders</button>
+                <button class="chart-btn" data-chart="customers">Customers</button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-placeholder">
+                <div class="chart-bars">
+                    <div class="chart-bar" data-height="60"><span class="bar-value">$8.2k</span></div>
+                    <div class="chart-bar" data-height="75"><span class="bar-value">$10.5k</span></div>
+                    <div class="chart-bar" data-height="90"><span class="bar-value">$12.4k</span></div>
+                    <div class="chart-bar" data-height="85"><span class="bar-value">$11.8k</span></div>
+                    <div class="chart-bar" data-height="95"><span class="bar-value">$13.2k</span></div>
+                    <div class="chart-bar" data-height="100"><span class="bar-value">$14.1k</span></div>
+                    <div class="chart-bar" data-height="88"><span class="bar-value">$12.4k</span></div>
+                </div>
+                <div class="chart-labels">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Performance -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Product Performance</h2>
+            <div class="product-actions">
+                <button class="btn-secondary view-all-btn">
+                    <span class="material-icons-round">list</span>
+                    View All
+                </button>
+            </div>
+        </div>
+
+        <div class="product-performance">
+            <div class="performance-table">
+                <div class="table-header">
+                    <div class="header-cell">Product</div>
+                    <div class="header-cell">Units Sold</div>
+                    <div class="header-cell">Revenue</div>
+                    <div class="header-cell">Growth</div>
+                    <div class="header-cell">Trend</div>
+                </div>
+
+                <div class="table-body">
+                    {% for perf_data in product_performance %}
+                    <div class="table-row">
+                        <div class="table-cell product-cell">
+                            <div class="product-info">
+                                <div class="product-image">
+                                    <span class="material-icons-round">medical_services</span>
+                                </div>
+                                <div class="product-details">
+                                    <h4 class="product-name">{{ perf_data.product.name }}</h4>
+                                    <p class="product-sku">{{ perf_data.product.id|stringformat:"06d" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-cell units-cell">{{ perf_data.units_sold }}</div>
+                        <div class="table-cell revenue-cell">${{ perf_data.revenue|floatformat:2 }}</div>
+                        <div class="table-cell growth-cell">
+                            <span class="growth positive">{{ perf_data.growth }}</span>
+                        </div>
+                        <div class="table-cell trend-cell">
+                            <span
+                                class="trend-badge {% if perf_data.trend == 'Rising' %}rising{% elif perf_data.trend == 'Stable' %}stable{% else %}declining{% endif %}">{{
+                                perf_data.trend }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="table-row">
+                        <div class="table-cell empty-state" colspan="5">No products sold yet. Add products to see
+                            performance data.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customer Analytics -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Customer Analytics</h2>
+        </div>
+
+        <div class="analytics-row">
+            <div class="analytics-card">
+                <h3 class="analytics-title">Customer Segments</h3>
+                <div class="segment-bars">
+                    <div class="segment-item">
+                        <div class="segment-info">
+                            <span class="segment-label">Original</span>
+
+                        </div>
+                        <div class="segment-bar">
+                            <div class="segment-fill"
+                                style="width:{{ customer_segments.new_customers_pct|floatformat:0 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="segment-item">
+                        <div class="segment-info">
+                            <span class="segment-label">Returning</span>
+                            <span class="segment-percentage">{{ customer_segments.returning_pct|floatformat:0 }}%</span>
+                        </div>
+                        <div class="segment-bar">
+                            <div class="segment-fill"
+                                style="width:{{ customer_segments.returning_pct|floatformat:0 }}%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="segment-item">
+                        <div class="segment-info">
+                            <span class="segment-label">VIP</span>
+                            <span class="segment-percentage">{{ customer_segments.vip_pct|floatformat:0 }}%</span>
+                        </div>
+                        <div class="segment-bar">
+                            <div class="segment-fill" style="width:{{ customer_segments.vip_pct|floatformat:0 }}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <h3 class="analytics-title">Top Customers</h3>
+                <div class="top-customers">
+                    {% for customer_data in top_customers %}
+                    <div class="customer-item">
+                        <span class="customer-name">{{
+                            customer_data.customer.get_full_name|default:customer_data.customer.username }}</span>
+                        <span class="customer-spent">${{ customer_data.total_spent|floatformat:2 }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="customer-item empty-state">No customer data available yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block seller_js %}
+<script>
+    function generateSellerReport() {
+        // Show loading state
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<span class="material-icons-round">hourglass_empty</span> Generating...';
+        button.disabled = true;
+
+        // Make AJAX request to generate report
+        fetch('{% url "aid_app:generate_seller_report" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Open report in new window
+                    const reportWindow = window.open('{% url "aid_app:generate_seller_report" %}?format=html', '_blank');
+
+                    // Show success message
+                    showMessage('Report generated successfully!', 'success');
+                } else {
+                    showMessage('Failed to generate report', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error generating report:', error);
+                showMessage('Error generating report', 'error');
+            })
+            .finally(() => {
+                // Restore button state
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            });
+    }
+
+    function exportToPDF() {
+        // Trigger print dialog directly on current page
+        window.print();
+        showMessage('PDF export dialog opened', 'success');
+    }
+
+    function generateSampleOrders() {
+        // Show loading state
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<span class="material-icons-round">hourglass_empty</span> Generating...';
+        button.disabled = true;
+
+        // Redirect to create sample orders URL
+        window.location.href = '{% url "aid_app:create_sample_orders" %}';
+    }
+
+    function showMessage(message, type) {
+        // Create a simple message display
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease forwards;
+        `;
+
+        document.body.appendChild(messageDiv);
+
+        // Remove message after 3 seconds
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 300);
+        }, 3000);
+    }
+
+    // Toggle custom range
+    document.querySelector('[data-period="custom"]').addEventListener('click', function () {
+        document.getElementById('customRange').classList.toggle('show');
+    });
+
+    // Handle period selection
+    const periodBtns = document.querySelectorAll('.period-btn:not(.custom-btn)');
+    periodBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            periodBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector('.custom-btn').classList.remove('active');
+            this.classList.add('active');
+            document.getElementById('customRange').classList.remove('show');
+        });
+    });
+
+    // Handle chart selection
+    const chartBtns = document.querySelectorAll('.chart-btn');
+    chartBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            chartBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Here you would typically update the chart data
+        });
+    });
+
+    // Add keyframes for message animation
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

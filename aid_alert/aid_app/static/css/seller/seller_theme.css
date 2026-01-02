@@ -1,0 +1,30 @@
+/* Seller Theme CSS - White Glass Aesthetic */
+/* Extends common/theme.css */
+
+:root {
+    --primary-color: #ff6b35;
+    /* Orange for Sellers */
+    --secondary-color: #2c3e50;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --danger-color: #e74c3c;
+    --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    /* Slightly warmer/neutral gradient */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    color: var(--secondary-color);
+}
+
+/* Page Specific Overrides */
+.page-title {
+    color: var(--secondary-color);
+}
+
+/* Dashboard layout and pagination styles are inherited from common/theme.css */

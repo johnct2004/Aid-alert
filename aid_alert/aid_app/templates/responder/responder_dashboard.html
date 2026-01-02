@@ -1,0 +1,191 @@
+{% extends 'responder/base_responder.html' %}
+{% load static %}
+
+{% block page_title %}Responder Dashboard{% endblock %}
+{% block content_title %}Responder Dashboard{% endblock %}
+
+{% block responder_css %}
+<link rel="stylesheet" href="{% static 'css/responder/responder_dashboard.css' %}">
+{% endblock %}
+
+{% block responder_content %}
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon emergency-icon">
+            <span class="material-icons-round">emergency</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Active Assignments</h3>
+            <p class="stat-value">{{ stats.active_incidents }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon rating-icon">
+            <span class="material-icons-round">thumb_up</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Average Rating</h3>
+            <p class="stat-value">{{ stats.average_rating }}/5</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon completed-icon">
+            <span class="material-icons-round">task_alt</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Completed Incidents</h3>
+            <p class="stat-value">{{ stats.total_completed }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon response-icon">
+            <span class="material-icons-round">speed</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Completed Today</h3>
+            <p class="stat-value">{{ stats.completed_today }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Current Assignment -->
+<div class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Current Assignment</h2>
+        {% if active_assignment %}
+        <a href="{% url 'aid_app:update_incident_status' %}" class="btn-action">Update Status</a>
+        {% endif %}
+    </div>
+
+    {% if active_assignment %}
+    <div class="assignment-details">
+        <div class="assignment-header">
+            <div class="assignment-info">
+                <h3>{{ active_assignment.incident_id }} - {{ active_assignment.get_incident_type_display }}</h3>
+                <div class="assignment-meta">
+                    <span class="badge badge-active">{{ active_assignment.get_severity_display }} Priority</span>
+                    <span class="assignment-time">Started {{ active_assignment.created_at|timesince }} ago</span>
+                </div>
+            </div>
+            <div class="assignment-actions">
+                <button class="btn-action"
+                    onclick="navigateToLocation('{{ active_assignment.location }}')">Navigate</button>
+                <button class="btn-action btn-secondary"
+                    onclick="contactUser('{{ active_assignment.contact_phone }}')">Contact</button>
+            </div>
+        </div>
+
+        <div class="assignment-location">
+            <h4>Location Details</h4>
+            <p><strong>Address:</strong> {{ active_assignment.location }}</p>
+            <p><strong>Contact:</strong> {{ active_assignment.contact_phone }}</p>
+        </div>
+
+        <div class="assignment-notes">
+            <h4>Incident Information</h4>
+            <p><strong>Description:</strong> {{ active_assignment.description }}</p>
+            <p><strong>People Involved:</strong> {{ active_assignment.people_involved }}</p>
+            {% if active_assignment.immediate_action %}
+            <p><strong>Immediate Action:</strong> {{ active_assignment.immediate_action }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state empty-state-centered">
+        <span class="material-icons-round empty-icon-large">check_circle</span>
+        <p>No active assignments. You are currently {{ availability_status|default:"available" }}.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Recent Activity -->
+<div class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Recent Activity</h2>
+        <a href="{% url 'aid_app:responder_history' %}" class="view-all-link">View All</a>
+    </div>
+
+    <div class="activity-list">
+        {% for incident in recent_activity %}
+        <div class="activity-item">
+            <div class="activity-icon completed">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+            <div class="activity-content">
+                <h4>Completed Incident {{ incident.incident_id }}</h4>
+                <p>{{ incident.get_incident_type_display }} - {{ incident.location|truncatechars:30 }}</p>
+                <span class="activity-time">{{ incident.updated_at|timesince }} ago</span>
+            </div>
+        </div>
+        {% empty %}
+        <p class="empty-text-padded">No recent activity.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block responder_js %}
+<script>
+    // Availability toggle functionality (matches base template id)
+    const headerToggle = document.getElementById('header-availability-toggle');
+
+    if (headerToggle) {
+        headerToggle.addEventListener('change', function () {
+            const isChecked = this.checked;
+            const toggleText = this.nextElementSibling.querySelector('.toggle-text');
+
+            // Update UI
+            if (toggleText) toggleText.textContent = isChecked ? 'Available' : 'Unavailable';
+
+            // Save to localStorage
+            localStorage.setItem('responderAvailability', isChecked ? 'available' : 'unavailable');
+
+            // Show notification
+            showNotification(`Status changed to ${isChecked ? 'Available' : 'Unavailable'}`);
+        });
+
+        // Initialize state
+        const savedAvailability = localStorage.getItem('responderAvailability');
+        if (savedAvailability === 'unavailable') {
+            headerToggle.checked = false;
+            // update text if present
+        }
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'glass-alert notification-toast';
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Navigate to location using Google Maps
+    function navigateToLocation(location) {
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+        window.open(mapsUrl, '_blank');
+        showNotification(`Opening navigation to: ${location}`);
+    }
+
+    // Contact user via phone
+    function contactUser(phoneNumber) {
+        if (phoneNumber && phoneNumber !== 'Pending') {
+            window.open(`tel:${phoneNumber}`, '_self');
+            showNotification(`Dialing: ${phoneNumber}`);
+        } else {
+            showNotification('Phone number not available');
+        }
+    }
+</script>
+{% endblock %}

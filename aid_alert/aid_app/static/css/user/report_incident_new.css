@@ -1,0 +1,159 @@
+/* Report Incident Page Specific Styles */
+/* Extending user_theme.css */
+
+/* --- Form Styles --- */
+.incident-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+.form-group label .material-icons-round {
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+/* Location Input */
+.location-input-group {
+    display: flex;
+    position: relative;
+    /* align-items: stretch; handled by height matches */
+}
+
+.location-input-group input {
+    flex: 1;
+}
+
+.btn-location {
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 0 8px 8px 0;
+    width: 50px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btn-location:hover {
+    background-color: #d62828;
+}
+
+.btn-location:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- Form Actions --- */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* --- Emergency Contacts Styles --- */
+.emergency-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.contact-item:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.contact-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.icon-red {
+    background: rgba(231, 76, 60, 0.8);
+}
+
+.icon-orange {
+    background: rgba(230, 126, 34, 0.8);
+}
+
+.icon-blue {
+    background: rgba(52, 152, 219, 0.8);
+}
+
+.contact-icon .material-icons-round {
+    font-size: 24px;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-info h4 {
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    color: #333;
+}
+
+.contact-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .contact-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}

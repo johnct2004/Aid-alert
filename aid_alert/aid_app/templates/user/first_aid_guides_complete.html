@@ -1,0 +1,532 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}First Aid Guides{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/first_aid_guides_complete.css' %}">
+{% endblock %}
+
+{% block user_content %}
+<div class="first-aid-container">
+    <!-- Hero Section -->
+    <div class="glass-card hero-section">
+        <div class="hero-content">
+            <h2>Emergency First Aid Instructions</h2>
+            <p>Life-saving medical guidance for critical situations. Always call emergency services first.</p>
+            <div class="emergency-contact">
+                <div class="emergency-number">
+                    <span class="label">Emergency (India):</span>
+                    <span class="number">112</span>
+                </div>
+                <div class="emergency-hotline">
+                    <span class="label">Poison Control (India):</span>
+                    <span class="number">1800-11-0442</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guides Section -->
+    <section class="guides-section">
+        <div class="section-header">
+            <h3>Quick Access Guides</h3>
+            <p>Select an emergency situation below for step-by-step instructions</p>
+        </div>
+
+        <div class="guides-grid">
+            <article id="cpr" class="glass-card guide-card critical">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">favorite</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>CPR</h4>
+                        <span class="urgency critical">Life-Threatening</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Check Responsiveness</h5>
+                                <p>Tap shoulder and shout. Check breathing.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Call 112</h5>
+                                <p>Call immediately if unresponsive.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Compressions</h5>
+                                <p>30 chest compressions at 100-120/min.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <h5>Rescue Breaths</h5>
+                                <p>2 breaths after 30 compressions.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="important-note">
+                        <strong>Note:</strong> Continue until help arrives.
+                    </div>
+                </div>
+            </article>
+
+            <article id="choking" class="glass-card guide-card critical">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">sick</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Choking</h4>
+                        <span class="urgency critical">Life-Threatening</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Assess</h5>
+                                <p>Can they speak or cough?</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Back Blows</h5>
+                                <p>5 blows between shoulder blades.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Abdominal Thrusts</h5>
+                                <p>5 inward and upward thrusts above navel.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="warning">
+                        <strong>Infants:</strong> Use chest thrusts instead.
+                    </div>
+                </div>
+            </article>
+
+            <article id="bleeding" class="glass-card guide-card urgent">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">bloodtype</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Severe Bleeding</h4>
+                        <span class="urgency urgent">Urgent</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Direct Pressure</h5>
+                                <p>Apply firm pressure with clean cloth.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Elevate</h5>
+                                <p>Raise injured area above heart level.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="warning">
+                        <strong>Warning:</strong> Seek immediate medical help.
+                    </div>
+                </div>
+            </article>
+
+            <article id="burns" class="glass-card guide-card moderate">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">local_fire_department</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Burns</h4>
+                        <span class="urgency moderate">Moderate</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Cool Water</h5>
+                                <p>Run cool water for 10-20 mins.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Cover</h5>
+                                <p>Use sterile, non-stick dressing.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="important-note">
+                        <strong>Don't:</strong> Use ice or greasy ointments.
+                    </div>
+                </div>
+            </article>
+
+            <!-- Add more guides as needed following the pattern -->
+            <article id="stroke" class="glass-card guide-card critical">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">psychology</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Stroke (FAST)</h4>
+                        <span class="urgency critical">Life-Threatening</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Face</h5>
+                                <p>Drooping on one side?</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Arms</h5>
+                                <p>One arm drifting down?</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Speech</h5>
+                                <p>Slurred or strange speech?</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <h5>Time</h5>
+                                <p>Call 911 immediately.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article id="fractures" class="glass-card guide-card moderate">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">medical_services</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Fractures</h4>
+                        <span class="urgency moderate">Moderate</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Immobilize</h5>
+                                <p>Keep area still. Don't try to realign.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Ice</h5>
+                                <p>Apply cold pack to reduce swelling.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article id="heart-attack" class="glass-card guide-card critical">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">monitor_heart</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Heart Attack</h4>
+                        <span class="urgency critical">Life-Threatening</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Call 911</h5>
+                                <p>Call immediately. Do not drive yourself.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Chew Aspirin</h5>
+                                <p>Chew 325mg aspirin if not allergic.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Rest</h5>
+                                <p>Sit or lie down while waiting.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="important-note">
+                        <strong>Symptoms:</strong> Chest pain, shortness of breath.
+                    </div>
+                </div>
+            </article>
+
+            <article id="seizure" class="glass-card guide-card critical">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">bolt</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Seizure</h4>
+                        <span class="urgency critical">Life-Threatening</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Protect Head</h5>
+                                <p>Cushion head, move dangerous objects.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Do Not Restrain</h5>
+                                <p>Let the seizure run its course.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Recovery Position</h5>
+                                <p>Roll onto side after seizure stops.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="warning">
+                        <strong>Never:</strong> Put anything in their mouth.
+                    </div>
+                </div>
+            </article>
+
+            <article id="poisoning" class="glass-card guide-card urgent">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">warning</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Poisoning</h4>
+                        <span class="urgency urgent">Urgent</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Call Help</h5>
+                                <p>Call Poison Control (1-800-222-1222).</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Identify Poison</h5>
+                                <p>Check labels or surroundings.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Follow Instructions</h5>
+                                <p>Do NOT induce vomiting unless told.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article id="allergic-reaction" class="glass-card guide-card critical">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">coronavirus</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Allergic Reaction</h4>
+                        <span class="urgency critical">Life-Threatening</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Use Epipen</h5>
+                                <p>Inject into outer thigh if available.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Call 911</h5>
+                                <p>Seek emergency care immediately.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Monitor</h5>
+                                <p>Watch for breathing difficulties.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="warning">
+                        <strong>Signs:</strong> Swelling, hives, trouble breathing.
+                    </div>
+                </div>
+            </article>
+
+            <article id="heat-exhaustion" class="glass-card guide-card moderate">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">wb_sunny</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Heat Exhaustion</h4>
+                        <span class="urgency moderate">Moderate</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Cool Down</h5>
+                                <p>Move to shade or air conditioning.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Hydrate</h5>
+                                <p>Drink cool water or sports drinks.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Rest</h5>
+                                <p>Lie down and loosen clothing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article id="hypothermia" class="glass-card guide-card urgent">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">ac_unit</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>Hypothermia</h4>
+                        <span class="urgency urgent">Urgent</span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h5>Move to Warmth</h5>
+                                <p>Get indoors/shelter. Remove wet clothes.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h5>Warm Slowly</h5>
+                                <p>Use blankets and warm (not hot) drinks.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h5>Share Heat</h5>
+                                <p>Body-to-body contact if necessary.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="warning">
+                        <strong>Avoid:</strong> Hot water or rubbing skin.
+                    </div>
+                </div>
+            </article>
+            {% for guide in dynamic_guides %}
+            <article id="guide-{{ guide.id }}" class="glass-card guide-card {{ guide.urgency }}">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <span class="material-icons-round">{{ guide.icon }}</span>
+                    </div>
+                    <div class="guide-title">
+                        <h4>{{ guide.title }}</h4>
+                        <span class="urgency {{ guide.urgency }}">
+                            {% if guide.urgency == 'critical' %}Life-Threatening
+                            {% elif guide.urgency == 'urgent' %}Urgent
+                            {% else %}Moderate{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    <div class="steps">
+                        {% for step in guide.get_steps_list %}
+                        <div class="step">
+                            <span class="step-number">{{ forloop.counter }}</span>
+                            <div class="step-content">
+                                <p>{{ step }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+
+        </div>
+    </section>
+</div>
+{% endblock %}

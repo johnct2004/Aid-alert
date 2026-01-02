@@ -1,0 +1,1104 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Users - Admin Dashboard{% endblock %}
+{% block page_title %}Manage Users{% endblock %}
+
+{% block admin_css %}
+<link rel="stylesheet" href="{% static 'css/admin/manage_users.css' %}">
+{% endblock %}
+
+{% block admin_content %}
+<!-- Statistics Cards -->
+<div class="stats-grid" style="margin-bottom: 30px;">
+    <div class="stat-card total">
+        <div class="stat-icon">
+            <span class="material-icons-round">people</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Total Users</h3>
+            <p class="stat-value">{{ total_users }}</p>
+            <span style="font-size: 0.8rem; color: #2ecc71;">Live count</span>
+        </div>
+    </div>
+    <div class="stat-card active">
+        <div class="stat-icon">
+            <span class="material-icons-round">how_to_reg</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Active Users</h3>
+            <p class="stat-value">{{ recently_active }}</p>
+            <span style="font-size: 0.8rem; color: #2ecc71;">Last 7 days</span>
+        </div>
+    </div>
+    <div class="stat-card new">
+        <div class="stat-icon">
+            <span class="material-icons-round">person_add</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">New Users</h3>
+            <p class="stat-value">{{ new_users_today }}</p>
+            <span style="font-size: 0.8rem; color: #2ecc71;">Last 24h</span>
+        </div>
+    </div>
+    <div class="stat-card admins">
+        <div class="stat-icon">
+            <span class="material-icons-round">admin_panel_settings</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Admin Users</h3>
+            <p class="stat-value">{{ admin_users }}</p>
+            <span style="font-size: 0.8rem; color: #666;">Staff members</span>
+        </div>
+    </div>
+</div>
+
+<!-- User Management Section -->
+<div class="glass-card">
+    <div class="card-header-row">
+        <div class="filter-actions">
+            <div class="search-bar">
+                <span class="material-icons-round search-icon" style="color: #999;">search</span>
+                <input type="text" class="search-input" placeholder="Search users by name, email...">
+            </div>
+            <select class="filter-select">
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="responder">Responder</option>
+                <option value="seller">Seller</option>
+                <option value="facility">Facility Manager</option>
+            </select>
+            <select class="filter-select">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="banned">Banned</option>
+            </select>
+            <button class="btn btn-success add-user-btn" onclick="openAddUserModal()"
+                style="padding: 8px 15px; margin-left: auto;">+ Add User</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th width="40"><input type="checkbox" class="select-all-checkbox"></th>
+                    <th>User Information</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last Active</th>
+                    <th>Joined Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_obj in users %}
+                <tr class="user-row">
+                    <td><input type="checkbox" class="user-checkbox" value="{{ user_obj.id }}"></td>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                {% if user_obj.profile.profile_picture %}
+                                <img src="{{ user_obj.profile.profile_picture.url }}" alt="Profile">
+                                {% else %}
+                                <div
+                                    style="width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-icons-round"
+                                        style="font-size: 24px; color: #999;">person</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="user-details">
+                                <h4 class="user-name">{{ user_obj.get_full_name|default:user_obj.username }}</h4>
+                                <p class="user-email">{{ user_obj.email|default:"No email" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if user_obj.is_superuser %}
+                        <span class="role-badge admin">Super Admin</span>
+                        {% elif user_obj.is_staff %}
+                        <span class="role-badge admin">Admin</span>
+                        {% elif user_obj.profile %}
+                        {% if user_obj.profile.role == 'admin' %}
+                        <span class="role-badge admin">Admin</span>
+                        {% elif user_obj.profile.role == 'responder' %}
+                        <span class="role-badge responder">Responder</span>
+                        {% elif user_obj.profile.role == 'seller' %}
+                        <span class="role-badge seller">Seller</span>
+                        {% elif user_obj.profile.role == 'facility_manager' %}
+                        <span class="role-badge facility_manager">Facility Manager</span>
+                        {% elif user_obj.profile.role == 'hr' %}
+                        <span class="role-badge admin">HR</span>
+                        {% else %}
+                        <span class="role-badge user">{{ user_obj.profile.role|default:"User"|title }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="role-badge user">Regular User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user_obj.is_active %}
+                        <span class="status-badge active">Active</span>
+                        {% else %}
+                        <span class="status-badge inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="date-info">
+                            {% if user_obj.last_login %}
+                            <p style="margin:0;">{{ user_obj.last_login|date:"M d, Y H:i" }}</p>
+                            <p style="margin:0; font-size:0.8rem; color:#888;">{{ user_obj.last_login|timesince }} ago
+                            </p>
+                            {% else %}
+                            <p class="never-logged">Never logged in</p>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="date-info">
+                            <p style="margin:0;">{{ user_obj.date_joined|date:"M d, Y" }}</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon view-btn" title="View"><span
+                                    class="material-icons-round">visibility</span></button>
+                            <button class="btn-icon edit-btn" title="Edit"><span
+                                    class="material-icons-round">edit</span></button>
+                            {% if user_obj.is_active %}
+                            <button class="btn-icon suspend-btn" title="Suspend"><span
+                                    class="material-icons-round">pause_circle</span></button>
+                            {% else %}
+                            <button class="btn-icon activate-btn" title="Activate"><span
+                                    class="material-icons-round">play_circle</span></button>
+                            {% endif %}
+                            <button class="btn-icon delete-btn" title="Delete"><span
+                                    class="material-icons-round">delete</span></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px; color: #888;">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+        <div style="font-size: 0.9rem; color: #666;">Showing {{ users|length }} of {{ total_users }} users</div>
+        <div style="display: flex; gap: 5px;">
+            <button class="btn btn-sm btn-secondary" disabled>
+                <span class="material-icons-round" style="font-size: 16px;">chevron_left</span>
+            </button>
+            <button class="btn btn-sm btn-primary">1</button>
+            <button class="btn btn-sm btn-secondary">2</button>
+            <button class="btn btn-sm btn-secondary">3</button>
+            <button class="btn btn-sm btn-secondary">
+                <span class="material-icons-round" style="font-size: 16px;">chevron_right</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal-backdrop">
+    <div class="modal-glass">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Add New User</h2>
+                <p class="modal-subtitle">Create a new account for the platform.</p>
+            </div>
+            <button class="modal-close-btn" onclick="closeAddUserModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+
+        <form id="addUserForm" onsubmit="handleAddUser(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">badge</span>
+                        <input type="text" id="firstName" name="firstName" placeholder="John" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">badge</span>
+                        <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <span class="material-icons-round input-icon">email</span>
+                    <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">account_circle</span>
+                        <input type="text" id="username" name="username" placeholder="johndoe" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">admin_panel_settings</span>
+                        <select id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="user">Regular User</option>
+                            <option value="responder">Responder</option>
+                            <option value="seller">Seller</option>
+                            <option value="facility_manager">Facility Manager</option>
+                            <option value="hr">HR</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <span class="material-icons-round select-arrow">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">lock</span>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">phone</span>
+                        <input type="tel" id="phone" name="phone" placeholder="+1 (714) 222-1111">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="isActive" name="isActive" checked>
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Account Active</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="sendWelcome" name="sendWelcome" checked>
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Send Welcome Email</span>
+                </label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-ghost" onclick="closeAddUserModal()">Cancel</button>
+                <button type="submit" class="btn-submit">
+                    <span class="material-icons-round">person_add</span>
+                    Create User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Modal Backdrop & Container */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        z-index: 99999 !important;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-backdrop[style*="display: flex"] {
+        opacity: 1;
+    }
+
+    .modal-glass {
+        background: rgba(255, 255, 255, 0.95);
+        width: 100%;
+        max-width: 650px;
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.15),
+            0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+        transform: translateY(20px);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-backdrop[style*="display: flex"] .modal-glass {
+        transform: translateY(0);
+    }
+
+    /* Header */
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 5px 0;
+        letter-spacing: -0.5px;
+    }
+
+    .modal-subtitle {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .modal-close-btn {
+        background: transparent;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: #333;
+        transform: rotate(90deg);
+    }
+
+    /* Form Layout */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 8px;
+        margin-left: 4px;
+    }
+
+    /* Input Fields */
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 14px;
+        color: #999;
+        font-size: 20px;
+        pointer-events: none;
+        transition: color 0.3s;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 16px 12px 44px;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        background: #f8f9fa;
+        font-size: 0.95rem;
+        color: #333;
+        transition: all 0.3s ease;
+        outline: none;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .form-group select {
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 14px;
+        color: #999;
+        pointer-events: none;
+    }
+
+    .form-group input:hover,
+    .form-group select:hover {
+        background: #fff;
+        border-color: #ddd;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        background: #fff;
+        border-color: var(--primary-color, #4361ee);
+        box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+    }
+
+    .form-group input:focus+.input-icon,
+    .form-group input:focus~.input-icon {
+        color: var(--primary-color, #4361ee);
+    }
+
+    /* Checkboxes */
+    .form-options {
+        display: flex;
+        gap: 24px;
+        margin: 10px 0 30px 0;
+        padding: 15px;
+        background: rgba(67, 97, 238, 0.05);
+        border-radius: 12px;
+        border: 1px dashed rgba(67, 97, 238, 0.2);
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .checkbox-wrapper input {
+        display: none;
+    }
+
+    .checkbox-custom {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        margin-right: 10px;
+        position: relative;
+        transition: all 0.2s;
+        background: #fff;
+    }
+
+    .checkbox-wrapper input:checked+.checkbox-custom {
+        background: var(--primary-color, #4361ee);
+        border-color: var(--primary-color, #4361ee);
+    }
+
+    .checkbox-custom::after {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg) scale(0);
+        transition: transform 0.2s;
+    }
+
+    .checkbox-wrapper input:checked+.checkbox-custom::after {
+        transform: rotate(45deg) scale(1);
+    }
+
+    .checkbox-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #555;
+    }
+
+    /* Footer Buttons */
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        border: none;
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #666;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: #333;
+    }
+
+    .btn-submit {
+        background: var(--primary-color, #4361ee);
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .modal-glass {
+            padding: 24px;
+            border-radius: 20px 20px 0 0;
+            height: auto;
+            max-height: 85vh;
+            position: absolute;
+            bottom: 0;
+            transform: translateY(100%);
+        }
+
+        .modal-backdrop {
+            align-items: flex-end;
+        }
+    }
+</style>
+
+<!-- Bulk Actions (Floating or Fixed) -->
+<div class="glass-card"
+    style="margin-top: 20px; padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+    <span class="selected-count">0 users selected</span>
+    <div class="bulk-buttons" style="display: flex; gap: 10px;">
+        <button class="btn btn-sm btn-success bulk-activate" disabled>Activate Selected</button>
+        <button class="btn btn-sm btn-warning bulk-suspend" disabled>Suspend Selected</button>
+        <button class="btn btn-sm btn-danger bulk-delete" disabled>Delete Selected</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_js %}
+<script>
+    // Make modal functions global
+    window.openAddUserModal = function () {
+        const modal = document.getElementById('addUserModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.style.zIndex = '99999'; // Force High Z-Index
+            document.body.style.overflow = 'hidden';
+            // Reset form
+            const form = document.getElementById('addUserForm');
+            if (form) form.reset();
+        } else {
+            console.error('Modal element not found');
+            alert('Error: Add User Modal not found. Please refresh the page.');
+        }
+    }
+
+    window.closeAddUserModal = function () {
+        const modal = document.getElementById('addUserModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Helper for role names
+    function getRoleDisplayName(role) {
+        const roleNames = {
+            'user': 'Regular User',
+            'seller': 'Seller',
+            'facility_manager': 'Facility Manager',
+            'responder': 'Responder',
+            'admin': 'Admin',
+            'hr': 'HR'
+        };
+        return roleNames[role] || role;
+    }
+
+    // Main initialization
+    document.addEventListener('DOMContentLoaded', function () {
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        const userRows = document.querySelectorAll('.user-row');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                userRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Filter functionality
+        const roleFilter = document.querySelector('.filter-select:nth-of-type(1)');
+        const statusFilter = document.querySelector('.filter-select:nth-of-type(2)');
+
+        function applyFilters() {
+            const selectedRole = roleFilter ? roleFilter.value : 'all';
+            const selectedStatus = statusFilter ? statusFilter.value : 'all';
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
+            let filteredCount = 0;
+
+            userRows.forEach(row => {
+                const userName = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
+                const userEmail = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
+                const roleBadge = row.querySelector('.role-badge')?.textContent.toLowerCase() || '';
+                const statusBadge = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
+
+                // Check if row matches all filters
+                const matchesSearch = userName.includes(searchTerm) || userEmail.includes(searchTerm);
+                const matchesRole = selectedRole === 'all' || roleBadge.includes(selectedRole.toLowerCase());
+                const matchesStatus = selectedStatus === 'all' || statusBadge.includes(selectedStatus.toLowerCase());
+
+                const shouldShow = matchesSearch && matchesRole && matchesStatus;
+                row.style.display = shouldShow ? '' : 'none';
+
+                if (shouldShow) {
+                    filteredCount++;
+                }
+            });
+
+            // Update showing count
+            const showingText = document.querySelector('.stats-grid + .glass-card .text-muted');
+            if (showingText) {
+                showingText.textContent = `Showing ${filteredCount} of ${userRows.length} users`;
+            }
+
+            // Show notification
+            const filterDescription = [];
+            if (selectedRole !== 'all') filterDescription.push(`role: ${selectedRole}`);
+            if (selectedStatus !== 'all') filterDescription.push(`status: ${selectedStatus}`);
+            if (searchTerm) filterDescription.push(`search: "${searchTerm}"`);
+
+            const message = filterDescription.length > 0
+                ? `Filters applied: ${filterDescription.join(', ')} (${filteredCount} users found)`
+                : 'All filters cleared';
+
+            showNotification(message, 'info');
+        }
+
+        // Auto-apply filters when dropdown changes
+        if (roleFilter) roleFilter.addEventListener('change', applyFilters);
+        if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+
+        // Clear filters function
+        function clearFilters() {
+            if (roleFilter) roleFilter.value = 'all';
+            if (statusFilter) statusFilter.value = 'all';
+            if (searchInput) searchInput.value = '';
+
+            userRows.forEach(row => {
+                row.style.display = '';
+            });
+
+            showNotification('Filters cleared', 'info');
+        }
+
+        // Add clear filters button (assuming filterBtn exists somewhere, if not, this will error)
+        const filterBtn = document.querySelector('.filter-btn'); // Assuming there's a filter button to attach 'Clear All' next to
+        if (filterBtn) {
+            const clearBtn = document.createElement('button');
+            clearBtn.className = 'btn btn-secondary';
+            clearBtn.textContent = 'Clear All';
+            clearBtn.style.marginLeft = '10px';
+            clearBtn.onclick = clearFilters;
+            filterBtn.parentNode.insertBefore(clearBtn, filterBtn.nextSibling);
+        }
+
+        // Checkbox & Bulk Actions Logic
+        const selectAllCheckbox = document.querySelector('.select-all-checkbox');
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+        const selectedCount = document.querySelector('.selected-count');
+        const bulkButtons = document.querySelectorAll('.bulk-buttons button');
+
+        function updateBulkActions() {
+            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            if (selectedCount) selectedCount.textContent = `${checkedCount} user${checkedCount !== 1 ? 's' : ''} selected`;
+
+            if (bulkButtons) {
+                bulkButtons.forEach(button => {
+                    button.disabled = checkedCount === 0;
+                });
+            }
+        }
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                userCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateBulkActions();
+            });
+        }
+
+        userCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkActions);
+        });
+
+        // Attach Handle Add User to Form
+        const addUserForm = document.getElementById('addUserForm');
+        if (addUserForm) {
+            addUserForm.addEventListener('submit', handleAddUser);
+        }
+
+        // Initial call to update bulk actions in case of pre-checked boxes (e.g., from browser history)
+        updateBulkActions();
+
+        // Attach action listeners for view, edit, delete, suspend/activate buttons
+        attachActionListeners();
+    });
+
+    function handleAddUser(event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const userData = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            username: formData.get('username'),
+            password: formData.get('password'),
+            role: formData.get('role'),
+            phone: formData.get('phone'),
+            isActive: formData.get('isActive') === 'on',
+            sendWelcome: formData.get('sendWelcome') === 'on'
+        };
+
+        // Validate form data
+        if (!userData.firstName || !userData.lastName || !userData.email || !userData.username || !userData.password || !userData.role) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userData.email)) {
+            showNotification('Please enter a valid email address', 'error');
+            return;
+        }
+
+        // Show loading state
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Adding...';
+        submitBtn.disabled = true;
+
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // Call API
+        fetch("{% url 'aid_app:add_user' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // close modal
+                    window.closeAddUserModal();
+                    showNotification(data.message, 'success');
+
+                    // Reload page to reflect changes (simplest way to update table and stats)
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Error creating user', 'error');
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('An unexpected error occurred', 'error');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+    }
+
+    function attachActionListeners() {
+        // Re-attach view button listeners
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const userName = row.querySelector('.user-name').textContent.trim();
+                const userEmail = row.querySelector('.user-email').textContent.trim();
+                const role = row.querySelector('.role-badge').textContent.trim();
+                const status = row.querySelector('.status-badge').textContent.trim();
+                const lastActive = row.querySelectorAll('.date-info p')[0].textContent.trim();
+                const joinedDate = row.querySelectorAll('.date-info')[1].querySelector('p').textContent.trim();
+
+                const modal = document.createElement('div');
+                modal.className = 'modal glass-modal';
+                modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
+                modal.innerHTML = `
+                    <div class="modal-content" style="background:white; padding:30px; border-radius:12px; width:500px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                        <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
+                            <h2 style="margin:0; font-size:1.5rem; color:#333;">User Details</h2>
+                            <button onclick="this.closest('.modal').remove()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+                        </div>
+                        <div class="user-details-view">
+                            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                                <div style="width:60px; height:60px; background:var(--primary-color); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:24px;">
+                                    <span class="material-icons-round" style="font-size:32px;">person</span>
+                                </div>
+                                <div>
+                                    <h3 style="margin:0; font-size:1.2rem;">${userName}</h3>
+                                    <p style="margin:0; color:#666;">${userEmail}</p>
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                                <div><strong>Role:</strong> <span class="badge">${role}</span></div>
+                                <div><strong>Status:</strong> <span class="badge">${status}</span></div>
+                                <div><strong>Last Active:</strong> <br>${lastActive}</div>
+                                <div><strong>Joined:</strong> <br>${joinedDate}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:25px; text-align:right;">
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove()" style="padding:8px 20px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;">Close</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            });
+        });
+    }
+
+    // View User Modal
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const userName = row.querySelector('.user-name').textContent.trim();
+            const userEmail = row.querySelector('.user-email').textContent.trim();
+            const role = row.querySelector('.role-badge').textContent.trim();
+            const status = row.querySelector('.status-badge').textContent.trim();
+            const lastActive = row.querySelectorAll('.date-info p')[0].textContent.trim(); // First date p
+            const joinedDate = row.querySelectorAll('.date-info')[1].querySelector('p').textContent.trim(); // Second date-info div
+
+            const modal = document.createElement('div');
+            modal.className = 'modal glass-modal';
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
+            modal.innerHTML = `
+                <div class="modal-content" style="background:white; padding:30px; border-radius:12px; width:500px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                    <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
+                        <h2 style="margin:0; font-size:1.5rem; color:#333;">User Details</h2>
+                        <button onclick="this.closest('.modal').remove()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+                    </div>
+                    <div class="user-details-view">
+                        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                            <div style="width:60px; height:60px; background:var(--primary-color); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:24px;">
+                                <span class="material-icons-round" style="font-size:32px;">person</span>
+                            </div>
+                            <div>
+                                <h3 style="margin:0; font-size:1.2rem;">${userName}</h3>
+                                <p style="margin:0; color:#666;">${userEmail}</p>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                            <div><strong>Role:</strong> <span class="badge">${role}</span></div>
+                            <div><strong>Status:</strong> <span class="badge">${status}</span></div>
+                            <div><strong>Last Active:</strong> <br>${lastActive}</div>
+                            <div><strong>Joined:</strong> <br>${joinedDate}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:25px; text-align:right;">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()" style="padding:8px 20px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        });
+    });
+
+    // Edit User Modal
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const userName = row.querySelector('.user-name').textContent.trim();
+            const userEmail = row.querySelector('.user-email').textContent.trim();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal glass-modal';
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
+            modal.innerHTML = `
+                <div class="modal-content" style="background:white; padding:30px; border-radius:12px; width:500px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                    <h2 style="margin-top:0; margin-bottom:20px;">Edit User</h2>
+                    <form onsubmit="event.preventDefault(); alert('Changes saved!'); this.closest('.modal').remove();">
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Full Name</label>
+                            <input type="text" value="${userName}" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Email</label>
+                            <input type="email" value="${userEmail}" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:500;">Role</label>
+                            <select style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                <option>Regular User</option>
+                                <option>Admin</option>
+                                <option>Responder</option>
+                            </select>
+                        </div>
+                        <div style="text-align:right; margin-top:20px;">
+                            <button type="button" onclick="this.closest('.modal').remove()" style="padding:8px 15px; background:transparent; border:1px solid #ddd; border-radius:6px; cursor:pointer; margin-right:10px;">Cancel</button>
+                            <button type="submit" style="padding:8px 20px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        });
+    });
+
+    // Delete User Confirmation
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) {
+                const row = this.closest('tr');
+                row.style.opacity = '0.5';
+                setTimeout(() => row.remove(), 500);
+                alert('User deleted.');
+            }
+        });
+    });
+
+    // Suspend/Activate Toggle
+    document.querySelectorAll('.suspend-btn, .activate-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const action = this.classList.contains('suspend-btn') ? 'suspend' : 'activate';
+            if (confirm(`Are you sure you want to ${action} this user?`)) {
+                alert(`User ${action}ed successfully.`);
+                location.reload();
+            }
+        });
+    });
+
+    // Notification function
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <span class="notification-icon">
+                ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
+            </span>
+            <span class="notification-message">${message}</span>
+        `;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+            animation: slideIn 0.3s ease-out;
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Add CSS for notifications
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+</script>
+{% endblock %}

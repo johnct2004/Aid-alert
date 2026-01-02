@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Aid Alert{% endblock %}</title>
+
+    <!-- Global Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/common/theme.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- 3D Background Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Page Content -->
+    {% block content %}
+    {% endblock %}
+
+    <!-- Three.js (Must be module) -->
+    <script type="module" src="{% static 'js/three_background.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

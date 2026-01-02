@@ -1,0 +1,234 @@
+{% extends 'seller/base_seller.html' %}
+{% load static %}
+
+{% block page_title %}Update Product{% endblock %}
+{% block content_title %}Update Product{% endblock %}
+
+{% block seller_css %}
+<link rel="stylesheet" href="{% static 'css/seller/update_product.css' %}">
+{% endblock %}
+
+{% block seller_content %}
+<!-- Product Search -->
+<section class="glass-card content-card search-section">
+    <div class="card-header-row">
+        <h2 class="card-title">Select Product to Update</h2>
+    </div>
+
+    <div class="product-search">
+        <div class="search-box">
+            <span class="material-icons-round search-icon">search</span>
+            <input type="text" id="productSearch" class="search-input"
+                placeholder="Search products by name, SKU, or category...">
+        </div>
+
+        <div class="product-list" id="productList">
+            <!-- Dynamic Product List -->
+            {% for product in products %}
+            <div class="product-card" data-product-id="{{ product.id }}">
+                <div class="product-info">
+                    <div class="product-image">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumbnail">
+                        {% else %}
+                        <span class="material-icons-round">image_not_supported</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-details">
+                        <h4 class="product-name">{{ product.name }}</h4>
+                        <p class="product-sku">Stock: {{ product.stock_quantity }}</p>
+                        <p class="product-category">{{ product.get_category_display }}</p>
+                    </div>
+                </div>
+                <div class="product-actions">
+                    <button class="btn-action edit-btn" data-product-id="{{ product.id }}"
+                        onclick="editProduct('{{ product.id }}')">
+                        <span class="material-icons-round">edit</span>
+                        Edit
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-products">
+                <p>No products found. <a href="{% url 'aid_app:add_product' %}">Add one now?</a></p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Product Edit Form (Hidden by default) -->
+<section class="glass-card content-card" id="editForm">
+    <div class="card-header-row">
+        <h2 class="card-title">Edit Product Information</h2>
+        <div class="form-actions-header">
+            <button class="btn-secondary cancel-edit-btn" type="button"> <!-- Ensure type button -->
+                <span class="material-icons-round">close</span>
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <form class="product-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" id="editProductId">
+
+        <div class="form-grid">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h3 class="section-title"><span class="material-icons-round">info</span> Basic Information</h3>
+                <div class="form-group">
+                    <label for="editProductName">Product Name *</label>
+                    <input type="text" id="editProductName" name="name" class="form-input" required>
+                </div>
+                <!-- Category Select (Simplified for now, passing raw value or matching choices) -->
+                <div class="form-group">
+                    <label for="editProductCategory">Category *</label>
+                    <select id="editProductCategory" name="category" class="form-select" required>
+                        <option value="medical_supplies">Medical Supplies</option>
+                        <option value="emergency_equipment">Emergency Equipment</option>
+                        <option value="first_aid_kits">First Aid Kits</option>
+                        <option value="diagnostic_tools">Diagnostic Tools</option>
+                        <option value="protective_equipment">Protective Equipment</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editProductCondition">Condition *</label>
+                    <select id="editProductCondition" name="condition" class="form-select" required>
+                        <option value="new">New</option>
+                        <option value="like_new">Like New</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Pricing Information -->
+            <div class="form-section">
+                <h3 class="section-title"><span class="material-icons-round">payments</span> Pricing</h3>
+                <div class="form-group">
+                    <label for="editProductPrice">Price ($) *</label>
+                    <input type="number" id="editProductPrice" name="price" class="form-input" step="0.01" min="0"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductStock">Stock Quantity *</label>
+                    <input type="number" id="editProductStock" name="stock_quantity" class="form-input" min="0"
+                        required>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="form-section full-width">
+                <h3 class="section-title"><span class="material-icons-round">description</span> Product Details</h3>
+                <div class="form-group">
+                    <label for="editProductDescription">Description *</label>
+                    <textarea id="editProductDescription" name="description" class="form-textarea" rows="4"
+                        required></textarea>
+                </div>
+            </div>
+
+            <!-- Product Status -->
+            <div class="form-section">
+                <h3 class="section-title"><span class="material-icons-round">toggle_on</span> Status</h3>
+                <div class="form-group">
+                    <label for="editProductStatus">Status</label>
+                    <select id="editProductStatus" name="status" class="form-select">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="sold">Sold</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-action update-btn">
+                <span class="material-icons-round">save</span>
+                Update Product
+            </button>
+            <button type="button" class="btn-secondary cancel-edit-btn">
+                <span class="material-icons-round">cancel</span>
+                Cancel
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block seller_js %}
+<script>
+    // Product data (injected from Django)
+    const products = {
+        {% for product in products %}
+    '{{ product.id }}': {
+        id: '{{ product.id }}',
+            name: '{{ product.name|escapejs }}',
+                category: '{{ product.category }}',
+                    condition: '{{ product.condition }}',
+                        sku: 'Generic-SKU', // Placeholder if no SKU field
+                            price: { { product.price } },
+        stock: { { product.stock_quantity } },
+        description: '{{ product.description|escapejs|linebreaksbr }}',
+            status: '{{ product.status }}'
+    },
+    {% endfor %}
+    };
+
+    // Product search functionality
+    document.getElementById('productSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const productCards = document.querySelectorAll('.product-card');
+
+        productCards.forEach(card => {
+            const productName = card.querySelector('.product-name').textContent.toLowerCase();
+            // Search by name or category text
+            if (productName.includes(searchTerm)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Edit product functionality
+    window.editProduct = function (productId) {
+        const product = products[productId];
+        if (!product) return;
+
+        // Show the edit form
+        const editForm = document.getElementById('editForm');
+        editForm.style.display = 'block';
+
+        // Populate form with product data
+        document.getElementById('editProductId').value = product.id;
+        document.getElementById('editProductName').value = product.name;
+        document.getElementById('editProductCategory').value = product.category;
+        document.getElementById('editProductCondition').value = product.condition;
+        document.getElementById('editProductPrice').value = product.price;
+        document.getElementById('editProductStock').value = product.stock;
+
+        // Handle description (convert break tags back to newlines if necessary, or just use raw if simplified)
+        // For simplicity, using textContent logic or direct value. 
+        // Note: linebreaksbr adds <br>, so standard value might have tags. 
+        // Ideally we pass raw description. Let's assume simplified text for now.
+        // Or better: use a textarea and rely on raw content. 
+        // Re-injecting description without filters for the edit form:
+        document.getElementById('editProductDescription').value = product.description.replace(/<br\s*\/?>/gi, '\n');
+
+        document.getElementById('editProductStatus').value = product.status;
+
+        // Scroll to the edit form
+        editForm.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Cancel edit functionality
+    document.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById('editForm').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
+{% endblock %}

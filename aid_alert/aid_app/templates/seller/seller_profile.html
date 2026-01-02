@@ -1,0 +1,481 @@
+{% extends 'seller/base_seller.html' %}
+{% load static %}
+
+{% block page_title %}Seller Profile{% endblock %}
+{% block content_title %}Seller Profile{% endblock %}
+
+{% block seller_css %}
+<link rel="stylesheet" href="{% static 'css/seller/seller_profile.css' %}">
+{% endblock %}
+
+{% block seller_content %}
+<div class="dashboard-sections">
+    <!-- Profile Overview -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Profile Overview</h2>
+            <div class="profile-actions">
+                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit()">
+                    <span class="material-icons-round">edit</span>
+                    Edit
+                </button>
+                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo()">
+                    <span class="material-icons-round">save</span>
+                    Save Changes
+                </button>
+                <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit()">
+                    <span class="material-icons-round">close</span>
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-overview">
+            <div class="profile-avatar">
+                <div class="avatar-large">
+                    <span class="material-icons-round">store</span>
+                </div>
+
+            </div>
+
+            <div class="profile-info">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h3 class="info-label">Business Name</h3>
+                        <p class="info-value" id="business-name">{{ user.first_name }} {{ user.last_name }} Supplies</p>
+                        <input type="text" class="info-input hidden" id="business-name-input"
+                            value="{{ user.first_name }} {{ user.last_name }} Supplies">
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Contact Person</h3>
+                        <p class="info-value" id="contact-person">{{ user.first_name }} {{ user.last_name }}</p>
+                        <div class="name-inputs hidden" style="display: none; gap: 10px;">
+                            <input type="text" class="info-input" id="first-name-input" value="{{ user.first_name }}"
+                                placeholder="First Name">
+                            <input type="text" class="info-input" id="last-name-input" value="{{ user.last_name }}"
+                                placeholder="Last Name">
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Email</h3>
+                        <p class="info-value" id="email">{{ user.email }}</p>
+                        <input type="email" class="info-input hidden" id="email-input" value="{{ user.email }}">
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Phone</h3>
+                        <p class="info-value" id="phone">+1 {{ user.profile.phone|default:"Not Provided" }}</p>
+                        <input type="tel" class="info-input hidden" id="phone-input"
+                            value="{{ user.profile.phone|default:'' }}">
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Business ID</h3>
+                        <p class="info-value">SELL-{{ user.id|stringformat:"06d" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3 class="info-label">Member Since</h3>
+                        <p class="info-value">{{ user.date_joined|date:"F d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Information -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Business Information</h2>
+            <div class="business-actions">
+                <button class="btn-secondary edit-business-btn" onclick="toggleBusinessEdit()">
+                    <span class="material-icons-round">edit</span>
+                    Edit Business
+                </button>
+                <button class="btn-primary save-business-btn hidden" onclick="saveBusinessInfo()">
+                    <span class="material-icons-round">save</span>
+                    Save Changes
+                </button>
+                <button class="btn-secondary cancel-business-btn hidden" onclick="cancelBusinessEdit()">
+                    <span class="material-icons-round">close</span>
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="business-info">
+            <div class="info-section">
+                <h3 class="section-title">Company Details</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4 class="info-label">Company Name</h4>
+                        <p class="info-value" id="company-name">{{ user.first_name }} {{ user.last_name }} Supplies</p>
+                        <input type="text" class="info-input hidden" id="company-name-input"
+                            value="{{ user.first_name }} {{ user.last_name }} Supplies">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Business Type</h4>
+                        <p class="info-value" id="business-type">Medical Equipment Supplier</p>
+                        <select class="info-input hidden" id="business-type-input">
+                            <option value="Medical Equipment Supplier" selected>Medical Equipment Supplier</option>
+                            <option value="First Aid Supplies">First Aid Supplies</option>
+                            <option value="Emergency Equipment">Emergency Equipment</option>
+                            <option value="Medical Devices">Medical Devices</option>
+                            <option value="Healthcare Products">Healthcare Products</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Tax ID</h4>
+                        <p class="info-value" id="tax-id">{{ user.id|stringformat:"010d" }}</p>
+                        <input type="text" class="info-input hidden" id="tax-id-input" value="{{ user.id|stringformat:"
+                            010d" }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">License Number</h4>
+                        <p class="info-value" id="license-number">MED-LIC-{{ user.id|stringformat:"06d" }}</p>
+                        <input type="text" class="info-input hidden" id="license-number-input"
+                            value="MED-LIC-{{ user.id|stringformat:" 06d" }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3 class="section-title">Address Information</h3>
+                <div class="info-grid">
+
+                    <div class="info-item">
+                        <h4 class="info-label">City</h4>
+                        <p class="info-value" id="city">{{ user.profile.city|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="city-input"
+                            value="{{ user.profile.city|default:"" }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">State/Province</h4>
+                        <p class="info-value" id="state">{{ user.profile.state|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="state-input"
+                            value="{{ user.profile.state|default:"" }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Postal Code</h4>
+                        <p class="info-value" id="postal-code">{{ user.profile.postal_code|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="postal-code-input"
+                            value="{{ user.profile.postal_code|default:"" }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Country</h4>
+                        <p class="info-value" id="country">{{ user.profile.country|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="country-input"
+                            value="{{ user.profile.country|default:"" }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Account Settings -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Account Settings</h2>
+        </div>
+
+        <div class="settings-sections">
+            <div class="settings-section">
+                <h3 class="section-title">Security Settings</h3>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Change Password</h4>
+                            <p class="setting-description">Update your account password</p>
+                        </div>
+                        <a href="{% url 'aid_app:forgot_password' %}" class="btn-secondary setting-btn">
+                            <span class="material-icons-round">lock</span>
+                            Change Password
+                        </a>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Two-Factor Authentication</h4>
+                            <p class="setting-description">Add an extra layer of security</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="twoFactor" class="toggle-input">
+                            <label for="twoFactor" class="toggle-label"></label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Login Notifications</h4>
+                            <p class="setting-description">Get notified on new login attempts</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="loginNotifications" class="toggle-input" checked>
+                            <label for="loginNotifications" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="section-title">Notification Preferences</h3>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Email Notifications</h4>
+                            <p class="setting-description">Receive updates via email</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="emailNotifications" class="toggle-input" checked>
+                            <label for="emailNotifications" class="toggle-label"></label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Order Notifications</h4>
+                            <p class="setting-description">Alerts for new orders</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="orderNotifications" class="toggle-input" checked>
+                            <label for="orderNotifications" class="toggle-label"></label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Marketing Emails</h4>
+                            <p class="setting-description">Promotional content and updates</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="marketingEmails" class="toggle-input">
+                            <label for="marketingEmails" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="section-title">Payment Settings</h3>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Payment Methods</h4>
+                            <p class="setting-description">Manage your payment options</p>
+                        </div>
+                        <a href="{% url 'aid_app:view_orders' %}" class="btn-secondary setting-btn">
+                            <span class="material-icons-round">credit_card</span>
+                            Manage
+                        </a>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Billing Address</h4>
+                            <p class="setting-description">Update billing information</p>
+                        </div>
+                        <a href="{% url 'aid_app:manage_delivery' %}" class="btn-secondary setting-btn">
+                            <span class="material-icons-round">location_on</span>
+                            Update
+                        </a>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4 class="setting-title">Tax Information</h4>
+                            <p class="setting-description">Manage tax settings</p>
+                        </div>
+                        <a href="{% url 'aid_app:seller_report' %}" class="btn-secondary setting-btn">
+                            <span class="material-icons-round">receipt</span>
+                            Configure
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Account Actions -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Account Actions</h2>
+        </div>
+
+        <div class="account-actions-grid">
+            <a href="{% url 'aid_app:seller_report' %}" class="action-btn">
+                <span class="material-icons-round">history</span>
+                <span>Sales Report</span>
+            </a>
+            <a href="{% url 'aid_app:contact' %}" class="action-btn">
+                <span class="material-icons-round">support_agent</span>
+                <span>Contact Support</span>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block seller_js %}
+<script>
+    // --- Profile Overview Logic ---
+    function toggleProfileEdit() {
+        // Show hidden inputs related to Profile Overview
+        const profileCard = document.querySelector('.profile-overview').closest('.glass-card');
+
+        // Hide display values within this card
+        profileCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'none');
+
+        // specific: business-name input, email input, phone input
+        // Also handle the special name-inputs div
+        document.getElementById('business-name-input').classList.remove('hidden');
+        document.getElementById('business-name-input').style.display = 'block';
+
+        document.querySelector('.name-inputs').classList.remove('hidden');
+        document.querySelector('.name-inputs').style.display = 'flex';
+
+        document.getElementById('email-input').classList.remove('hidden');
+        document.getElementById('email-input').style.display = 'block';
+
+        document.getElementById('phone-input').classList.remove('hidden');
+        document.getElementById('phone-input').style.display = 'block';
+
+        // Toggle Buttons
+        profileCard.querySelector('.edit-profile-btn').classList.add('hidden');
+        profileCard.querySelector('.save-profile-btn').classList.remove('hidden');
+        profileCard.querySelector('.cancel-profile-btn').classList.remove('hidden');
+
+        // Add edit mode style
+        profileCard.classList.add('edit-mode');
+    }
+
+    function cancelProfileEdit() {
+        const profileCard = document.querySelector('.profile-overview').closest('.glass-card');
+
+        // Show display values again
+        profileCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'block');
+
+        // Hide inputs
+        document.getElementById('business-name-input').style.display = 'none';
+        document.querySelector('.name-inputs').style.display = 'none';
+        document.getElementById('email-input').style.display = 'none';
+        document.getElementById('phone-input').style.display = 'none';
+
+        // Toggle Buttons
+        profileCard.querySelector('.edit-profile-btn').classList.remove('hidden');
+        profileCard.querySelector('.save-profile-btn').classList.add('hidden');
+        profileCard.querySelector('.cancel-profile-btn').classList.add('hidden');
+
+        // Remove edit mode style
+        profileCard.classList.remove('edit-mode');
+    }
+
+    function saveProfileInfo() {
+        const companyName = document.getElementById('business-name-input').value;
+        const firstName = document.getElementById('first-name-input').value;
+        const lastName = document.getElementById('last-name-input').value;
+        const email = document.getElementById('email-input').value;
+        const phone = document.getElementById('phone-input').value;
+
+        // Update Text
+        document.getElementById('business-name').textContent = companyName || 'Not Provided';
+        document.getElementById('contact-person').textContent = `${firstName} ${lastName}`;
+        document.getElementById('email').textContent = email;
+        document.getElementById('phone').textContent = phone ? `+1 ${phone}` : 'Not Provided';
+
+        // Sync company name to Business Info section if needed, or keep separate. 
+        // For now, let's keep them somewhat synced visually if logic requires, 
+        // but user asked for them to be separate. 
+        // If they edit "Business Name" here, it arguably should update common data.
+        if (document.getElementById('company-name')) {
+            document.getElementById('company-name').textContent = companyName || 'Not Provided';
+            document.getElementById('company-name-input').value = companyName || '';
+        }
+
+        cancelProfileEdit();
+        showMessage('Profile Overview updated successfully!', 'success');
+    }
+
+
+    // --- Business Information Logic ---
+    function toggleBusinessEdit() {
+        const businessCard = document.querySelector('.business-info').closest('.glass-card');
+
+        // Hide display values in this card
+        businessCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'none');
+
+        // Show inputs in this card
+        businessCard.querySelectorAll('.info-input').forEach(el => el.style.display = 'block');
+
+        // Toggle Buttons
+        businessCard.querySelector('.edit-business-btn').classList.add('hidden');
+        businessCard.querySelector('.save-business-btn').classList.remove('hidden');
+        businessCard.querySelector('.cancel-business-btn').classList.remove('hidden');
+
+        businessCard.classList.add('edit-mode');
+    }
+
+    function cancelBusinessEdit() {
+        const businessCard = document.querySelector('.business-info').closest('.glass-card');
+
+        // Show values, Hide inputs
+        businessCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'block');
+        businessCard.querySelectorAll('.info-input').forEach(el => el.style.display = 'none');
+
+        // Toggle Buttons
+        businessCard.querySelector('.edit-business-btn').classList.remove('hidden');
+        businessCard.querySelector('.save-business-btn').classList.add('hidden');
+        businessCard.querySelector('.cancel-business-btn').classList.add('hidden');
+
+        businessCard.classList.remove('edit-mode');
+    }
+
+    function saveBusinessInfo() {
+        const companyName = document.getElementById('company-name-input').value;
+        const businessType = document.getElementById('business-type-input').value;
+        const taxId = document.getElementById('tax-id-input').value;
+        const licenseNumber = document.getElementById('license-number-input').value;
+
+        const city = document.getElementById('city-input').value;
+        const state = document.getElementById('state-input').value;
+        const postalCode = document.getElementById('postal-code-input').value;
+        const country = document.getElementById('country-input').value;
+
+        // Update Text
+        document.getElementById('company-name').textContent = companyName || 'Not Provided';
+        document.getElementById('business-type').textContent = businessType;
+        document.getElementById('tax-id').textContent = taxId;
+        document.getElementById('license-number').textContent = licenseNumber;
+
+        document.getElementById('city').textContent = city || 'Not Provided';
+        document.getElementById('state').textContent = state || 'Not Provided';
+        document.getElementById('postal-code').textContent = postalCode || 'Not Provided';
+        document.getElementById('country').textContent = country || 'Not Provided';
+
+        // Sync back to profile overview if changed here
+        if (document.getElementById('business-name')) {
+            document.getElementById('business-name').textContent = companyName || 'Not Provided';
+            document.getElementById('business-name-input').value = companyName || '';
+        }
+
+        cancelBusinessEdit();
+        showMessage('Business Information updated successfully!', 'success');
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${type}`;
+        messageDiv.textContent = message;
+        messageDiv.classList.add('message-toast');
+        if (type === 'success') messageDiv.classList.add('message-success');
+        else if (type === 'error') messageDiv.classList.add('message-error');
+        else messageDiv.classList.add('message-info');
+
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 300);
+        }, 3000);
+    }
+
+</script>
+{% endblock %}

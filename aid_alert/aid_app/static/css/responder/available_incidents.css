@@ -1,0 +1,311 @@
+/* Available Incidents CSS - White Glass Aesthetic */
+/* Extends responder_theme.css */
+
+/* Stats Grid Styles */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.available-icon {
+    background: rgba(255, 107, 53, 0.15);
+    color: var(--primary-color);
+}
+
+.high-priority-icon {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.nearby-icon {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+.medical-icon {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* Filters */
+.filters-wrapper {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    width: 280px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    outline: none;
+    font-size: 0.95rem;
+    color: var(--secondary-color);
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.dropdowns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 10px 30px 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    color: var(--secondary-color);
+    outline: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 20px;
+}
+
+.filter-select:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Data Table */
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 24px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.data-table th {
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.data-table td {
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.data-table tr:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Incident Types */
+.incident-type {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.incident-type.medical {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+}
+
+.incident-type.fire {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.incident-type.accident {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f1c40f;
+}
+
+.incident-type.police {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-active {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+}
+
+/* Low Urgency mapped to Green? Or maybe low is good? let's stick to text */
+.badge-inactive {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+/* High Urgency */
+.badge-full {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f39c12;
+}
+
+/* Medium Urgency */
+
+/* Button Action */
+.btn-action {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    background: #e05e2e;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(255, 107, 53, 0.3);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.pagination-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--secondary-color);
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.page-info {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .dropdowns {
+        width: 100%;
+    }
+
+    .filter-select {
+        flex: 1;
+    }
+
+    .data-table {
+        display: block;
+        overflow-x: auto;
+    }
+}

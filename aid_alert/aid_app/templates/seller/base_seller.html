@@ -1,0 +1,118 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}{% block page_title %}Seller Dashboard{% endblock %} - Aid Alert{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/seller/seller_theme.css' %}">
+{% block seller_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Glass Sidebar -->
+    <aside class="glass-sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'aid_app:seller_dashboard' %}" class="brand">
+                <span class="material-icons-round brand-icon">store</span>
+                <span class="brand-text">Seller Portal</span>
+            </a>
+        </div>
+
+        <ul class="menu">
+            <li class="menu-item">
+                <a href="{% url 'aid_app:seller_dashboard' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'seller_dashboard' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:add_product' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'add_product' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">add_circle</span>
+                    <span>Add Product</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:update_product' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'update_product' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">edit</span>
+                    <span>Update Product</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:view_products' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'view_products' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">inventory</span>
+                    <span>My Products</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:view_orders' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'view_orders' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">shopping_cart</span>
+                    <span>View Orders</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:manage_delivery' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'manage_delivery' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">local_shipping</span>
+                    <span>Manage Delivery</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'aid_app:seller_report' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'seller_report' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">analytics</span>
+                    <span>Sales Report</span>
+                </a>
+            </li>
+
+            <li class="menu-item mt-auto">
+                <a href="{% url 'aid_app:logout' %}" class="menu-link logout-link">
+                    <span class="material-icons-round menu-icon">logout</span>
+                    <span>Log Out</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Glass Top Bar -->
+        <header class="glass-top-bar">
+            <h1 class="page-title">{% block content_title %}{% endblock %}</h1>
+            <a href="{% url 'aid_app:seller_profile' %}" class="user-profile-link">
+                <div class="user-profile">
+                    <span class="user-name">{{ user.username }}</span>
+                    <div class="avatar-circle">
+                        <span class="material-icons-round">person</span>
+                    </div>
+                </div>
+            </a>
+        </header>
+
+        <div class="content-wrapper">
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert glass-alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block seller_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block seller_js %}{% endblock %}
+{% endblock %}

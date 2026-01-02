@@ -1,0 +1,330 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Facility Notifications{% endblock %}
+{% block content_title %}Facility Notifications{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/facility_notifications.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<!-- Notification Overview -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">error</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Critical Alerts</h3>
+        <p class="stat-value" id="criticalAlerts">3</p>
+        <div class="stat-change negative">
+            <span class="material-icons-round">trending_up</span>
+            <span>2 new today</span>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">warning</span>
+            </div>
+        </div>
+        <h3 class="stat-label">High Priority</h3>
+        <p class="stat-value" id="highPriority">12</p>
+        <div class="stat-change positive">
+            <span class="material-icons-round">trending_down</span>
+            <span>5 resolved</span>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">info</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Information</h3>
+        <p class="stat-value" id="information">28</p>
+        <div class="stat-change positive">
+            <span class="material-icons-round">trending_up</span>
+            <span>8 new updates</span>
+        </div>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Resolved Today</h3>
+        <p class="stat-value" id="resolvedToday">15</p>
+        <div class="stat-change positive">
+            <span class="material-icons-round">trending_up</span>
+            <span>3 more than average</span>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Management -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Notification Management</h2>
+        <div class="notification-actions">
+            <button class="btn-action mark-all-read">
+                <span class="material-icons-round">done_all</span>
+                Mark All Read
+            </button>
+            <button class="btn-action create-notification">
+                <span class="material-icons-round">add</span>
+                Create Notification
+            </button>
+        </div>
+    </div>
+
+    <div class="notification-filters">
+        <div class="filters-wrapper">
+            <div class="search-box">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" class="glass-input search-input" placeholder="Search notifications...">
+            </div>
+            <select class="glass-select filter-select" id="typeFilter">
+                <option value="all">All Types</option>
+                <option value="critical">Critical</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+                <option value="info">Information</option>
+            </select>
+            <select class="glass-select filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="unread">Unread</option>
+                <option value="read">Read</option>
+                <option value="archived">Archived</option>
+            </select>
+            <select class="glass-select filter-select" id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="incident">Incident</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="staff">Staff</option>
+                <option value="equipment">Equipment</option>
+                <option value="system">System</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- Active Notifications -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Active Notifications</h2>
+        <div class="view-toggle">
+            <button class="toggle-btn active" data-view="list">
+                <span class="material-icons-round">list</span>
+            </button>
+            <button class="toggle-btn" data-view="grid">
+                <span class="material-icons-round">grid_view</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="notifications-list" id="notificationsList">
+        <!-- Critical Alert -->
+        <div class="glass-card notification-item critical unread" data-type="critical" data-category="incident">
+            <div class="notification-icon">
+                <span class="material-icons-round">error</span>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h4 class="notification-title">Critical Medical Emergency - Building A</h4>
+                    <span class="notification-time">2 minutes ago</span>
+                </div>
+                <p class="notification-message">Medical emergency reported on Floor 3, Room 305. Immediate response
+                    required. Patient condition unknown.</p>
+                <div class="notification-meta">
+                    <span class="notification-category">Incident</span>
+                    <span class="notification-priority">Critical</span>
+                    <span class="notification-location">Building A, Floor 3</span>
+                </div>
+            </div>
+            <div class="notification-actions">
+                <button class="btn-sm action-btn mark-read">Mark Read</button>
+                <button class="btn-sm action-btn view-details">View Details</button>
+                <button class="btn-sm action-btn escalate">Escalate</button>
+            </div>
+            <div class="notification-status unread-indicator"></div>
+        </div>
+
+        <!-- High Priority -->
+        <div class="glass-card notification-item high-priority unread" data-type="high" data-category="equipment">
+            <div class="notification-icon">
+                <span class="material-icons-round">warning</span>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h4 class="notification-title">Fire Alarm System Maintenance Required</h4>
+                    <span class="notification-time">15 minutes ago</span>
+                </div>
+                <p class="notification-message">Routine maintenance required for fire alarm system in Building B.
+                    Schedule within 48 hours.</p>
+                <div class="notification-meta">
+                    <span class="notification-category">Equipment</span>
+                    <span class="notification-priority">High Priority</span>
+                    <span class="notification-location">Building B</span>
+                </div>
+            </div>
+            <div class="notification-actions">
+                <button class="btn-sm action-btn mark-read">Mark Read</button>
+                <button class="btn-sm action-btn view-details">View Details</button>
+                <button class="btn-sm action-btn schedule">Schedule</button>
+            </div>
+            <div class="notification-status unread-indicator"></div>
+        </div>
+
+        <!-- Medium Priority -->
+        <div class="glass-card notification-item medium-priority" data-type="medium" data-category="staff">
+            <div class="notification-icon">
+                <span class="material-icons-round">people</span>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h4 class="notification-title">Staff Training Session Tomorrow</h4>
+                    <span class="notification-time">1 hour ago</span>
+                </div>
+                <p class="notification-message">Quarterly safety training scheduled for tomorrow at 10:00 AM in
+                    Conference Room A.</p>
+                <div class="notification-meta">
+                    <span class="notification-category">Staff</span>
+                    <span class="notification-priority">Medium Priority</span>
+                    <span class="notification-location">Conference Room A</span>
+                </div>
+            </div>
+            <div class="notification-actions">
+                <button class="btn-sm action-btn mark-read">Mark Read</button>
+                <button class="btn-sm action-btn view-details">View Details</button>
+                <button class="btn-sm action-btn confirm">Confirm Attendance</button>
+            </div>
+        </div>
+
+        <!-- Information -->
+        <div class="glass-card notification-item information unread" data-type="info" data-category="system">
+            <div class="notification-icon">
+                <span class="material-icons-round">info</span>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h4 class="notification-title">System Update Completed</h4>
+                    <span class="notification-time">2 hours ago</span>
+                </div>
+                <p class="notification-message">Emergency response system has been successfully updated to version 2.4.1
+                    with improved performance.</p>
+                <div class="notification-meta">
+                    <span class="notification-category">System</span>
+                    <span class="notification-priority">Information</span>
+                    <span class="notification-location">System-wide</span>
+                </div>
+            </div>
+            <div class="notification-actions">
+                <button class="btn-sm action-btn mark-read">Mark Read</button>
+                <button class="btn-sm action-btn view-details">View Details</button>
+            </div>
+            <div class="notification-status unread-indicator"></div>
+        </div>
+
+        <!-- Low Priority -->
+        <div class="glass-card notification-item low-priority" data-type="low" data-category="maintenance">
+            <div class="notification-icon">
+                <span class="material-icons-round">build</span>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h4 class="notification-title">Monthly Maintenance Reminder</h4>
+                    <span class="notification-time">3 hours ago</span>
+                </div>
+                <p class="notification-message">Monthly equipment inspection due this week. Please check maintenance
+                    schedule.</p>
+                <div class="notification-meta">
+                    <span class="notification-category">Maintenance</span>
+                    <span class="notification-priority">Low Priority</span>
+                    <span class="notification-location">All Facilities</span>
+                </div>
+            </div>
+            <div class="notification-actions">
+                <button class="btn-sm action-btn mark-read">Mark Read</button>
+                <button class="btn-sm action-btn view-details">View Details</button>
+                <button class="btn-sm action-btn schedule">Schedule</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Notification History -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Recent History</h2>
+        <div class="history-filters">
+            <select class="glass-select filter-select">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="history-timeline">
+        <div class="timeline-item resolved">
+            <div class="timeline-marker">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+            <div class="timeline-content glass-card">
+                <div class="timeline-header">
+                    <h5 class="timeline-title">Fire Alarm Test Completed</h5>
+                    <span class="timeline-time">30 minutes ago</span>
+                </div>
+                <p class="timeline-description">Routine fire alarm test completed successfully in all buildings.</p>
+                <div class="timeline-meta">
+                    <span class="timeline-status">Resolved</span>
+                    <span class="timeline-category">Equipment</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item resolved">
+            <div class="timeline-marker">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+            <div class="timeline-content glass-card">
+                <div class="timeline-header">
+                    <h5 class="timeline-title">Medical Supply Restocked</h5>
+                    <span class="timeline-time">1 hour ago</span>
+                </div>
+                <p class="timeline-description">Emergency medical supplies have been restocked in all first aid
+                    stations.</p>
+                <div class="timeline-meta">
+                    <span class="timeline-status">Resolved</span>
+                    <span class="timeline-category">Maintenance</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item resolved">
+            <div class="timeline-marker">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+            <div class="timeline-content glass-card">
+                <div class="timeline-header">
+                    <h5 class="timeline-title">Staff Shift Change Completed</h5>
+                    <span class="timeline-time">2 hours ago</span>
+                </div>
+                <p class="timeline-description">Night shift to day shift transition completed without issues.</p>
+                <div class="timeline-meta">
+                    <span class="timeline-status">Resolved</span>
+                    <span class="timeline-category">Staff</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

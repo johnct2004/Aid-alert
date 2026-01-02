@@ -1,0 +1,257 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}System Reports - Admin Dashboard{% endblock %}
+{% block page_title %}System Reports{% endblock %}
+
+{% block admin_css %}
+<link rel="stylesheet" href="{% static 'css/admin/system_reports.css' %}">
+{% endblock %}
+
+{% block admin_content %}
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <span class="material-icons-round">people</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Total Users</h3>
+            <p class="stat-value">{{ total_users }}</p>
+            <span class="stat-info">+{{ user_growth }}% Growth</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <span class="material-icons-round">warning</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Total Incidents</h3>
+            <p class="stat-value">{{ total_incidents }}</p>
+            <span class="stat-info">Reported all time</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <span class="material-icons-round">local_shipping</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Active Responders</h3>
+            <p class="stat-value">{{ active_responders }}</p>
+            <span class="stat-info">Currently online</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <span class="material-icons-round">storefront</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Marketplace Items</h3>
+            <p class="stat-value">{{ marketplace_items }}</p>
+            <span class="stat-info">Active listings</span>
+        </div>
+    </div>
+</div>
+
+<!-- Reports Table Section -->
+<div class="glass-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Recent Reports</h2>
+        <div class="filters-wrapper">
+            <div class="search-box">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" class="search-input" placeholder="Search Reports">
+            </div>
+            <div class="dropdowns">
+                <select class="filter-select">
+                    <option>Report Type</option>
+                    <option>User Activity</option>
+                    <option>Incident Summary</option>
+                    <option>System Performance</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Generated</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.report_id }}</td>
+                    <td>
+                        {% if report.report_type == 'user_activity' %}
+                        <span class="report-type type-user">User Activity</span>
+                        {% elif report.report_type == 'incident_summary' %}
+                        <span class="report-type type-incident">Incident Summary</span>
+                        {% elif report.report_type == 'system_performance' %}
+                        <span class="report-type type-performance">System Performance</span>
+                        {% elif report.report_type == 'marketplace_stats' %}
+                        <span class="report-type type-marketplace">Marketplace Stats</span>
+                        {% else %}
+                        <span class="report-type">{{ report.get_report_type_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ report.title }}</td>
+                    <td>{{ report.generated_at|date:"Y-m-d h:i A" }}</td>
+                    <td>
+                        <select class="status-select status-{{ report.status }}" onchange="updateReportStatus(this)">
+                            <option value="completed" {% if report.status == "completed" %}selected{% endif %}>Completed</option>
+                            <option value="processing" {% if report.status == "processing" %}selected{% endif %}>Processing</option>
+                            <option value="scheduled" {% if report.status == "scheduled" %}selected{% endif %}>Scheduled</option>
+                            <option value="failed" {% if report.status == "failed" %}selected{% endif %}>Failed</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn-action" data-id="{{ report.report_id }}"
+                            data-type="{{ report.get_report_type_display }}" data-title="{{ report.title }}"
+                            data-date="{{ report.generated_at|date:'Y-m-d h:i A' }}" data-status="{{ report.status }}"
+                            onclick="viewReport(this)">View</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 30px; color: #888;">No reports found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_js %}
+<!-- Report Details Modal -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Report Details</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="report-info">
+                <div class="info-row">
+                    <span class="info-label">Report ID:</span>
+                    <span class="info-value" id="modalReportId">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Type:</span>
+                    <span class="info-value" id="modalReportType">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Title:</span>
+                    <span class="info-value" id="modalReportTitle">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Generated:</span>
+                    <span class="info-value" id="modalReportDate">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value" id="modalReportStatus">-</span>
+                </div>
+            </div>
+
+            <div class="report-summary" style="margin-top: 20px;">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">Executive Summary</h3>
+                <p id="modalReportSummary" style="color: #555; line-height: 1.5;">This report provides comprehensive
+                    analysis of system performance and
+                    user engagement metrics over the selected period. Key findings include improved response times
+                    and increased user activity.</p>
+            </div>
+
+            <div class="report-metrics">
+                <h3 style="font-size: 1rem; margin-bottom: 10px; margin-top: 20px;">Key Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-label">Total Records</span>
+                        <span class="metric-value">1,293</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Completion Rate</span>
+                        <span class="metric-value">94.2%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Avg Response Time</span>
+                        <span class="metric-value">2.3 min</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">User Satisfaction</span>
+                        <span class="metric-value">4.6/5.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary"
+                style="padding: 8px 15px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;"
+                onclick="closeModal()">Close</button>
+            <button class="btn btn-primary"
+                style="padding: 8px 15px; border: none; background: var(--primary-color); color: white; border-radius: 6px; cursor: pointer;"
+                onclick="downloadReport()">Download Report</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateReportStatus(select) {
+        const newStatus = select.value;
+        const row = select.closest('tr');
+        const reportId = row.querySelector('td:first-child').textContent;
+        // Optionally update styling class
+        showNotification(`Report ${reportId} status updated!`);
+    }
+
+    function viewReport(btn) {
+        // Populate modal with report data
+        document.getElementById('modalReportId').textContent = btn.dataset.id;
+        document.getElementById('modalReportType').textContent = btn.dataset.type;
+        document.getElementById('modalReportTitle').textContent = btn.dataset.title;
+        document.getElementById('modalReportDate').textContent = btn.dataset.date;
+
+        const status = btn.dataset.status;
+        document.getElementById('modalReportStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+
+        // Show modal
+        document.getElementById('reportModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('reportModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function downloadReport() {
+        const reportId = document.getElementById('modalReportId').textContent;
+        showNotification(`Downloading report ${reportId}...`);
+        setTimeout(() => {
+            showNotification(`Report ${reportId} downloaded successfully!`);
+        }, 1500);
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed; top: 20px; right: 20px;
+            background-color: var(--primary-color); color: white;
+            padding: 12px 20px; border-radius: 8px; z-index: 1000;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        notification.innerHTML = `<span class="material-icons-round">check_circle</span> ${message}`;
+        document.body.appendChild(notification);
+        setTimeout(() => { notification.remove(); }, 3000);
+    }
+</script>
+{% endblock %}

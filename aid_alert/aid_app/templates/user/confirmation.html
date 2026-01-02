@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Aid Alert</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="user_dashboard.css">
+    <link rel="stylesheet" href="confirmation.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="user_dashboard.html" class="brand">
+                    <span class="material-icons-round brand-icon">health_and_safety</span>
+                    <span class="brand-text">Aid Alert</span>
+                </a>
+            </div>
+            
+            <ul class="menu">
+                <li class="menu-item">
+                    <a href="user_dashboard.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">home</span>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="report_incident_new.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">report_problem</span>
+                        <span>Report Incident</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="incident_history.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">history</span>
+                        <span>Incident History</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="track_responder.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">location_on</span>
+                        <span>Track Responder</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="book_responder.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">bookmark_add</span>
+                        <span>Book Responder</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="first_aid_guides.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">medical_services</span>
+                        <span>First Aid Guides</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="buy_products_new.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">shopping_bag</span>
+                        <span>Buy Products</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="order_history.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">receipt_long</span>
+                        <span>Order History</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="processing.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">autorenew</span>
+                        <span>Order Processing</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="give_feedback.html" class="menu-link">
+                        <span class="material-icons-round menu-icon">rate_review</span>
+                        <span>Give Feedback</span>
+                    </a>
+                </li>
+                
+                <li class="menu-item mt-auto">
+                    <a href="logout.html" class="menu-link logout-link">
+                        <span class="material-icons-round menu-icon">logout</span>
+                        <span>Log Out</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 class="page-title">Order Confirmation</h1>
+                <div class="user-profile">
+                    <span class="user-name">{{ user.username }}</span>
+                    <div class="avatar-circle">
+                        <span class="material-icons-round">person</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Success Message -->
+                <div class="success-banner">
+                    <div class="success-icon">
+                        <span class="material-icons-round">check_circle</span>
+                    </div>
+                    <div class="success-content">
+                        <h2>Thank You for Your Order!</h2>
+                        <p>Your order has been successfully placed and is being processed.</p>
+                    </div>
+                </div>
+
+                <div class="confirmation-container">
+                    <!-- Order Details -->
+                    <div class="order-details">
+                        <div class="detail-card">
+                            <h3 class="card-title">
+                                <span class="material-icons-round">receipt</span>
+                                Order Information
+                            </h3>
+                            
+                            <div class="order-info">
+                                <div class="info-row">
+                                    <span class="label">Order Number:</span>
+                                    <span class="value order-number">#ORD-2024-12345</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Order Date:</span>
+                                    <span class="value" id="orderDate">December 21, 2024</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Order Status:</span>
+                                    <span class="value status-processing">Processing</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Expected Delivery:</span>
+                                    <span class="value" id="deliveryDate">December 26, 2024</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Payment Method:</span>
+                                    <span class="value">Credit Card ending in 3456</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Information -->
+                        <div class="detail-card">
+                            <h3 class="card-title">
+                                <span class="material-icons-round">person</span>
+                                Customer Information
+                            </h3>
+                            
+                            <div class="customer-info">
+                                <div class="info-row">
+                                    <span class="label">Name:</span>
+                                    <span class="value">{{ user.username }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Email:</span>
+                                    <span class="value">john.doe@email.com</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Phone:</span>
+                                    <span class="value">(555) 123-4567</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Information -->
+                        <div class="detail-card">
+                            <h3 class="card-title">
+                                <span class="material-icons-round">location_on</span>
+                                Shipping Information
+                            </h3>
+                            
+                            <div class="shipping-info">
+                                <div class="address">
+                                    <p class="name">{{ user.username }}</p>
+                                    <p class="street">123 Main Street, Apt 4B</p>
+                                    <p class="city-state">New York, NY 10001</p>
+                                    <p class="country">United States</p>
+                                </div>
+                                <div class="shipping-method">
+                                    <span class="method-label">Shipping Method:</span>
+                                    <span class="method-value">Standard Delivery (3-5 business days)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="detail-card">
+                            <h3 class="card-title">
+                                <span class="material-icons-round">shopping_cart</span>
+                                Order Items
+                            </h3>
+                            
+                            <div class="order-items" id="orderItems">
+                                <!-- Order items will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-card">
+                            <h3 class="summary-title">
+                                <span class="material-icons-round">summarize</span>
+                                Order Summary
+                            </h3>
+                            
+                            <div class="summary-details">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span id="subtotal">$0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping:</span>
+                                    <span id="shipping">$9.99</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax (10%):</span>
+                                    <span id="tax">$0.00</span>
+                                </div>
+                                <div class="summary-row discount hidden" id="discountRow">
+                                    <span>Discount:</span>
+                                    <span id="discount">-$0.00</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total:</span>
+                                    <span id="total">$0.00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="confirmation-actions">
+                                <button class="btn-primary" onclick="printOrder()">
+                                    <span class="material-icons-round">print</span>
+                                    Print Order
+                                </button>
+                                <button class="btn-secondary" onclick="continueShopping()">
+                                    <span class="material-icons-round">shopping_bag</span>
+                                    Continue Shopping
+                                </button>
+                                <button class="btn-secondary" onclick="viewOrderHistory()">
+                                    <span class="material-icons-round">history</span>
+                                    View Order History
+                                </button>
+                            </div>
+                            
+                            <!-- Help Section -->
+                            <div class="help-section">
+                                <h4>Need Help?</h4>
+                                <p>If you have any questions about your order, please contact our customer support.</p>
+                                <div class="contact-info">
+                                    <div class="contact-item">
+                                        <span class="material-icons-round">email</span>
+                                        <span>support@aidalert.com</span>
+                                    </div>
+                                    <div class="contact-item">
+                                        <span class="material-icons-round">phone</span>
+                                        <span>1-800-AID-HELP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample order data (in real app, this would come from backend)
+        const orderData = {
+            orderNumber: 'ORD-2024-12345',
+            orderDate: new Date(),
+            status: 'Processing',
+            expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+            paymentMethod: 'Credit Card ending in 3456',
+            customer: {
+                name: '{{ user.username }}',
+                email: 'john.doe@email.com',
+                phone: '(555) 123-4567'
+            },
+            shipping: {
+                name: '{{ user.username }}',
+                address: '123 Main Street, Apt 4B',
+                city: 'New York',
+                state: 'NY',
+                zip: '10001',
+                country: 'United States',
+                method: 'Standard Delivery (3-5 business days)'
+            },
+            items: [
+                {
+                    id: 'P001',
+                    name: 'Complete First Aid Kit',
+                    price: 29.99,
+                    quantity: 1,
+                    image: 'https://via.placeholder.com/60x60/ff6b35/ffffff?text=First+Aid'
+                },
+                {
+                    id: 'P003',
+                    name: 'CPR Face Mask',
+                    price: 8.99,
+                    quantity: 2,
+                    image: 'https://via.placeholder.com/60x60/2ecc71/ffffff?text=CPR+Mask'
+                },
+                {
+                    id: 'P005',
+                    name: 'Medical Gloves Box',
+                    price: 15.99,
+                    quantity: 1,
+                    image: 'https://via.placeholder.com/60x60/9b59b6/ffffff?text=Gloves'
+                }
+            ],
+            shippingCost: 9.99,
+            taxRate: 0.1,
+            discount: 0
+        };
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            populateOrderDetails();
+            renderOrderItems();
+            updateOrderSummary();
+        });
+
+        function populateOrderDetails() {
+            // Update order information
+            document.getElementById('orderDate').textContent = formatDate(orderData.orderDate);
+            document.getElementById('deliveryDate').textContent = formatDate(orderData.expectedDelivery);
+            
+            // Update customer information
+            // (Already populated in HTML for demo)
+        }
+
+        function renderOrderItems() {
+            const itemsContainer = document.getElementById('orderItems');
+            
+            itemsContainer.innerHTML = orderData.items.map(item => `
+                <div class="order-item">
+                    <div class="item-image">
+                        <img src="${item.image}" alt="${item.name}">
+                    </div>
+                    <div class="item-details">
+                        <h4>${item.name}</h4>
+                        <p>Quantity: ${item.quantity}</p>
+                    </div>
+                    <div class="item-price">
+                        $${(item.price * item.quantity).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateOrderSummary() {
+            const subtotal = orderData.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const tax = subtotal * orderData.taxRate;
+            const total = subtotal + orderData.shippingCost + tax - orderData.discount;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `$${orderData.shippingCost.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            
+            if (orderData.discount > 0) {
+                document.getElementById('discount').textContent = `-$${orderData.discount.toFixed(2)}`;
+                document.getElementById('discountRow').style.display = 'flex';
+            }
+            
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function printOrder() {
+            window.print();
+        }
+
+        function continueShopping() {
+            window.location.href = 'buy_products_new.html';
+        }
+
+        function viewOrderHistory() {
+            window.location.href = 'order_history.html';
+        }
+
+        // Simulate order status update (in real app, this would come from WebSocket or polling)
+        setTimeout(() => {
+            const statusElement = document.querySelector('.status-processing');
+            if (statusElement) {
+                statusElement.textContent = 'Confirmed';
+                statusElement.className = 'value status-confirmed';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Feedback Analysis - Admin Dashboard{% endblock %}
+{% block page_title %}Feedback Analysis{% endblock %}
+
+{% block admin_css %}
+<link rel="stylesheet" href="{% static 'css/admin/feedback_analysis.css' %}">
+{% endblock %}
+
+{% block admin_content %}
+<div class="glass-card">
+    <div class="card-header-row">
+        <h2 class="card-title">User Feedback</h2>
+        <div class="filters-wrapper">
+            <div class="search-box">
+                <span class="material-icons-round search-icon" style="color: #999;">search</span>
+                <input type="text" class="search-input" placeholder="Search Feedback">
+            </div>
+            <div class="dropdowns">
+                <select class="filter-select">
+                    <option>All Status</option>
+                    <option>Pending</option>
+                    <option>Replied</option>
+                    <option>Resolved</option>
+                </select>
+                <select class="filter-select">
+                    <option>All Ratings</option>
+                    <option>5 Stars</option>
+                    <option>4 Stars</option>
+                    <option>3 Stars</option>
+                    <option>2 Stars</option>
+                    <option>1 Star</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="feedback-list">
+        {% for feedback in feedbacks %}
+        <div class="feedback-item">
+            <div class="feedback-header">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <span class="material-icons-round">person</span>
+                    </div>
+                    <div class="user-details">
+                        <h4 class="user-name">{{ feedback.user.first_name|default:feedback.user.username }}</h4>
+                        <p class="feedback-date">{{ feedback.created_at|date:"M d, Y - h:i A" }}</p>
+                    </div>
+                </div>
+                <div class="feedback-rating">
+                    {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= feedback.rating %} <span class="material-icons-round star">star</span>
+                        {% else %}
+                        <span class="material-icons-round star">star_border</span>
+                        {% endif %}
+                        {% endfor %}
+                </div>
+            </div>
+            <div class="feedback-content">
+                <p class="feedback-text">{{ feedback.message }}</p>
+                <div class="feedback-tags">
+                    {% if feedback.sentiment == 'positive' %}
+                    <span class="tag tag-positive">Positive</span>
+                    {% elif feedback.sentiment == 'negative' %}
+                    <span class="tag tag-negative">Negative</span>
+                    {% else %}
+                    <span class="tag tag-neutral">Neutral</span>
+                    {% endif %}
+                    {% if feedback.tags %}
+                    <span class="tag">{{ feedback.tags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="feedback-actions">
+                <button class="btn-reply" onclick="openReplyModal(this)" data-id="{{ feedback.id }}">Reply</button>
+                <button class="btn-resolve" onclick="markAsResolved(this)" data-id="{{ feedback.id }}">Mark as
+                    Resolved</button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-feedback" style="text-align: center; padding: 40px; color: #888;">
+            <span class="material-icons-round"
+                style="font-size: 48px; margin-bottom: 10px; display: block;">rate_review</span>
+            <p>No feedback found yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_js %}
+<!-- Reply Modal -->
+<div id="replyModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 1rem; color: var(--secondary-color);">Reply to Feedback</h3>
+        <form id="replyForm" method="POST">
+            {% csrf_token %}
+            <textarea name="reply" rows="5"
+                style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; font-family: inherit; resize: vertical;"
+                placeholder="Type your reply here..." required></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button type="button" onclick="closeReplyModal()"
+                    style="padding: 0.6rem 1.2rem; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button type="submit"
+                    style="padding: 0.6rem 1.2rem; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">Send
+                    Reply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openReplyModal(btn) {
+        const id = btn.dataset.id;
+        const modal = document.getElementById('replyModal');
+        const form = document.getElementById('replyForm');
+
+        // Set the form action dynamically
+        form.action = "{% url 'aid_app:reply_feedback' 0 %}".replace('0', id);
+
+        modal.style.display = 'flex';
+    }
+
+    function closeReplyModal() {
+        document.getElementById('replyModal').style.display = 'none';
+    }
+
+    function markAsResolved(btn) {
+        const id = btn.dataset.id;
+        if (confirm("Mark Feedback #" + id + " as resolved?")) {
+            const item = btn.closest('.feedback-item');
+            item.style.opacity = '0.7';
+            btn.textContent = 'Resolved';
+            btn.disabled = true;
+            // In a real app, you would make an AJAx request here
+        }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        const modal = document.getElementById('replyModal');
+        if (event.target == modal) {
+            closeReplyModal();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'responder/base_responder.html' %}
+{% load static %}
+
+{% block page_title %}Feedback Received{% endblock %}
+{% block content_title %}Feedback Received{% endblock %}
+
+{% block responder_css %}
+<link rel="stylesheet" href="{% static 'css/responder/feedback_received.css' %}">
+{% endblock %}
+
+{% block responder_content %}
+<!-- Overview Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon rating-icon">
+            <span class="material-icons-round">star</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Average Rating</h3>
+            <p class="stat-value">{{ stats.rating|default:"0" }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon feedback-icon">
+            <span class="material-icons-round">comment</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Total Feedback</h3>
+            <p class="stat-value">{{ stats.total }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon positive-icon">
+            <span class="material-icons-round">thumb_up</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Positive Rate</h3>
+            <p class="stat-value">{{ stats.positive_rate }}%</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon recent-icon">
+            <span class="material-icons-round">new_releases</span>
+        </div>
+        <div>
+            <h3 class="stat-label">This Month</h3>
+            <p class="stat-value">+{{ stats.recent }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback List -->
+<section class="glass-card content-card mt-30">
+    <h2 class="card-title mb-20">Recent Feedback</h2>
+
+    <div class="feedback-list">
+        {% for feedback in feedback_list %}
+        <div class="feedback-item">
+            <div class="feedback-header">
+                <div class="feedback-info">
+                    <h4>{{ feedback.incident.get_incident_type_display|default:"Incident Feedback" }}</h4>
+                    <span class="feedback-date">{{ feedback.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="stars">
+                    <span class="rating-score">{{ feedback.rating }}.0</span>
+                    <span class="material-icons-round star star-icon">star</span>
+                </div>
+            </div>
+
+            <p class="feedback-text">"{{ feedback.message }}"</p>
+
+            <div class="feedback-meta">
+                <span class="feedback-author">From: {{ feedback.user.first_name|default:feedback.user.username }}</span>
+                <span class="feedback-type">Incident #{{ feedback.incident.id }}</span>
+            </div>
+
+            <!-- Responder Reply Section -->
+            <div class="reply-section">
+                {% if feedback.reply %}
+                <div class="responder-response responder-reply-box">
+                    <div class="reply-header">
+                        <strong class="reply-title">Your Reply</strong>
+                        <small class="text-muted">{{ feedback.replied_at|date:"M d" }}</small>
+                    </div>
+                    <p class="reply-content">{{ feedback.reply }}</p>
+                </div>
+                {% else %}
+                <form method="POST" class="reply-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                    <div class="reply-form-container">
+                        <textarea name="reply_message" rows="1" class="glass-input reply-textarea"
+                            placeholder="Write a reply..." required></textarea>
+                        <button type="submit" class="btn-action btn-sm btn-nowrap">
+                            <span class="material-icons-round btn-icon-sm">reply</span>
+                            Reply
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <span class="material-icons-round">rate_review</span>
+            </div>
+            <p>No feedback received yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block responder_js %}
+<script>
+    // Filter functionality
+    const filterSelects = document.querySelectorAll('.filter-select');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function () {
+            // In a real app, this would fetch filtered data or filter the DOM
+            console.log('Filter changed:', this.value);
+
+            // Simulating a refresh/filter effect
+            const feedbackList = document.querySelector('.feedback-list');
+            feedbackList.style.opacity = '0.5';
+            setTimeout(() => {
+                feedbackList.style.opacity = '1';
+            }, 300);
+        });
+    });
+</script>
+{% endblock %}

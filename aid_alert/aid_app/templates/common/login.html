@@ -1,0 +1,49 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Login - Aid Alert{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="glass-card login-card">
+        <a href="{% url 'aid_app:home' %}" class="logo-text">AID ALERT</a>
+        <h2 class="login-title">Welcome Back</h2>
+
+        <!-- Display Django messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form action="{% url 'aid_app:login' %}" method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="glass-input" placeholder="Enter your username"
+                    required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="glass-input"
+                    placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+
+            <div class="form-footer">
+                <div style="margin-bottom: 10px;">
+                    <a href="{% url 'aid_app:forgot_password' %}" class="forgot-password">Forgot Password?</a>
+                </div>
+                <p>New to Aid Alert? <a href="{% url 'aid_app:register' %}" class="sign-up">Create Account</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

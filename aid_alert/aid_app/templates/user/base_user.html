@@ -1,0 +1,138 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/user/user_theme.css' %}">
+{% block user_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="glass-sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'aid_app:dashboard' %}" class="brand">
+                <span class="material-icons-round brand-icon">health_and_safety</span>
+                <span class="brand-text">Aid Alert</span>
+            </a>
+        </div>
+
+        <ul class="menu">
+            <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <a href="{% url 'aid_app:dashboard' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">home</span>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'report_incident' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:report_incident' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">report_problem</span>
+                    <span>Report Incident</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'incident_history' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:incident_history' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">history</span>
+                    <span>Incident History</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'book_responder' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:book_responder' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">location_on</span>
+                    <span>Track Responder</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'first_aid_guides' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:first_aid_guides' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">medical_services</span>
+                    <span>First Aid Guides</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'buy_products' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:buy_products' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">shopping_bag</span>
+                    <span>Buy Products</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'order_history' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:order_history' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">receipt_long</span>
+                    <span>Order History</span>
+                </a>
+            </li>
+            <li class="menu-item {% if 'give_feedback' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'aid_app:give_feedback' %}" class="menu-link">
+                    <span class="material-icons-round menu-icon">rate_review</span>
+                    <span>Give Feedback</span>
+                </a>
+            </li>
+
+
+            <li class="menu-item mt-auto">
+                <a href="{% url 'aid_app:logout' %}" class="menu-link logout-link">
+                    <span class="material-icons-round menu-icon">logout</span>
+                    <span>Log Out</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">{% block page_title %}User Dashboard{% endblock %}</h1>
+            {% block header_profile %}
+            <div class="profile-dropdown-container">
+                <div class="user-profile-trigger" onclick="toggleProfileMenu()">
+                    <div class="user-profile">
+                        <span class="user-name" style="font-weight: 500;">{{ user.first_name }}</span>
+                        <div class="avatar-circle">
+                            {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" alt="Profile"
+                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                            <span class="material-icons-round" style="font-size: 20px;">person</span>
+                            {% endif %}
+                        </div>
+                        <span class="material-icons-round dropdown-arrow">expand_more</span>
+                    </div>
+                </div>
+
+                <div class="profile-dropdown-menu" id="profileDropdown">
+                    <a href="{% url 'aid_app:profile' %}" class="dropdown-item">
+                        <span class="material-icons-round">person</span>
+                        My Profile
+                    </a>
+                    <a href="{% url 'aid_app:processing' %}" class="dropdown-item">
+                        <span class="material-icons-round">autorenew</span>
+                        Order Processing
+                    </a>
+                </div>
+            </div>
+
+            <script>
+                function toggleProfileMenu() {
+                    const menu = document.getElementById('profileDropdown');
+                    menu.classList.toggle('show');
+                }
+
+                // Close dropdown when clicking outside
+                window.addEventListener('click', function (e) {
+                    const container = document.querySelector('.profile-dropdown-container');
+                    const menu = document.getElementById('profileDropdown');
+                    if (!container.contains(e.target)) {
+                        menu.classList.remove('show');
+                    }
+                });
+            </script>
+            {% endblock %}
+        </header>
+
+        {% block user_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block user_js %}{% endblock %}
+{% endblock %}

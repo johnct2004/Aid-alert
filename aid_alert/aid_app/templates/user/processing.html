@@ -1,0 +1,110 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}Order Processing{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/processing.css' %}">
+{% endblock %}
+
+{% block user_content %}
+<!-- Display Django messages -->
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="processing-container">
+    {% if orders %}
+    {% for order in orders %}
+    <div class="glass-card status-card">
+        <div class="status-header">
+            <div class="status-icon-container">
+                {% if order.status == 'pending' %}
+                <span class="material-icons-round status-icon warning">pending</span>
+                {% elif order.status == 'processing' %}
+                <span class="material-icons-round status-icon info">autorenew</span>
+                {% elif order.status == 'shipped' %}
+                <span class="material-icons-round status-icon primary">local_shipping</span>
+                {% elif order.status == 'delivered' %}
+                <span class="material-icons-round status-icon success">check_circle</span>
+                {% elif order.status == 'cancelled' %}
+                <span class="material-icons-round status-icon danger">cancel</span>
+                {% elif order.status == 'returned' %}
+                <span class="material-icons-round status-icon danger">assignment_return</span>
+                {% endif %}
+            </div>
+            <div class="status-content">
+                <h2 class="status-title">Order #{{ order.order_id }}</h2>
+                <p class="status-description">
+                    Status: {{ order.get_status_display }}
+                    <span class="order-date"> • {{ order.created_at|date:"M d, Y" }}</span>
+                </p>
+            </div>
+            <div class="status-actions">
+                {% if order.status == 'pending' or order.status == 'processing' %}
+                <a href="{% url 'aid_app:cancel_order' order.id %}" class="btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to cancel this order?')">
+                    Cancel Order
+                </a>
+                {% elif order.status == 'delivered' %}
+                <a href="{% url 'aid_app:return_order' order.id %}" class="btn-sm btn-warning"
+                    onclick="return confirm('Are you sure you want to return this order?')">
+                    Return Order
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Preview -->
+        <div class="order-item-preview">
+            <div class="item-info">
+                <strong>{{ order.product.name }}</strong>
+                <span>Qty: {{ order.quantity }}</span>
+                <span>Total: ${{ order.total_price }}</span>
+            </div>
+        </div>
+
+        <!-- Timeline for Active Orders -->
+        {% if order.status != 'cancelled' and order.status != 'returned' %}
+        <div class="timeline">
+            <div
+                class="timeline-step {% if order.status in 'pending,processing,shipped,delivered' %}completed{% endif %}">
+                <span class="material-icons-round">pending</span>
+                <span>Pending</span>
+            </div>
+            <div class="timeline-step {% if order.status in 'processing,shipped,delivered' %}completed{% endif %}">
+                <span class="material-icons-round">autorenew</span>
+                <span>Processing</span>
+            </div>
+            <div class="timeline-step {% if order.status in 'shipped,delivered' %}completed{% endif %}">
+                <span class="material-icons-round">local_shipping</span>
+                <span>Shipped</span>
+            </div>
+            <div class="timeline-step {% if order.status == 'delivered' %}completed{% endif %}">
+                <span class="material-icons-round">check_circle</span>
+                <span>Delivered</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="glass-card empty-state">
+        <span class="material-icons-round">shopping_bag</span>
+        <h3>No Active Orders</h3>
+        <p>You don't have any orders in processing right now.</p>
+        <a href="{% url 'aid_app:buy_products' %}" class="btn btn-primary">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block user_js %}
+<script>
+    // additional JS if needed
+</script>
+{% endblock %}

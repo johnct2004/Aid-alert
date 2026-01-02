@@ -1,0 +1,294 @@
+/* Book Responder Page Specific Styles */
+/* Extending user_theme.css */
+
+.booking-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* --- Section Headers --- */
+.section-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 15px;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0 0 5px 0;
+}
+
+.section-header p {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* --- Form Styles --- */
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+.form-group label .material-icons-round {
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+.form-hint {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #555;
+    cursor: pointer;
+}
+
+/* --- Form Actions --- */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* --- Responders Grid --- */
+.responders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.responder-card {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.responder-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.responder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.responder-info {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+}
+
+.responder-avatar {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.responder-details h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.responder-type {
+    margin: 0 0 4px 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.responder-rating {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #f1c40f;
+}
+
+.rating-count {
+    color: #888;
+    margin-left: 5px;
+    font-size: 0.8rem;
+}
+
+.badge-available {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.responder-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.stat .material-icons-round {
+    font-size: 16px;
+    color: var(--primary-color);
+}
+
+/* Skills */
+.responder-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.skill-tag {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.responder-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Recent Bookings --- */
+.bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.booking-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.booking-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-completed {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.badge-cancelled {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.booking-details h4 {
+    margin: 0 0 4px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.booking-details p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.booking-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+
+    .booking-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .booking-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

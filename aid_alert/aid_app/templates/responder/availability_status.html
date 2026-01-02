@@ -1,0 +1,297 @@
+{% extends 'responder/base_responder.html' %}
+{% load static %}
+
+{% block page_title %}Availability Status{% endblock %}
+{% block content_title %}Availability Status{% endblock %}
+
+{% block responder_css %}
+<link rel="stylesheet" href="{% static 'css/responder/availability_status.css' %}">
+{% endblock %}
+
+{% block responder_content %}
+<!-- Current Status Card -->
+<section class="glass-card content-card">
+    <h2 class="card-title" style="margin-bottom: 20px;">Current Availability Status</h2>
+
+    <div class="status-display">
+        <div class="status-icon-large" style="background-color: var(--success-color);">
+            <span class="material-icons-round" id="status-icon">check_circle</span>
+        </div>
+        <div class="status-info">
+            <h3 class="status-text" id="status-text">Available</h3>
+            <p class="status-description" id="status-description">Ready to accept new incidents</p>
+            <p class="status-time" id="status-time">Status updated: Just now</p>
+        </div>
+    </div>
+
+    <div class="status-actions">
+        <button class="btn btn-primary btn-large" onclick="toggleAvailability()">
+            <span class="material-icons-round">toggle_on</span>
+            Toggle Availability
+        </button>
+        <button class="btn btn-secondary btn-set-available" onclick="setAvailability('available')">
+            <span class="material-icons-round">check_circle</span>
+            Set Available
+        </button>
+        <button class="btn btn-secondary btn-set-unavailable" onclick="setAvailability('unavailable')">
+            <span class="material-icons-round">cancel</span>
+            Set Unavailable
+        </button>
+    </div>
+</section>
+
+<!-- Availability Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon available-time-icon">
+            <span class="material-icons-round">schedule</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Available Today</h3>
+            <p class="stat-value">6h 45m</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon incidents-icon">
+            <span class="material-icons-round">emergency</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Incidents Handled</h3>
+            <p class="stat-value">3</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon response-time-icon">
+            <span class="material-icons-round">speed</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Avg Response Time</h3>
+            <p class="stat-value">8.2 min</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon rating-icon">
+            <span class="material-icons-round">star</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Today's Rating</h3>
+            <p class="stat-value">4.9/5</p>
+        </div>
+    </div>
+</div>
+
+<!-- Availability History -->
+<section class="glass-card content-card">
+    <h2 class="card-title" style="margin-bottom: 20px;">Availability History</h2>
+
+    <div class="history-timeline">
+        {% for log in history %}
+        <div class="timeline-item">
+            <div class="timeline-marker {{ log.status|slugify }}">
+                <span class="material-icons-round">
+                    {% if log.status == 'available' %}check_circle
+                    {% elif log.status == 'unavailable' %}cancel
+                    {% elif log.status == 'on_duty' %}emergency
+                    {% elif log.status == 'off_duty' %}work_off
+                    {% else %}info{% endif %}
+                </span>
+            </div>
+            <div class="timeline-content">
+                <h4 class="timeline-title">{{ log.get_status_display }}</h4>
+                <p class="timeline-desc">{{ log.description|default:"Status updated" }}</p>
+                <span class="timeline-time">{{ log.timestamp|timesince }} ago</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="timeline-item">
+            <div class="timeline-content" style="text-align: center; color: #888;">
+                <p>No history recorded yet.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Quick Settings -->
+<section class="glass-card content-card">
+    <h2 class="card-title" style="margin-bottom: 20px;">Quick Settings</h2>
+
+    <div class="settings-grid">
+        <div class="setting-item">
+            <div class="setting-info">
+                <h3 class="setting-title">Auto-Availability</h3>
+                <p class="setting-desc">Automatically set available after completing incident</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="auto-availability" checked>
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <div class="setting-info">
+                <h3 class="setting-title">Break Reminders</h3>
+                <p class="setting-desc">Notify when available for extended periods</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="break-reminders">
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <div class="setting-info">
+                <h3 class="setting-title">Priority Incidents</h3>
+                <p class="setting-desc">Accept high-priority incidents even when unavailable</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="priority-incidents" checked>
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block responder_js %}
+<script>
+    // Note: The header toggle logic is in base_responder.html
+    // We hook into it by listening to the global event or updating UI based on shared state
+
+    function updateMainStatus(status) {
+        const statusIcon = document.getElementById('status-icon');
+        const statusText = document.getElementById('status-text');
+        const statusDescription = document.getElementById('status-description');
+        const statusTime = document.getElementById('status-time');
+        const iconContainer = document.querySelector('.status-icon-large');
+
+        const statusConfig = {
+            'available': {
+                icon: 'check_circle',
+                text: 'Available',
+                description: 'Ready to accept new incidents',
+                color: 'var(--success-color)'
+            },
+            'unavailable': {
+                icon: 'cancel',
+                text: 'Unavailable',
+                description: 'Not accepting new incidents',
+                color: 'var(--warning-color)'
+            },
+            'on-duty': {
+                icon: 'emergency',
+                text: 'On Duty',
+                description: 'Currently responding to an incident',
+                color: '#f39c12'
+            }
+        };
+
+        if (statusConfig[status]) {
+            statusIcon.textContent = statusConfig[status].icon;
+            statusText.textContent = statusConfig[status].text;
+            statusDescription.textContent = statusConfig[status].description;
+            statusTime.textContent = 'Status updated: Just now';
+            iconContainer.style.backgroundColor = statusConfig[status].color;
+            iconContainer.style.boxShadow = `0 10px 25px ${statusConfig[status].color}4d`; // 30% opacity
+        }
+    }
+
+    function toggleAvailability() {
+        const headerToggle = document.getElementById('header-availability-toggle');
+        if (headerToggle) {
+            headerToggle.click(); // This triggers the change event on the header toggle
+        }
+    }
+
+    function setAvailability(status) {
+        const headerToggle = document.getElementById('header-availability-toggle');
+        if (headerToggle) {
+            if (status === 'available' && !headerToggle.checked) {
+                headerToggle.click();
+            } else if (status === 'unavailable' && headerToggle.checked) {
+                headerToggle.click();
+            }
+        }
+        updateMainStatus(status);
+    }
+
+    // Listen for changes from the header toggle if needed, or initialized state
+    window.addEventListener('load', function () {
+        // Simple init based on what base_responder set up
+        const headerToggle = document.getElementById('header-availability-toggle');
+        if (headerToggle) {
+            updateMainStatus(headerToggle.checked ? 'available' : 'unavailable');
+
+            // Listen for future changes
+            headerToggle.addEventListener('change', function () {
+                updateMainStatus(this.checked ? 'available' : 'unavailable');
+            });
+        }
+
+        // Also load local settings for switches
+        document.getElementById('auto-availability').checked = localStorage.getItem('autoAvailability') !== 'false';
+        document.getElementById('break-reminders').checked = localStorage.getItem('breakReminders') === 'true';
+        document.getElementById('priority-incidents').checked = localStorage.getItem('priorityIncidents') !== 'false';
+    });
+
+    // Settings functionality
+    document.getElementById('auto-availability').addEventListener('change', function () {
+        localStorage.setItem('autoAvailability', this.checked);
+        showNotification(`Auto-availability ${this.checked ? 'enabled' : 'disabled'}`);
+    });
+
+    document.getElementById('break-reminders').addEventListener('change', function () {
+        localStorage.setItem('breakReminders', this.checked);
+        showNotification(`Break reminders ${this.checked ? 'enabled' : 'disabled'}`);
+    });
+
+    document.getElementById('priority-incidents').addEventListener('change', function () {
+        localStorage.setItem('priorityIncidents', this.checked);
+        showNotification(`Priority incidents ${this.checked ? 'enabled' : 'disabled'}`);
+    });
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'glass-alert';
+        notification.innerHTML = `<span class="material-icons-round">info</span> <span>${message}</span>`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => document.body.removeChild(notification), 300);
+        }, 3000);
+    }
+</script>
+<style>
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}

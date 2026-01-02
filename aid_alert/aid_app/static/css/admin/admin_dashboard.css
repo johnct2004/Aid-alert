@@ -1,0 +1,195 @@
+/* Specific styles for Admin Dashboard */
+
+/* Welcome Section */
+.welcome-section {
+    margin-bottom: 20px;
+}
+
+/* Stats Cards Specifics */
+.stat-icon.icon-users {
+    background: rgba(52, 152, 219, 0.1);
+    /* Fallback or default if not set in theme */
+    color: #3498db;
+}
+
+.stat-icon.icon-incidents {
+    background: rgba(255, 159, 67, 0.1);
+    color: #ff9f43;
+}
+
+.stat-icon.icon-responders {
+    background: rgba(84, 160, 255, 0.1);
+    color: #54a0ff;
+}
+
+.stat-icon.icon-market {
+    background: rgba(108, 92, 231, 0.1);
+    color: #6c5ce7;
+}
+
+.text-success {
+    color: #2ecc71;
+}
+
+.text-danger {
+    color: #ff6b6b;
+}
+
+.stat-note {
+    font-size: 0.8rem;
+}
+
+/* Dashboard Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+/* Recent Activity */
+.activity-card {
+    padding: 0;
+}
+
+.activity-header {
+    padding: 20px;
+    margin: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.activity-list {
+    padding: 20px;
+}
+
+.activity-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+.activity-item:last-child {
+    margin-bottom: 0;
+}
+
+.activity-icon {
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.activity-icon.type-emergency {
+    background: #ffeaa7;
+    color: #fdcb6e;
+}
+
+.activity-icon.type-seller {
+    background: #fab1a0;
+    color: #e17055;
+}
+
+.activity-icon.type-feedback {
+    background: #a29bfe;
+    color: #6c5ce7;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    margin: 0 0 5px 0;
+}
+
+.activity-desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+/* Quick Actions */
+.quick-actions h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    text-decoration: none;
+    color: #555;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+.quick-action-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.quick-action-btn .material-icons-round {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+/* Performance Card */
+.performance-card {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.performance-title {
+    margin-top: 0;
+}
+
+.performance-item {
+    margin-bottom: 10px;
+}
+
+.performance-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.progress-track {
+    background: rgba(0, 0, 0, 0.1);
+    height: 6px;
+    border-radius: 3px;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.progress-uptime {
+    width: 99.9%;
+    background: #2ecc71;
+}
+
+.progress-response {
+    width: 85%;
+    background: #3498db;
+}

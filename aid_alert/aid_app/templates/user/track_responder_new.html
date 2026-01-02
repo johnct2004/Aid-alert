@@ -1,0 +1,228 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}Track Responder{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/track_responder.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block user_content %}
+<div class="tracking-container">
+    <!-- Active Incident Alert -->
+    <div class="glass-card incident-alert">
+        <div class="alert-icon">
+            <span class="material-icons-round">emergency</span>
+        </div>
+        <div class="alert-content">
+            <h3>Active Incident #2024-001234</h3>
+            <p>Medical Emergency - Responders Dispatched</p>
+        </div>
+        <div class="alert-status">
+            <span class="status-badge active">IN PROGRESS</span>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="glass-card map-section-wrapper" style="padding: 0; overflow: hidden;">
+        <div class="map-header"
+            style="padding: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0; font-size: 1.25rem;">Live Tracking</h2>
+            <div class="map-controls">
+                <button class="btn btn-sm btn-secondary" id="centerMap">
+                    <span class="material-icons-round">my_location</span>
+                    Center Map
+                </button>
+            </div>
+        </div>
+        <div id="mapContainer" class="map-container" style="height: 400px; width: 100%;"></div>
+        <div class="map-legend"
+            style="padding: 15px; background: rgba(255,255,255,0.5); border-top: 1px solid rgba(0,0,0,0.05);">
+            <div class="legend-item">
+                <span class="legend-icon user-location"></span>
+                <span>Your Location</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon responder-location"></span>
+                <span>Responder</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon incident-location"></span>
+                <span>Incident Site</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-grid-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <!-- Responder Information Panel -->
+        <div class="glass-card responder-panel">
+            <div class="panel-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.2rem;">Responder Information</h2>
+                <div class="connection-status">
+                    <span class="status-indicator online"></span>
+                    <span style="font-size: 0.9rem; color: #2ecc71;">Connected</span>
+                </div>
+            </div>
+
+            <div class="responder-details">
+                <div class="responder-info" style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div class="responder-avatar">
+                        <img src="https://picsum.photos/seed/responder1/80/80.jpg" alt="Responder">
+                    </div>
+                    <div class="responder-data">
+                        <h3 id="responderName" style="margin: 0 0 5px 0;">Officer Michael Chen</h3>
+                        <p class="responder-role" id="responderUnit" style="color: #666; margin: 0 0 10px 0;">Paramedic
+                            - Unit #A12</p>
+                        <div class="responder-stats" style="display: flex; gap: 15px;">
+                            <div class="stat-item">
+                                <span class="material-icons-round" style="color: #f1c40f; font-size: 16px;">star</span>
+                                <span id="responderRating">4.8 Rating</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="material-icons-round"
+                                    style="color: #3498db; font-size: 16px;">local_hospital</span>
+                                <span id="responderCertifications">EMT Certified</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-timeline">
+                    <h3 style="font-size: 1rem; margin-bottom: 15px;">Status Updates</h3>
+                    <div class="timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-icon"><span class="material-icons-round">check_circle</span></div>
+                            <div class="timeline-content">
+                                <p class="timeline-title">Dispatched</p>
+                                <p class="timeline-time">2:45 PM</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="timeline-icon"><span class="material-icons-round">directions_car</span></div>
+                            <div class="timeline-content">
+                                <p class="timeline-title">En Route</p>
+                                <p class="timeline-time">2:47 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Information -->
+        <div class="glass-card emergency-info">
+            <div class="info-header" style="margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.2rem;">Emergency Information</h2>
+            </div>
+            <div class="info-details-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                <div class="info-card-item">
+                    <span class="material-icons-round" style="color: var(--primary-color);">location_on</span>
+                    <div>
+                        <h3>Incident Location</h3>
+                        <p>123 Main Street, Building A</p>
+                    </div>
+                </div>
+                <div class="info-card-item">
+                    <span class="material-icons-round" style="color: var(--primary-color);">access_time</span>
+                    <div>
+                        <h3>Estimated Arrival</h3>
+                        <p class="eta" style="color: var(--primary-color); font-weight: bold;">13 minutes</p>
+                    </div>
+                </div>
+                <div class="info-card-item">
+                    <span class="material-icons-round" style="color: var(--primary-color);">phone</span>
+                    <div>
+                        <h3>Emergency Contact</h3>
+                        <p>(555) 123-4567</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block user_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Copying the essential map logic
+    let map;
+    let userMarker;
+    let responderMarker;
+    let responderPath;
+
+    function initMap() {
+        // Default to New York for demo if geolocation fails or permission denied
+        const defaultLat = 40.7128;
+        const defaultLng = -74.0060;
+
+        map = L.map('mapContainer').setView([defaultLat, defaultLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // User Marker
+        const userIcon = L.divIcon({
+            html: '<div class="custom-marker user-marker"><span class="material-icons-round">person</span></div>',
+            iconSize: [30, 30],
+            className: 'custom-div-icon'
+        });
+        userMarker = L.marker([defaultLat, defaultLng], { icon: userIcon }).addTo(map).bindPopup("Your Location");
+
+        // Responder Marker
+        const responderLat = defaultLat + 0.01;
+        const responderLng = defaultLng + 0.01;
+        const responderIcon = L.divIcon({
+            html: '<div class="custom-marker responder-marker"><span class="material-icons-round">emergency</span></div>',
+            iconSize: [30, 30],
+            className: 'custom-div-icon'
+        });
+        responderMarker = L.marker([responderLat, responderLng], { icon: responderIcon }).addTo(map).bindPopup("Responder");
+
+        // Polylines
+        responderPath = L.polyline([[responderLat, responderLng], [defaultLat, defaultLng]], {
+            color: '#ff6b35',
+            weight: 3,
+            opacity: 0.7,
+            dashArray: '10, 10'
+        }).addTo(map);
+
+        // Geolocation attempt
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 15);
+                userMarker.setLatLng([lat, lng]);
+                // Update responder relative to user
+                const rLat = lat + 0.005;
+                const rLng = lng + 0.005;
+                responderMarker.setLatLng([rLat, rLng]);
+                responderPath.setLatLngs([[rLat, rLng], [lat, lng]]);
+            });
+        }
+    }
+
+    document.getElementById('centerMap').addEventListener('click', function () {
+        if (userMarker) {
+            map.setView(userMarker.getLatLng(), 15);
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', initMap);
+
+    // Simulate Responder Movement
+    setInterval(() => {
+        if (userMarker && responderMarker) {
+            const u = userMarker.getLatLng();
+            const r = responderMarker.getLatLng();
+            const newLat = r.lat + (u.lat - r.lat) * 0.05;
+            const newLng = r.lng + (u.lng - r.lng) * 0.05;
+            responderMarker.setLatLng([newLat, newLng]);
+            responderPath.setLatLngs([[newLat, newLng], [u.lat, u.lng]]);
+        }
+    }, 2000);
+</script>
+{% endblock %}

@@ -1,0 +1,180 @@
+/* Register Page Specific Styles */
+
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 600px;
+    /* Wider than login for better layout */
+    text-align: center;
+    max-height: 90vh;
+    /* Prevent overflowing screen on small devices */
+    overflow-y: auto;
+    /* Scroll inside card if needed */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Scrollbar */
+.register-card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.register-card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.register-card::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.register-title {
+    margin-bottom: 30px;
+    color: #555;
+    font-size: 1.5rem;
+}
+
+/* Form Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+}
+
+.input-group {
+    margin-bottom: 0;
+    /* Handled by grid gap */
+}
+
+/* Full width for certain fields */
+.full-width {
+    grid-column: span 2;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+    margin-top: 20px;
+}
+
+.register-btn:hover {
+    background: #d62828;
+    transform: translateY(-2px);
+}
+
+.form-footer {
+    margin-top: 25px;
+    font-size: 0.9rem;
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 4px;
+}
+
+/* Password Requirements */
+.password-requirements {
+    margin-top: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+    text-align: left;
+}
+
+.requirements-title {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.requirements-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.requirements-list li {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 4px;
+    padding-left: 14px;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.requirements-list li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: span 1;
+    }
+
+    .register-card {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,160 @@
+/* Responder History CSS - White Glass Aesthetic */
+/* Extends responder_theme.css */
+
+/* Data Table Overrides */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.data-table th {
+    font-weight: 600;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.data-table tr:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Filters */
+.filters-wrapper {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    width: 250px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    outline: none;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.dropdowns {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    outline: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-select:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.page-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #555;
+    font-weight: 600;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: white;
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.page-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.pagination-dots {
+    color: #888;
+    padding: 0 5px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .filters-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .dropdowns {
+        width: 100%;
+    }
+
+    .filter-select {
+        flex: 1;
+    }
+
+    .data-table {
+        display: block;
+        overflow-x: auto;
+    }
+}

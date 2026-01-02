@@ -1,0 +1,152 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Manage Kits{% endblock %}
+{% block content_title %}Manage Kits{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/manage_kits.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<section class="glass-card content-card margin-0">
+    <div class="card-header-row">
+        <h2 class="card-title">Medical Kits Inventory</h2>
+        <div class="actions-wrapper">
+            <button class="btn-action" onclick="showAddKitModal()">
+                <span class="material-icons-round">add</span>
+                Add New Kit
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-wrapper">
+        <div class="search-box">
+            <span class="material-icons-round search-icon">search</span>
+            <input type="text" class="search-input glass-input" placeholder="Search by Kit ID or Name...">
+        </div>
+        <div class="filter-buttons">
+            <button class="glass-btn filter-btn active" data-filter="all">All</button>
+            <button class="glass-btn filter-btn" data-filter="available">Available</button>
+            <button class="glass-btn filter-btn" data-filter="in_use">In Use</button>
+            <button class="glass-btn filter-btn" data-filter="maintenance">Maintenance</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table">
+            <thead>
+                <tr>
+                    <th>Kit ID</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Last Checked</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="kitsTableBody">
+                {% for kit in kits %}
+                <tr class="kit-row" data-status="{{ kit.status }}">
+                    <td>
+                        <div class="kit-id">
+                            <span class="material-icons-round kit-icon">inventory_2</span>
+                            {{ kit.kit_id }}
+                        </div>
+                    </td>
+                    <td><span class="kit-name">{{ kit.name }}</span></td>
+                    <td>{{ kit.location|default:"Not Assigned" }}</td>
+                    <td>
+                        <span class="status-badge status-{{ kit.status }}">
+                            {{ kit.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ kit.last_checked|date:"M d, Y H:i" }}</td>
+                    <td>
+                        <div class="action-buttons-cell">
+                            <button class="btn-icon btn-view" onclick="viewKit('{{ kit.kit_id }}')"
+                                title="View Details">
+                                <span class="material-icons-round">visibility</span>
+                            </button>
+                            <button class="btn-icon btn-edit" onclick="editKit('{{ kit.kit_id }}')" title="Edit Kit">
+                                <span class="material-icons-round">edit</span>
+                            </button>
+                            <button class="btn-icon btn-check" onclick="checkKit('{{ kit.kit_id }}')" title="Check Kit">
+                                <span class="material-icons-round">fact_check</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="no-data">
+                        <div class="empty-state">
+                            <span class="material-icons-round empty-icon">inventory_2</span>
+                            <h3>No kits found</h3>
+                            <p>Start by adding your first medical kit to the inventory.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block facility_js %}
+<script>
+    // Search functionality
+    document.querySelector('.search-input').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.kit-row');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Filter functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            // Remove active class from all buttons
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            const filter = this.getAttribute('data-filter');
+            const rows = document.querySelectorAll('.kit-row');
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                if (filter === 'all' || status === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Kit action functions (Mock)
+    function viewKit(kitId) {
+        // window.location.href = `/kit-details/${kitId}/`;
+        alert('View details for ' + kitId);
+    }
+
+    function editKit(kitId) {
+        // window.location.href = `/edit-kit/${kitId}/`;
+        alert('Edit kit ' + kitId);
+    }
+
+    function checkKit(kitId) {
+        // window.location.href = `/check-kit/${kitId}/`;
+        alert('Perform check on ' + kitId);
+    }
+
+    function showAddKitModal() {
+        alert('Show Add Kit Modal');
+    }
+</script>
+{% endblock %}

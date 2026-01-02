@@ -1,0 +1,279 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}Incident History{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/user_dashboard.css' %}?v=1.0">
+<link rel="stylesheet" href="{% static 'css/user/incident_history.css' %}?v=1.0">
+{% endblock %}
+
+{% block user_content %}
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-orange">
+                <span class="material-icons-round">report</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">{{ total_incidents }}</p>
+            <h3 class="stat-title">Total Incidents</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-green">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">{{ resolved_incidents }}</p>
+            <h3 class="stat-title">Resolved</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-blue">
+                <span class="material-icons-round">pending</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">{{ in_progress_incidents }}</p>
+            <h3 class="stat-title">In Progress</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-red" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+                <span class="material-icons-round">error</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">{{ critical_incidents }}</p>
+            <h3 class="stat-title">Critical</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Card -->
+<section class="glass-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Incident Records</h2>
+        <button class="btn btn-sm btn-secondary" onclick="exportIncidents()">
+            <span class="material-icons-round" style="font-size: 18px; margin-right: 5px;">download</span>
+            Export
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-wrapper">
+        <div class="search-box">
+            <span class="material-icons-round search-icon">search</span>
+            <input type="text" class="search-input glass-input" id="searchInput" placeholder="Search incidents...">
+        </div>
+
+        <div class="dropdowns">
+            <select class="filter-select glass-input" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+            </select>
+
+            <select class="filter-select glass-input" id="typeFilter">
+                <option value="">All Types</option>
+                <option value="medical">Medical</option>
+                <option value="fire">Fire</option>
+                <option value="accident">Accident</option>
+                <option value="crime">Crime</option>
+                <option value="natural">Natural Disaster</option>
+                <option value="other">Other</option>
+            </select>
+
+            <select class="filter-select glass-input" id="severityFilter">
+                <option value="">All Severity</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Incidents Table -->
+    <div class="table-container header-less">
+        <table class="data-table" id="incidentsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="incidentsTableBody">
+                {% if incidents %}
+                {% for incident in incidents %}
+                <tr>
+                    <td style="font-weight: 500;">{{ incident.incident_id }}</td>
+                    <td>{{ incident.get_incident_type_display }}</td>
+                    <td>
+                        <span class="badge badge-{{ incident.severity }}">
+                            {{ incident.get_severity_display }}
+                        </span>
+                    </td>
+                    <td>{{ incident.location|truncatechars:30 }}</td>
+                    <td>{{ incident.created_at|date:"Y-m-d" }}</td>
+                    <td>
+                        <span class="badge badge-{{ incident.status }}">
+                            {{ incident.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" data-incident-id="{{ incident.id }}"
+                            onclick="viewIncident(this)">
+                            View
+                        </button>
+                        {% if incident.status == 'resolved' or incident.status == 'closed' %}
+                        <a href="{% url 'aid_app:give_feedback' %}?incident_id={{ incident.id }}"
+                            class="btn btn-sm btn-secondary" style="margin-left: 5px;">
+                            Rate Service
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center" style="text-align: center; padding: 40px;">
+                        <div class="empty-state">
+                            <span class="material-icons-round empty-icon-large"
+                                style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;">history</span>
+                            <h3 class="empty-title" style="color: #666; margin-bottom: 5px;">No Incidents Found</h3>
+                            <p class="empty-description" style="color: #999; margin-bottom: 20px;">You haven't reported
+                                any incidents yet.</p>
+                            <a href="{% url 'aid_app:report_incident' %}" class="btn btn-primary empty-action">
+                                Report Your First Incident
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <button class="btn btn-sm btn-secondary" onclick="previousPage()" id="prevBtn" disabled>
+            <span class="material-icons-round">chevron_left</span>
+            Previous
+        </button>
+        <span class="page-info" id="pageInfo">Page 1 of 1</span>
+        <button class="btn btn-sm btn-secondary" onclick="nextPage()" id="nextBtn" disabled>
+            Next
+            <span class="material-icons-round">chevron_right</span>
+        </button>
+    </div>
+</section>
+
+<!-- Incident Detail Modal -->
+<div class="modal" id="incidentModal">
+    <div class="modal-content glass-card" style="background: white; border: 1px solid rgba(0,0,0,0.1);">
+        <div class="modal-header">
+            <h2 class="modal-title">Incident Details</h2>
+            <button class="modal-close" onclick="closeModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Modal content will be populated by JavaScript -->
+            <p class="text-center">Loading details...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block user_js %}
+<script>
+    // JavaScript Logic
+    function filterIncidents() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const typeFilter = document.getElementById('typeFilter').value;
+        const severityFilter = document.getElementById('severityFilter').value;
+
+        const rows = document.querySelectorAll('#incidentsTableBody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            if (row.cells.length < 2) return; // Skip empty state row
+
+            const id = row.cells[0]?.textContent.toLowerCase() || '';
+            const type = row.cells[1]?.textContent.toLowerCase() || '';
+            const severity = row.cells[2]?.textContent.toLowerCase() || '';
+            const location = row.cells[3]?.textContent.toLowerCase() || '';
+            const status = row.cells[5]?.textContent.toLowerCase() || '';
+
+            const matchesSearch = id.includes(searchTerm) ||
+                location.includes(searchTerm) ||
+                type.includes(searchTerm);
+            const matchesStatus = !statusFilter || status.includes(statusFilter.toLowerCase());
+            const matchesType = !typeFilter || type.includes(typeFilter.toLowerCase());
+            const matchesSeverity = !severityFilter || severity.includes(severityFilter.toLowerCase());
+
+            if (matchesSearch && matchesStatus && matchesType && matchesSeverity) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update pagination info
+        const pageInfo = document.getElementById('pageInfo');
+        if (pageInfo) {
+            pageInfo.textContent = visibleCount === 0 ? 'No results found' : `Showing ${visibleCount} incident(s)`;
+        }
+    }
+
+    // Attach listeners
+    document.getElementById('searchInput').addEventListener('input', filterIncidents);
+    document.getElementById('statusFilter').addEventListener('change', filterIncidents);
+    document.getElementById('typeFilter').addEventListener('change', filterIncidents);
+    document.getElementById('severityFilter').addEventListener('change', filterIncidents);
+
+    function viewIncident(button) {
+        const incidentId = button.getAttribute('data-incident-id');
+        const modal = document.getElementById('incidentModal');
+        modal.style.display = 'block';
+        // In a real app, fetch details via AJAX
+        document.getElementById('modalBody').innerHTML = `<p>Details for Incident ${incidentId}</p>`;
+    }
+
+    function closeModal() {
+        document.getElementById('incidentModal').style.display = 'none';
+    }
+
+    function exportIncidents() {
+        alert('Export functionality simulation... Data exported!');
+    }
+
+    // Close modal on outside click
+    window.onclick = function (event) {
+        const modal = document.getElementById('incidentModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+{% endblock %}

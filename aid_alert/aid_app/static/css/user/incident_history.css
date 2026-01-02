@@ -1,0 +1,197 @@
+/* Incident History Page Specific Styles */
+/* Extending user_theme.css */
+
+/* --- Filters Layout --- */
+.filters-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #888;
+    z-index: 1;
+}
+
+.search-input {
+    padding-left: 40px;
+    /* Space for icon */
+}
+
+.dropdowns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    min-width: 130px;
+    cursor: pointer;
+}
+
+/* --- Badge Variations (Overrides or Additions) --- */
+.badge-critical {
+    background: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
+}
+
+.badge-high {
+    background: rgba(230, 126, 34, 0.1);
+    color: #d35400;
+}
+
+.badge-medium {
+    background: rgba(241, 196, 15, 0.1);
+    color: #f39c12;
+}
+
+.badge-low {
+    background: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+}
+
+.badge-open {
+    background: rgba(52, 152, 219, 0.1);
+    color: #2980b9;
+}
+
+.badge-in-progress {
+    background: rgba(155, 89, 182, 0.1);
+    color: #8e44ad;
+}
+
+.badge-resolved {
+    background: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+}
+
+.badge-closed {
+    background: rgba(149, 165, 166, 0.1);
+    color: #7f8c8d;
+}
+
+/* --- Pagination Styles --- */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.page-info {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* --- Modal Styles --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Dim backdrop */
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    margin: 5% auto;
+    /* 5% from top and centered */
+    width: 90%;
+    max-width: 700px;
+    /* Styles handled by .glass-card in HTML, but we override background to ensure opacity */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .dropdowns {
+        width: 100%;
+    }
+
+    .filter-select {
+        flex: 1;
+    }
+}

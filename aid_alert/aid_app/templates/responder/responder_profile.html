@@ -1,0 +1,308 @@
+{% extends 'responder/base_responder.html' %}
+{% load static %}
+
+{% block page_title %}Responder Profile{% endblock %}
+{% block content_title %}Responder Profile{% endblock %}
+
+{% block responder_css %}
+<link rel="stylesheet" href="{% static 'css/responder/responder_profile.css' %}">
+{% endblock %}
+
+{% block responder_content %}
+<!-- Profile Overview -->
+<div class="glass-card profile-section-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Profile Overview</h2>
+        <div class="profile-actions admin-actions">
+            <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
+                <span class="material-icons-round">edit</span> Edit Profile
+            </button>
+            <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
+                <span class="material-icons-round">save</span> Save Changes
+            </button>
+            <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit(this)">
+                <span class="material-icons-round">close</span> Cancel
+            </button>
+        </div>
+    </div>
+
+    <div class="profile-overview">
+        <div class="profile-avatar">
+            <div class="avatar-large">
+                <span class="material-icons-round">emergency</span>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <h3 class="info-label">Full Name</h3>
+                    <p class="info-value">{{ user.first_name }} {{ user.last_name }}</p>
+                    <input type="text" class="info-input hidden" value="{{ user.first_name }} {{ user.last_name }}">
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Email</h3>
+                    <p class="info-value">{{ user.email }}</p>
+                    <input type="email" class="info-input hidden" value="{{ user.email }}">
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Responder ID</h3>
+                    <p class="info-value">RSP-{{ user.id|stringformat:"06d" }}</p>
+                    <input type="text" class="info-input hidden" value="RSP-{{ user.id|stringformat:" 06d" }}" readonly>
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Status</h3>
+                    <p class="info-value status-badge active">Active</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Information Grid -->
+<div class="admin-info-layout">
+    <!-- Professional Info -->
+    <div class="glass-card profile-section-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Professional Details</h2>
+            <div class="profile-actions admin-actions">
+                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
+                    <span class="material-icons-round">edit</span> Edit
+                </button>
+                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
+                    <span class="material-icons-round">save</span> Save
+                </button>
+                <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit(this)">
+                    <span class="material-icons-round">close</span> Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="info-grid single-column">
+            <div class="info-item">
+                <h4 class="info-label">Specialization</h4>
+                <p class="info-value">Emergency Medical Response</p>
+                <input type="text" class="info-input hidden" value="Emergency Medical Response">
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Certification Number</h4>
+                <p class="info-value">CERT-2024-EMT-0456</p>
+                <input type="text" class="info-input hidden" value="CERT-2024-EMT-0456">
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Service Area</h4>
+                <p class="info-value">Downtown District</p>
+                <input type="text" class="info-input hidden" value="Downtown District">
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Equipment</h4>
+                <p class="info-value">First Aid Kit, AED, Oxygen</p>
+                <input type="text" class="info-input hidden" value="First Aid Kit, AED, Oxygen">
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="glass-card profile-section-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Contact Information</h2>
+            <div class="profile-actions admin-actions">
+                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
+                    <span class="material-icons-round">edit</span> Edit
+                </button>
+                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
+                    <span class="material-icons-round">save</span> Save
+                </button>
+                <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit(this)">
+                    <span class="material-icons-round">close</span> Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="info-grid single-column">
+            <div class="info-item">
+                <h4 class="info-label">Mobile Number</h4>
+                <p class="info-value">+1 234 567 8900</p>
+                <input type="tel" class="info-input hidden" value="+1 234 567 8900">
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Emergency Contact</h4>
+                <p class="info-value">Jane Doe (+1 555 000 0000)</p>
+                <input type="text" class="info-input hidden" value="Jane Doe (+1 555 000 0000)">
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Address</h4>
+                <p class="info-value">123 Main St, Apt 4B</p>
+                <input type="text" class="info-input hidden" value="123 Main St, Apt 4B">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Section: Availability & Actions -->
+<div class="admin-info-layout">
+    <!-- Availability Settings -->
+    <div class="glass-card profile-section-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Availability</h2>
+            <div class="profile-actions admin-actions">
+                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
+                    <span class="material-icons-round">edit</span> Edit
+                </button>
+                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
+                    <span class="material-icons-round">save</span> Save
+                </button>
+                <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit(this)">
+                    <span class="material-icons-round">close</span> Cancel
+                </button>
+            </div>
+        </div>
+        <div class="info-grid single-column">
+            <div class="info-item">
+                <h4 class="info-label">Default Status</h4>
+                <p class="info-value">Available</p>
+                <select class="info-input hidden">
+                    <option value="Available">Available</option>
+                    <option value="Busy">Busy</option>
+                </select>
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Working Hours</h4>
+                <p class="info-value">08:00 - 20:00</p>
+                <div class="time-inputs hidden" style="display:flex; gap:10px;">
+                    <input type="time" class="info-input" value="08:00">
+                    <input type="time" class="info-input" value="20:00">
+                </div>
+            </div>
+            <div class="info-item">
+                <h4 class="info-label">Response Radius</h4>
+                <p class="info-value">15 km</p>
+                <input type="number" class="info-input hidden" value="15">
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="glass-card profile-action-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Quick Actions</h2>
+        </div>
+        <div class="account-actions-grid">
+            <a href="{% url 'aid_app:responder_history' %}" class="action-btn">
+                <span class="material-icons-round">history</span>
+                <span>History</span>
+            </a>
+            <a href="{% url 'aid_app:availability_status' %}" class="action-btn">
+                <span class="material-icons-round">schedule</span>
+                <span>Schedule</span>
+            </a>
+            <a href="#" class="action-btn">
+                <span class="material-icons-round">notifications_active</span>
+                <span>Alerts</span>
+            </a>
+            <a href="#" class="action-btn">
+                <span class="material-icons-round">help</span>
+                <span>Support</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block responder_js %}
+<script>
+    // Scoped functions to handle section-specific editing
+    function toggleProfileEdit(btn) {
+        const container = btn.closest('.glass-card');
+        if (!container) return;
+
+        container.querySelectorAll('.info-value').forEach(el => el.classList.add('hidden'));
+        container.querySelectorAll('.info-input').forEach(el => el.classList.remove('hidden'));
+        // Also handle time-inputs container if present
+        container.querySelectorAll('.time-inputs').forEach(el => el.classList.remove('hidden'));
+
+        // Toggle buttons within this container
+        container.querySelectorAll('.edit-profile-btn').forEach(b => b.classList.add('hidden'));
+        container.querySelectorAll('.save-profile-btn').forEach(b => b.classList.remove('hidden'));
+        container.querySelectorAll('.cancel-profile-btn').forEach(b => b.classList.remove('hidden'));
+    }
+
+    function cancelProfileEdit(btn) {
+        const container = btn.closest('.glass-card');
+        if (!container) return;
+
+        container.querySelectorAll('.info-input').forEach(el => el.classList.add('hidden'));
+        container.querySelectorAll('.info-value').forEach(el => el.classList.remove('hidden'));
+        // Also handle time-inputs container
+        container.querySelectorAll('.time-inputs').forEach(el => el.classList.add('hidden'));
+
+        // Toggle buttons within this container
+        container.querySelectorAll('.edit-profile-btn').forEach(b => b.classList.remove('hidden'));
+        container.querySelectorAll('.save-profile-btn').forEach(b => b.classList.add('hidden'));
+        container.querySelectorAll('.cancel-profile-btn').forEach(b => b.classList.add('hidden'));
+    }
+
+    function saveProfileInfo(btn) {
+        const container = btn.closest('.glass-card');
+        if (!container) return;
+
+        // Simple update logic: take value from input and put it in text
+        // This assumes 1:1 mapping order which is fine for UI demo
+        const inputs = container.querySelectorAll('.info-input');
+        const values = container.querySelectorAll('.info-value');
+
+        // Handle time inputs separately if needed, simplified here
+        const timeInputs = container.querySelectorAll('.time-inputs input');
+
+        // This is a rough UI simulation. In real app, we'd map specific IDs.
+        // For visual parity with admin:
+        cancelProfileEdit(btn);
+        showNotification('Changes saved successfully!');
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'glass-alert';
+        notification.innerHTML = `<span class="material-icons-round">check_circle</span> <span>${message}</span>`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+</script>
+<style>
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}

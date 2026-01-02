@@ -1,0 +1,151 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Aid Alert{% endblock %}
+{% block page_title %}Admin Home{% endblock %}
+
+{% block admin_css %}
+<link rel="stylesheet" href="{% static 'css/admin/admin_dashboard.css' %}">
+{% endblock %}
+
+{% block admin_content %}
+<div class="welcome-section">
+    <h2 class="welcome-title">Welcome Back, {{ user.first_name|default:'Admin' }}</h2>
+    <p class="welcome-text">Here is what is happening in your system today.</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon icon-users">
+            <span class="material-icons-round">group</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Total Users</h3>
+            <p class="stat-value">{{ total_users }}</p>
+            <span class="stat-note text-success">Active</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-incidents">
+            <span class="material-icons-round">warning</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Active Incidents</h3>
+            <p class="stat-value">{{ active_alerts }}</p>
+            <span
+                class="stat-note {% if active_alerts > 10 %}text-danger{% else %}text-success{% endif %}">Current</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-responders">
+            <span class="material-icons-round">local_shipping</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Responders</h3>
+            <p class="stat-value">{{ active_responders }}</p>
+            <span class="stat-note text-success">On Duty</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-market">
+            <span class="material-icons-round">storefront</span>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-title">Market Items</h3>
+            <p class="stat-value">{{ marketplace_items }}</p>
+            <span class="stat-note text-success">Listed</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Recent Activity Section -->
+    <div class="glass-card activity-card">
+        <h3 class="activity-header">Recent Activity</h3>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon type-emergency">
+                    <span class="material-icons-round">emergency</span>
+                </div>
+                <div class="activity-content">
+                    <h4 class="activity-title">Emergency Response Activated</h4>
+                    <p class="activity-desc">Fire incident reported at downtown location</p>
+                    <span class="activity-time">5 minutes ago</span>
+                </div>
+                <a href="{% url 'aid_app:view_all_incidents' %}" class="btn btn-sm btn-secondary">View</a>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon type-seller">
+                    <span class="material-icons-round">warning</span>
+                </div>
+                <div class="activity-content">
+                    <h4 class="activity-title">New Seller Registration</h4>
+                    <p class="activity-desc">5 new sellers awaiting approval</p>
+                    <span class="activity-time">1 hour ago</span>
+                </div>
+                <a href="{% url 'aid_app:approve_sellers' %}" class="btn btn-sm btn-secondary">Review</a>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon type-feedback">
+                    <span class="material-icons-round">feedback</span>
+                </div>
+                <div class="activity-content">
+                    <h4 class="activity-title">New User Feedback</h4>
+                    <p class="activity-desc">12 new feedback submissions received</p>
+                    <span class="activity-time">3 hours ago</span>
+                </div>
+                <a href="{% url 'aid_app:feedback_analysis' %}" class="btn btn-sm btn-secondary">Analysis</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="quick-actions-grid">
+            <a href="{% url 'aid_app:manage_users' %}" class="quick-action-btn">
+                <span class="material-icons-round">person_add</span>
+                <span>Create User</span>
+            </a>
+            <a href="{% url 'aid_app:manage_responders' %}" class="quick-action-btn">
+                <span class="material-icons-round">support_agent</span>
+                <span>Assign Team</span>
+            </a>
+            <a href="{% url 'aid_app:view_all_incidents' %}" class="quick-action-btn">
+                <span class="material-icons-round">notifications_active</span>
+                <span>Send Alert</span>
+            </a>
+            <a href="{% url 'aid_app:view_orders' %}" class="quick-action-btn">
+                <span class="material-icons-round">receipt</span>
+                <span>Manage Orders</span>
+            </a>
+        </div>
+
+        <!-- Performance Mini Card -->
+        <div class="glass-card performance-card">
+            <h4 class="performance-title">System Status</h4>
+            <div class="performance-item">
+                <div class="performance-label">
+                    <span>Uptime</span>
+                    <span>{{ system_uptime }}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill progress-uptime"></div>
+                </div>
+            </div>
+            <div>
+                <div class="performance-label">
+                    <span>Response Time</span>
+                    <span>{{ response_time|default:'5' }}m</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill progress-response"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

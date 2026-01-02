@@ -1,0 +1,41 @@
+/* Home-specific overrides */
+.ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 10%;
+    pointer-events: none;
+}
+
+h1 {
+    font-size: 5rem;
+    margin: 0;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    line-height: 1;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-top: 10px;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+    max-width: 500px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 20px;
+    pointer-events: auto;
+}

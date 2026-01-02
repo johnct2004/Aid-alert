@@ -1,0 +1,200 @@
+/* Specific styles for Marketplace */
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.filters-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-box {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 250px;
+    transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    margin-left: 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.search-icon {
+    color: #999;
+}
+
+.dropdowns {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-select {
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
+    color: #555;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus,
+.filter-select:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.status-select {
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-flagged {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-removed {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.btn-edit,
+.btn-save,
+.btn-photo {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-right: 5px;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+.btn-edit {
+    background: var(--primary-color);
+}
+
+.btn-save {
+    background: #2ecc71;
+}
+
+.btn-photo {
+    background: #6c5ce7;
+}
+
+.btn-edit:hover,
+.btn-save:hover,
+.btn-photo:hover {
+    opacity: 0.9;
+}
+
+.product-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Animation for notification */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Match approve_sellers glass theme */
+.table-container {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}

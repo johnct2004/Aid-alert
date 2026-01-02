@@ -1,0 +1,170 @@
+/* Give Feedback Page Styles */
+/* Extending user_theme.css */
+
+.feedback-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form-card {
+    padding: 40px;
+}
+
+.card-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.card-title {
+    font-size: 1.75rem;
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+}
+
+.card-subtitle {
+    color: #666;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.form-input {
+    padding: 12px 15px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.form-input:focus {
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-input[readonly] {
+    background: rgba(0, 0, 0, 0.03);
+    color: #777;
+    cursor: not-allowed;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+/* Radio Button Styling */
+.rating-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.radio-label {
+    cursor: pointer;
+}
+
+.radio-label input {
+    display: none;
+}
+
+.radio-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.radio-label input:checked+.radio-btn {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(255, 107, 53, 0.3);
+}
+
+.radio-label:hover .radio-btn {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn-submit {
+    padding: 12px 30px;
+    font-size: 1rem;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-link-wrapper {
+    margin-top: 30px;
+    text-align: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 20px;
+}
+
+.history-link {
+    display: inline-flex;
+    background: transparent;
+    border: none;
+    color: #6c5ce7;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.history-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+    background: transparent;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-card {
+        padding: 20px;
+    }
+}

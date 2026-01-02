@@ -1,0 +1,142 @@
+{% extends 'facility manager/base_facility.html' %}
+{% load static %}
+
+{% block page_title %}Facility Dashboard{% endblock %}
+{% block content_title %}Facility Dashboard{% endblock %}
+
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/facility_dashboard.css' %}">
+{% endblock %}
+
+{% block facility_content %}
+<div class="dashboard-sections">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <a href="{% url 'aid_app:manage_kits' %}" class="glass-card stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-blue">
+                    <span class="material-icons-round">inventory_2</span>
+                </div>
+            </div>
+            <h3 class="stat-label">Total Kits</h3>
+            <p class="stat-value" id="totalKits">{{ total_kits|default:"24" }}</p>
+        </a>
+
+        <a href="{% url 'aid_app:stock_tracking' %}" class="glass-card stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-green">
+                    <span class="material-icons-round">check_circle</span>
+                </div>
+            </div>
+            <h3 class="stat-label">In Stock</h3>
+            <p class="stat-value" id="inStock">{{ in_stock|default:"45" }}</p>
+        </a>
+
+        <a href="{% url 'aid_app:stock_tracking' %}" class="glass-card stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-orange">
+                    <span class="material-icons-round">warning</span>
+                </div>
+            </div>
+            <h3 class="stat-label">Low Stock</h3>
+            <p class="stat-value" id="lowStock">{{ low_stock|default:"12" }}</p>
+        </a>
+
+        <a href="{% url 'aid_app:assign_responders' %}" class="glass-card stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-yellow">
+                    <span class="material-icons-round">people</span>
+                </div>
+            </div>
+            <h3 class="stat-label">Active Responders</h3>
+            <p class="stat-value" id="activeResponders">{{ active_responders|default:"23" }}</p>
+        </a>
+    </div>
+
+    <!-- Recent Activity -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Recent Activity</h2>
+        </div>
+
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon icon-green">
+                    <span class="material-icons-round">check_circle</span>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Kit KIT-001 Restocked</div>
+                    <div class="activity-time">2 hours ago</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon icon-orange">
+                    <span class="material-icons-round">warning</span>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Low Stock Alert: Kit KIT-005</div>
+                    <div class="activity-time">4 hours ago</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon icon-blue">
+                    <span class="material-icons-round">assignment</span>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Incident Report Filed</div>
+                    <div class="activity-time">6 hours ago</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon icon-yellow">
+                    <span class="material-icons-round">person_add</span>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New Responder Assigned</div>
+                    <div class="activity-time">8 hours ago</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="glass-card content-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Quick Actions</h2>
+        </div>
+
+        <div class="quick-actions-grid">
+            <a href="{% url 'aid_app:manage_kits' %}" class="quick-action-link">
+                <button class="quick-action-btn">
+                    <span class="material-icons-round">add</span>
+                    <span>Add New Kit</span>
+                </button>
+            </a>
+            <a href="{% url 'aid_app:facility_reports' %}" class="quick-action-link">
+                <button class="quick-action-btn">
+                    <span class="material-icons-round">assignment</span>
+                    <span>Generate Report</span>
+                </button>
+            </a>
+            <a href="{% url 'aid_app:assign_responders' %}" class="quick-action-link">
+                <button class="quick-action-btn">
+                    <span class="material-icons-round">person_add</span>
+                    <span>Assign Responder</span>
+                </button>
+            </a>
+            <a href="{% url 'aid_app:stock_tracking' %}" class="quick-action-link">
+                <button class="quick-action-btn">
+                    <span class="material-icons-round">inventory</span>
+                    <span>View Inventory</span>
+                </button>
+            </a>
+            <a href="{% url 'aid_app:first_aid_guides' %}" class="quick-action-link">
+                <button class="quick-action-btn">
+                    <span class="material-icons-round">post_add</span>
+                    <span>Add First Aid Guide</span>
+                </button>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

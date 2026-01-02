@@ -1,0 +1,294 @@
+/* Manage Kits CSS - White Glass Aesthetic */
+/* Extends facility_theme.css */
+
+/* Content Card overrides */
+.content-card.margin-0 {
+    margin-bottom: 0;
+    min-height: calc(100vh - 140px);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* Filters & Search */
+.filters-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--secondary-color);
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 20px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.glass-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.5);
+    color: #666;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.glass-btn:hover {
+    background: white;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.glass-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+}
+
+.glass-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.glass-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--secondary-color);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.glass-table td {
+    padding: 16px;
+    color: #555;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: middle;
+}
+
+.glass-table tr:last-child td {
+    border-bottom: none;
+}
+
+.glass-table tr:hover td {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Kit Info Columns */
+.kit-id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.kit-icon {
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.kit-name {
+    font-weight: 500;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-available {
+    background: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+}
+
+.status-in_use {
+    background: rgba(52, 152, 219, 0.15);
+    color: #2980b9;
+}
+
+.status-maintenance {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f39c12;
+}
+
+.status-expired {
+    background: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+}
+
+.status-lost {
+    background: rgba(149, 165, 166, 0.15);
+    color: #7f8c8d;
+}
+
+/* Action Buttons */
+.action-buttons-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-view {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.btn-view:hover {
+    background: rgba(52, 152, 219, 0.2);
+    transform: scale(1.05);
+}
+
+.btn-edit {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--primary-color);
+}
+
+.btn-edit:hover {
+    background: rgba(255, 107, 53, 0.2);
+    transform: scale(1.05);
+}
+
+.btn-check {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--success-color);
+}
+
+.btn-check:hover {
+    background: rgba(46, 204, 113, 0.2);
+    transform: scale(1.05);
+}
+
+.btn-icon .material-icons-round {
+    font-size: 18px;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    background: #e05e2e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+}
+
+.btn-action .material-icons-round {
+    font-size: 20px;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #888;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #ccc;
+    display: block;
+    margin: 0 auto 16px auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        max-width: none;
+    }
+
+    .filter-buttons {
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+}

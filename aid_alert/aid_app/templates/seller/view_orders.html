@@ -1,0 +1,292 @@
+{% extends 'seller/base_seller.html' %}
+{% load static %}
+
+{% block page_title %}View Orders{% endblock %}
+{% block content_title %}View Orders{% endblock %}
+
+{% block seller_css %}
+<link rel="stylesheet" href="{% static 'css/seller/view_orders.css' %}">
+{% endblock %}
+
+{% block seller_content %}
+<!-- Order Stats -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-green">
+                <span class="material-icons-round">shopping_bag</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>All orders</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Orders</h3>
+        <p class="stat-value" id="totalOrders">{{ total_orders }}</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-blue">
+                <span class="material-icons-round">pending</span>
+            </div>
+            <div class="stat-change negative">
+                <span class="material-icons-round">trending_up</span>
+                <span>Need processing</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Pending Orders</h3>
+        <p class="stat-value" id="pendingOrders">{{ pending_orders }}</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-orange">
+                <span class="material-icons-round">local_shipping</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>On the way</span>
+            </div>
+        </div>
+        <h3 class="stat-label">In Transit</h3>
+        <p class="stat-value" id="inTransitOrders">{{ in_transit_orders }}</p>
+    </div>
+
+    <div class="glass-card stat-card">
+        <div class="stat-header">
+            <div class="stat-icon icon-red">
+                <span class="material-icons-round">attach_money</span>
+            </div>
+            <div class="stat-change positive">
+                <span class="material-icons-round">trending_up</span>
+                <span>Total sales</span>
+            </div>
+        </div>
+        <h3 class="stat-label">Total Revenue</h3>
+        <p class="stat-value" id="totalRevenue">${{ total_revenue|floatformat:2 }}</p>
+    </div>
+</div>
+
+<!-- Order Management -->
+<section class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Order Management</h2>
+        <div class="order-actions">
+            <button class="btn-secondary export-btn">
+                <span class="material-icons-round">download</span>
+                Export
+            </button>
+            <button class="btn-action bulk-process-btn">
+                <span class="material-icons-round">playlist_add_check</span>
+                Bulk Process
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-wrapper">
+        <div class="search-box">
+            <span class="material-icons-round search-icon">search</span>
+            <input type="text" id="orderSearch" class="search-input"
+                placeholder="Search orders by ID, customer, or product...">
+        </div>
+
+        <div class="filter-controls">
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+
+            <select id="dateFilter" class="filter-select">
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="this-week">This Week</option>
+                <option value="this-month">This Month</option>
+                <option value="last-month">Last Month</option>
+            </select>
+
+            <select id="sortBy" class="filter-select">
+                <option value="date">Sort by Date</option>
+                <option value="amount">Amount: High to Low</option>
+                <option value="amount-low">Amount: Low to High</option>
+                <option value="status">Status</option>
+                <option value="customer">Customer Name</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="orders-table-container">
+        <div class="orders-table">
+            <div class="table-header">
+                <div class="header-cell">Order ID</div>
+                <div class="header-cell">Customer</div>
+                <div class="header-cell">Products</div>
+                <div class="header-cell">Amount</div>
+                <div class="header-cell">Date</div>
+                <div class="header-cell">Status</div>
+                <div class="header-cell">Actions</div>
+            </div>
+
+            <div class="table-body">
+                {% for order in orders %}
+                <div class="table-row">
+                    <div class="table-cell order-id-cell">
+                        <span class="order-id">{{ order.order_id }}</span>
+                    </div>
+                    <div class="table-cell customer-cell">
+                        <div class="customer-info">
+                            <h4 class="customer-name">{{ order.customer.get_full_name|default:order.customer.username }}
+                            </h4>
+                            <p class="customer-email">{{ order.customer.email }}</p>
+                        </div>
+                    </div>
+                    <div class="table-cell products-cell">
+                        <div class="product-list">
+                            <span class="product-item">{{ order.product.name }} x{{ order.quantity }}</span>
+                        </div>
+                    </div>
+                    <div class="table-cell amount-cell">${{ order.total_price }}</div>
+                    <div class="table-cell date-cell">{{ order.created_at|date:"M d, Y" }}</div>
+                    <div class="table-cell status-cell">
+                        <span class="status-badge {{ order.status }}">{{ order.status|title }}</span>
+                    </div>
+                    <div class="table-cell actions-cell">
+                        <button class="action-btn view-btn" title="View Details"
+                            onclick="viewOrder('{{ order.order_id }}')">
+                            <span class="material-icons-round">visibility</span>
+                        </button>
+                        {% if order.status == 'pending' %}
+                        <button class="action-btn process-btn" title="Process" onclick="processOrder({{ order.id }})">
+                            <span class="material-icons-round">play_arrow</span>
+                        </button>
+                        <button class="action-btn cancel-btn" title="Cancel" onclick="cancelOrder({{ order.id }})">
+                            <span class="material-icons-round">cancel</span>
+                        </button>
+                        {% elif order.status == 'processing' %}
+                        <button class="action-btn process-btn" title="Mark Shipped"
+                            onclick="markShipped({{ order.id }})">
+                            <span class="material-icons-round">local_shipping</span>
+                        </button>
+                        {% elif order.status == 'shipped' %}
+                        <button class="action-btn track-btn" title="Track" onclick="trackOrder('{{ order.order_id }}')">
+                            <span class="material-icons-round">location_on</span>
+                        </button>
+                        <button class="action-btn process-btn" title="Mark Delivered"
+                            onclick="markDelivered({{ order.id }})"
+                            style="background: rgba(39, 174, 96, 0.1); color: #27ae60;">
+                            <span class="material-icons-round">check_circle</span>
+                        </button>
+                        {% elif order.status == 'delivered' %}
+                        <button class="action-btn invoice-btn" title="Invoice"
+                            onclick="generateInvoice('{{ order.order_id }}')">
+                            <span class="material-icons-round">receipt</span>
+                        </button>
+                        {% elif order.status == 'cancelled' %}
+                        <button class="action-btn refund-btn" title="Refund"
+                            onclick="refundOrder('{{ order.order_id }}')">
+                            <span class="material-icons-round">money_back</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-orders">
+                    <div class="no-orders-icon">
+                        <span class="material-icons-round">shopping_cart</span>
+                    </div>
+                    <h3>No orders found</h3>
+                    <p>New orders will appear here.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination ... -->
+</section>
+{% endblock %}
+
+{% block seller_js %}
+<script>
+    // Order Actions
+    function viewOrder(orderId) {
+        // In a real app, this would navigate to detail page
+        alert(`Viewing details for Order #${orderId}`);
+    }
+
+    // Generic status update function
+    function updateStatus(id, status, actionName) {
+        if (confirm(`Are you sure you want to ${actionName}?`)) {
+            // Construct URL: order/update-status/<id>/<status>/
+            // Use 999999 as placeholder for ID, and 'placeholder' for status
+            let url = "{% url 'aid_app:update_order_status' 999999 'placeholder' %}";
+            url = url.replace('999999', id).replace('placeholder', status);
+            window.location.href = url;
+        }
+    }
+
+    function processOrder(id) {
+        updateStatus(id, 'processing', 'start processing this order');
+    }
+
+    function markShipped(id) {
+        updateStatus(id, 'shipped', 'mark this order as shipped');
+    }
+
+    function markDelivered(id) {
+        updateStatus(id, 'delivered', 'mark this order as delivered');
+    }
+
+    function cancelOrder(id) {
+        updateStatus(id, 'cancelled', 'cancel this order');
+    }
+
+    function trackOrder(orderId) {
+        alert(`Opening tracking for Order #${orderId}...`);
+    }
+
+    function generateInvoice(orderId) {
+        alert(`Generating invoice for Order #${orderId}...`);
+        setTimeout(() => alert('Invoice downloaded!'), 1000);
+    }
+
+    function refundOrder(orderId) {
+        if (confirm(`Process refund for Order #${orderId}?`)) {
+            alert(`Refund initiated for Order #${orderId}.`);
+        }
+    }
+
+    // Search functionality
+    document.getElementById('orderSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.table-row');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Filter functionality
+    document.getElementById('statusFilter').addEventListener('change', filterOrders);
+
+    function filterOrders() {
+        const status = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.table-row');
+
+        rows.forEach(row => {
+            const statusBadge = row.querySelector('.status-badge').textContent.toLowerCase();
+            const statusMatch = !status || statusBadge.includes(status.toLowerCase());
+
+            if (row.style.display !== 'none') { // Only modify if not hidden by search
+                row.style.display = statusMatch ? '' : 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

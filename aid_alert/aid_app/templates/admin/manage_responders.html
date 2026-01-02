@@ -1,0 +1,293 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Responders - Admin Dashboard{% endblock %}
+{% block page_title %}Manage Responders{% endblock %}
+
+{% block admin_css %}
+<link rel="stylesheet" href="{% static 'css/admin/manage_responders.css' %}">
+{% endblock %}
+
+{% block admin_content %}
+<div class="glass-card" style="padding: 25px;">
+    <div class="card-header-row" style="margin-bottom: 20px;">
+        <h2 class="card-title">All Responders</h2>
+    </div>
+
+    <div class="filters-wrapper">
+        <div class="search-box">
+            <span class="material-icons-round search-icon" style="color: #999;">search</span>
+            <input type="text" class="search-input" placeholder="Search by name, ID...">
+        </div>
+        <div class="dropdowns">
+            <select class="filter-select">
+                <option>Type</option>
+                <option>Medical</option>
+                <option>Fire</option>
+                <option>Police</option>
+                <option>Rescue</option>
+            </select>
+            <select class="filter-select">
+                <option>Status</option>
+                <option>Available</option>
+                <option>On Duty</option>
+                <option>Off Duty</option>
+                <option>Unavailable</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid rgba(0,0,0,0.1);">
+                    <th style="padding: 12px; text-align: left;">Responder ID</th>
+                    <th style="padding: 12px; text-align: left;">Name</th>
+                    <th style="padding: 12px; text-align: left;">Type</th>
+                    <th style="padding: 12px; text-align: left;">Contact</th>
+                    <th style="padding: 12px; text-align: left;">Location</th>
+                    <th style="padding: 12px; text-align: left;">Status</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for responder in responders %}
+                <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                    <td style="padding: 12px;">{{ responder.responder_id }}</td>
+                    <td style="padding: 12px; font-weight: 500;">{{ responder.name }}</td>
+                    <td style="padding: 12px;">{{ responder.responder_type }}</td>
+                    <td style="padding: 12px;">{{ responder.contact }}</td>
+                    <td style="padding: 12px;">{{ responder.current_location }}</td>
+                    <td style="padding: 12px;">
+                        {% if responder.status == 'available' %}
+                        <span class="badge badge-available">Available</span>
+                        {% elif responder.status == 'on_duty' %}
+                        <span class="badge badge-on-duty">On Duty</span>
+                        {% elif responder.status == 'off_duty' %}
+                        <span class="badge badge-off-duty">Off Duty</span>
+                        {% else %}
+                        <span class="badge badge-unavailable">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 12px;">
+                        <div class="action-buttons">
+                            <button class="btn-icon view-btn" title="View Details">
+                                <span class="material-icons-round">visibility</span>
+                            </button>
+                            <button class="btn-icon edit-btn" title="Edit Responder">
+                                <span class="material-icons-round">edit</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px; color: #888;">No responders found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_js %}
+<script>
+    // View Responder functionality
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const cells = row.getElementsByTagName('td');
+            const responderId = cells[0].textContent;
+            const responderName = cells[1].textContent;
+            const responderType = cells[2].textContent;
+            const responderContact = cells[3].textContent;
+            const responderLocation = cells[4].textContent;
+            const responderStatus = row.querySelector('.badge').textContent.trim();
+
+            // Create responder details modal
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Responder Details</h2>
+                        <button class="modal-close" onclick="closeViewModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="responder-detail-card">
+                            <div class="detail-header" style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                                <div class="detail-avatar" style="width:50px; height:50px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                                    <span class="material-icons-round" style="font-size:30px; color:#555;">local_shipping</span>
+                                </div>
+                                <div class="detail-info">
+                                    <h3 style="margin:0;">${responderName}</h3>
+                                    <p style="margin:0; color:#666;">ID: ${responderId}</p>
+                                    <p style="margin:0; color:#888;">Type: ${responderType}</p>
+                                </div>
+                            </div>
+                            <div class="detail-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                                <div class="detail-item">
+                                    <label style="font-weight:600; font-size:0.9rem;">Contact</label>
+                                    <p style="margin:5px 0;">${responderContact}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <label style="font-weight:600; font-size:0.9rem;">Location</label>
+                                    <p style="margin:5px 0;">${responderLocation}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <label style="font-weight:600; font-size:0.9rem;">Status</label>
+                                    <p style="margin:5px 0;">${responderStatus}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <label style="font-weight:600; font-size:0.9rem;">Response Time</label>
+                                    <p style="margin:5px 0;">Average: 8 minutes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" style="padding:8px 15px; border:1px solid #ddd; background:white; border-radius:6px; cursor:pointer;" onclick="closeViewModal()">Close</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    // Edit Responder functionality
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const cells = row.getElementsByTagName('td');
+            const responderId = cells[0].textContent;
+            const responderName = cells[1].textContent;
+            const responderType = cells[2].textContent;
+            const responderContact = cells[3].textContent;
+            const responderLocation = cells[4].textContent;
+            const statusElement = row.querySelector('.badge');
+            // Simplified status extraction
+            let currentStatus = 'available';
+            if (statusElement.classList.contains('badge-on-duty')) currentStatus = 'on_duty';
+            if (statusElement.classList.contains('badge-off-duty')) currentStatus = 'off_duty';
+            if (statusElement.classList.contains('badge-unavailable')) currentStatus = 'unavailable';
+
+            // Create edit responder modal
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Edit Responder</h2>
+                        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editResponderForm">
+                            <div class="form-group">
+                                <label for="editId">Responder ID</label>
+                                <input type="text" id="editId" name="id" value="${responderId}" readonly style="background:#f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label for="editName">Full Name</label>
+                                <input type="text" id="editName" name="name" value="${responderName}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editType">Type</label>
+                                <select id="editType" name="type" required>
+                                    <option value="Medical" ${responderType.trim() === 'Medical' ? 'selected' : ''}>Medical</option>
+                                    <option value="Fire" ${responderType.trim() === 'Fire' ? 'selected' : ''}>Fire</option>
+                                    <option value="Police" ${responderType.trim() === 'Police' ? 'selected' : ''}>Police</option>
+                                    <option value="Rescue" ${responderType.trim() === 'Rescue' ? 'selected' : ''}>Rescue</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editContact">Contact</label>
+                                <input type="text" id="editContact" name="contact" value="${responderContact}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editLocation">Location</label>
+                                <input type="text" id="editLocation" name="location" value="${responderLocation}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editStatus">Status</label>
+                                <select id="editStatus" name="status" required>
+                                    <option value="available" ${currentStatus === 'available' ? 'selected' : ''}>Available</option>
+                                    <option value="on_duty" ${currentStatus === 'on_duty' ? 'selected' : ''}>On Duty</option>
+                                    <option value="off_duty" ${currentStatus === 'off_duty' ? 'selected' : ''}>Off Duty</option>
+                                    <option value="unavailable" ${currentStatus === 'unavailable' ? 'selected' : ''}>Unavailable</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" style="padding:8px 15px; border:1px solid #ddd; background:white; border-radius:6px; cursor:pointer;" onclick="closeEditModal()">Cancel</button>
+                        <button class="btn btn-primary" style="padding:8px 15px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;" onclick="submitEditResponder()">Save Changes</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    // Modal functions
+    window.closeViewModal = function () {
+        const modal = document.querySelector('.modal');
+        if (modal) {
+            document.body.removeChild(modal);
+            document.body.style.overflow = 'auto';
+        }
+    };
+
+    window.closeEditModal = function () {
+        const modal = document.querySelector('.modal');
+        if (modal) {
+            document.body.removeChild(modal);
+            document.body.style.overflow = 'auto';
+        }
+    };
+
+    window.submitEditResponder = function () {
+        const form = document.getElementById('editResponderForm');
+        // Simulate form submission
+        // const formData = new FormData(form);
+
+        showNotification('Responder updated successfully!', 'success');
+        closeEditModal();
+
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    };
+
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#2ecc71' : '#e74c3c'};
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        `;
+        notification.innerHTML = `
+            <span class="material-icons-round">check_circle</span>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %}

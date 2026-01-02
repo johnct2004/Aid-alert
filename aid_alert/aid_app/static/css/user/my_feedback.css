@@ -1,0 +1,196 @@
+/* My Feedback Page Styles */
+/* Extending user_theme.css */
+
+.feedback-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.feedback-list-card {
+    padding: 30px;
+}
+
+.card-header-row {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feedback-item {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 20px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.feedback-item:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.feedback-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feedback-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tag-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tag-complaint {
+    background: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
+}
+
+.tag-suggestion {
+    background: rgba(52, 152, 219, 0.1);
+    color: #2980b9;
+}
+
+.tag-compliment {
+    background: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+}
+
+.tag-general {
+    background: rgba(149, 165, 166, 0.1);
+    color: #7f8c8d;
+}
+
+.feedback-date {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.feedback-rating {
+    display: flex;
+    gap: 2px;
+}
+
+.feedback-rating .material-icons-round {
+    font-size: 1.2rem;
+    color: #f1c40f;
+}
+
+.feedback-rating .material-icons-round.inactive {
+    color: #e0e0e0;
+}
+
+.feedback-message {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Reply Section */
+.feedback-reply {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+    margin-top: 15px;
+}
+
+.reply-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.reply-date {
+    font-weight: 400;
+    color: #999;
+}
+
+.reply-text {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+.feedback-status {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #999;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.empty-state .material-icons-round {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 20px;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .feedback-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .feedback-rating {
+        align-self: flex-start;
+    }
+}

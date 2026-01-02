@@ -1,0 +1,232 @@
+{% extends 'user/base_user.html' %}
+{% load static %}
+
+{% block page_title %}Welcome, {{ user.first_name|default:user.username }}{% endblock %}
+
+{% block user_css %}
+<link rel="stylesheet" href="{% static 'css/user/user_dashboard.css' %}?v=1.1">
+{% endblock %}
+
+{% block user_content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-orange">
+                <span class="material-icons-round">report</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">2</p>
+            <h3 class="stat-title">Active Reports</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-green">
+                <span class="material-icons-round">shopping_cart</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">1</p>
+            <h3 class="stat-title">Active Orders</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-blue">
+                <span class="material-icons-round">medical_services</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">0</p>
+            <h3 class="stat-title">Booked Responders</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon-wrapper">
+            <div class="icon icon-purple">
+                <span class="material-icons-round">emergency</span>
+            </div>
+        </div>
+        <div class="stat-content">
+            <p class="stat-value">5</p>
+            <h3 class="stat-title">Emergency Contacts</h3>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions-grid">
+    <div class="quick-action-card gradient-orange" data-url="{% url 'aid_app:report_incident' %}"
+        onclick="window.location.href=this.getAttribute('data-url')">
+        <div class="header">
+            <span class="material-icons-round">report_problem</span>
+            <h3>Report Emergency</h3>
+        </div>
+        <p>Quick incident reporting</p>
+    </div>
+
+    <div class="quick-action-card gradient-green" data-url="{% url 'aid_app:book_responder' %}"
+        onclick="window.location.href=this.getAttribute('data-url')">
+        <div class="header">
+            <span class="material-icons-round">location_on</span>
+            <h3>Track Help</h3>
+        </div>
+        <p>Live responder tracking</p>
+    </div>
+
+    <div class="quick-action-card gradient-blue" data-url="{% url 'aid_app:first_aid_guides' %}"
+        onclick="window.location.href=this.getAttribute('data-url')">
+        <div class="header">
+            <span class="material-icons-round">medical_services</span>
+            <h3>First Aid</h3>
+        </div>
+        <p>Emergency guides</p>
+    </div>
+
+    <div class="quick-action-card gradient-purple" data-url="{% url 'aid_app:buy_products' %}"
+        onclick="window.location.href=this.getAttribute('data-url')">
+        <div class="header">
+            <span class="material-icons-round">shopping_bag</span>
+            <h3>Shop</h3>
+        </div>
+        <p>Medical supplies</p>
+    </div>
+</div>
+
+<div class="two-column-grid">
+    <section class="glass-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Recent Incidents</h2>
+            <a href="{% url 'aid_app:incident_history' %}">View All</a>
+        </div>
+
+        <div class="table-container header-less">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>INC-001</td>
+                        <td>Medical Emergency</td>
+                        <td>2024-05-15</td>
+                        <td><span class="badge badge-active">Open</span></td>
+                        <td><button class="btn btn-sm btn-primary"
+                                onclick="window.location.href='{% url 'aid_app:incident_history' %}'">View</button></td>
+                    </tr>
+                    <tr>
+                        <td>INC-002</td>
+                        <td>Fire Hazard</td>
+                        <td>2024-04-10</td>
+                        <td><span class="badge badge-inactive">Resolved</span></td>
+                        <td><button class="btn btn-sm btn-primary"
+                                onclick="window.location.href='{% url 'aid_app:incident_history' %}'">View</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="glass-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Recent Orders</h2>
+            <a href="{% url 'aid_app:order_history' %}">View All</a>
+        </div>
+
+        <div class="order-list">
+            <div class="order-item">
+                <div class="content">
+                    <div>
+                        <h4>First Aid Kit</h4>
+                        <p class="text-muted">Order #ORD-001</p>
+                    </div>
+                    <div class="status">
+                        <span class="badge badge-active">In Transit</span>
+                        <p class="text-muted">Est. Today</p>
+                    </div>
+                </div>
+            </div>
+            <div class="order-item">
+                <div class="content">
+                    <div>
+                        <h4>Medical Supplies</h4>
+                        <p class="text-muted">Order #ORD-002</p>
+                    </div>
+                    <div class="status">
+                        <span class="badge badge-inactive">Delivered</span>
+                        <p class="text-muted">May 10</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="two-column-grid">
+    <section class="glass-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Emergency Tips</h2>
+            <a href="{% url 'aid_app:first_aid_guides' %}">More Tips</a>
+        </div>
+
+        <div class="tips-grid">
+            <div class="tip-card tip-orange">
+                <div class="header">
+                    <span class="material-icons-round">priority_high</span>
+                    <h3>CPR Basics</h3>
+                </div>
+                <p>Check responsiveness, call emergency services, and start chest compressions at 100-120
+                    per minute.</p>
+            </div>
+
+            <div class="tip-card tip-green">
+                <div class="header">
+                    <span class="material-icons-round">healing</span>
+                    <h3>Burn Treatment</h3>
+                </div>
+                <p>Cool the burn with cool running water for 20 minutes. Cover with sterile dressing.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="glass-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Activity Timeline</h2>
+            <span>Last 7 days</span>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="dot dot-orange"></div>
+                <div class="content">
+                    <p>Incident reported - Medical Emergency</p>
+                    <p class="text-muted">2 days ago</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="dot dot-green"></div>
+                <div class="content">
+                    <p>Order placed - First Aid Kit</p>
+                    <p class="text-muted">3 days ago</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="dot dot-blue"></div>
+                <div class="content">
+                    <p>Completed First Aid Guide - CPR</p>
+                    <p class="text-muted">5 days ago</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

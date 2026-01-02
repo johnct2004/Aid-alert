@@ -1,0 +1,153 @@
+{% extends 'responder/base_responder.html' %}
+{% load static %}
+
+{% block page_title %}Responder History{% endblock %}
+{% block content_title %}Responder History{% endblock %}
+
+{% block responder_css %}
+<link rel="stylesheet" href="{% static 'css/responder/responder_history.css' %}">
+{% endblock %}
+
+{% block responder_content %}
+<!-- Stats Grid -->
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon emergency-icon">
+            <span class="material-icons-round">history</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Total Incidents</h3>
+            <p class="stat-value" id="totalIncidents">{{ stats.total }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon rating-icon">
+            <span class="material-icons-round">task_alt</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Completed</h3>
+            <p class="stat-value" id="completedIncidents">{{ stats.completed }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon response-icon">
+            <span class="material-icons-round">schedule</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Avg Response Time</h3>
+            <p class="stat-value" id="avgResponseTime">{{ stats.avg_response }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon star-icon">
+            <span class="material-icons-round">star</span>
+        </div>
+        <div>
+            <h3 class="stat-label">Average Rating</h3>
+            <p class="stat-value" id="avgRating">{{ stats.rating }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- History Table Section -->
+<div class="glass-card content-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Incident History</h2>
+        <div class="filters-wrapper">
+            <div class="search-box">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search incidents...">
+            </div>
+            <div class="dropdowns">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="pending">Pending</option>
+                </select>
+                <select class="filter-select" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="medical">Medical</option>
+                    <option value="fire">Fire</option>
+                    <option value="accident">Accident</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table data-table">
+            <thead>
+                <tr>
+                    <th>Incident ID</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                {% for incident in incidents %}
+                <tr>
+                    <td>{{ incident.incident_id }}</td>
+                    <td>{{ incident.get_incident_type_display }}</td>
+                    <td>{{ incident.location }}</td>
+                    <td>{{ incident.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <span
+                            class="badge badge-{% if incident.status == 'resolved' or incident.status == 'closed' %}active{% elif incident.status == 'open' %}inactive{% else %}full{% endif %}">
+                            {{ incident.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-action btn-sm"
+                            onclick="viewDetails('{{ incident.incident_id }}', '{{ incident.description|escapejs }}')">
+                            <span class="material-icons-round icon-small-middle">visibility</span> View
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <div class="empty-icon">
+                            <span class="material-icons-round">inbox</span>
+                        </div>
+                        <div>No incident history found</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" id="pagination">
+        <!-- Pagination buttons will be generated by JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block responder_js %}
+<script>
+    function viewDetails(incidentId, description) {
+        alert(`Incident Details: ${incidentId}\n\nDescription: ${description}`);
+    }
+
+    // Simple client-side search (optional enhancement for existing rows)
+    document.getElementById('searchInput').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#historyTableBody tr');
+
+        rows.forEach(row => {
+            if (row.classList.contains('empty-state')) return;
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

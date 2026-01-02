@@ -1,0 +1,59 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Profile - Aid Alert{% endblock %}
+
+{% block content %}
+<div class="center-container">
+    <div class="glass-card" style="max-width: 500px; width: 100%;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <a href="{% url 'aid_app:home' %}" class="logo-text">AID ALERT</a>
+            <h2>My Profile</h2>
+        </div>
+
+        <div class="profile-details"
+            style="text-align: left; background: rgba(255,255,255,0.4); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 15px;">
+                <span style="display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px;">Username</span>
+                <span style="font-size: 1.1rem; font-weight: 600; color: var(--secondary-color);">{{ user.username
+                    }}</span>
+            </div>
+
+            <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 15px;">
+                <span style="display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px;">Full Name</span>
+                <span style="font-size: 1.1rem; font-weight: 600; color: var(--secondary-color);">
+                    {% if user.get_full_name %}
+                    {{ user.get_full_name }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </span>
+            </div>
+
+            <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 15px;">
+                <span style="display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px;">Email</span>
+                <span style="font-size: 1.1rem; font-weight: 600; color: var(--secondary-color);">{{ user.email
+                    }}</span>
+            </div>
+
+            <div>
+                <span style="display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px;">Date Joined</span>
+                <span style="font-size: 1.1rem; font-weight: 600; color: var(--secondary-color);">{{
+                    user.date_joined|date:"F j, Y" }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions" style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Note: Edit Profile link can be enabled once a dedicated edit view is confirmed -->
+            <!-- <a href="#" class="btn btn-primary" style="text-align: center;">Edit Profile</a> -->
+
+            <a href="{% url 'aid_app:change_password' %}" class="btn btn-secondary" style="text-align: center;">Change
+                Password</a>
+            <a href="{% url 'aid_app:logout' %}" class="btn btn-primary"
+                style="background-color: #6c757d; text-align: center;">Logout</a>
+            <button class="btn btn-secondary" onclick="history.back()"
+                style="border: none; background: transparent; text-decoration: underline;">Go Back</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Aid Alert - First Aid Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ui-layer">
+    <h1>AID ALERT</h1>
+    <h2>Fast Emergency Response &<br>First Aid Marketplace</h2>
+
+    <div class="btn-group">
+        <a href="{% url 'aid_app:login' %}" class="btn btn-primary">Get Started</a>
+    </div>
+</div>
+{% endblock %}

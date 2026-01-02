@@ -1,0 +1,61 @@
+/* Specific styles for Reports */
+/* Reuse global glass card if needed, but here are page specifics */
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+/* Match approve_sellers glass theme */
+.table-container {
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
+}
+
+.incident-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.incident-table th,
+.incident-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.incident-table th {
+    font-weight: 600;
+    color: #555;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.action-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.action-link:hover {
+    text-decoration: underline;
+}
