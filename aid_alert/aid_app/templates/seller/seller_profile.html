@@ -1,8 +1,8 @@
 {% extends 'seller/base_seller.html' %}
 {% load static %}
 
-{% block page_title %}Seller Profile{% endblock %}
-{% block content_title %}Seller Profile{% endblock %}
+{% block page_title %}Profile{% endblock %}
+{% block content_title %}Profile{% endblock %}
 
 {% block seller_css %}
 <link rel="stylesheet" href="{% static 'css/seller/seller_profile.css' %}">
@@ -15,15 +15,15 @@
         <div class="card-header-row">
             <h2 class="card-title">Profile Overview</h2>
             <div class="profile-actions">
-                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit()">
+                <button class="btn-secondary edit-profile-btn">
                     <span class="material-icons-round">edit</span>
                     Edit
                 </button>
-                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo()">
+                <button class="btn-primary save-profile-btn hidden">
                     <span class="material-icons-round">save</span>
                     Save Changes
                 </button>
-                <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit()">
+                <button class="btn-secondary cancel-profile-btn hidden">
                     <span class="material-icons-round">close</span>
                     Cancel
                 </button>
@@ -63,7 +63,7 @@
                     </div>
                     <div class="info-item">
                         <h3 class="info-label">Phone</h3>
-                        <p class="info-value" id="phone">+1 {{ user.profile.phone|default:"Not Provided" }}</p>
+                        <p class="info-value">{{ user.profile.phone|default:"Not Provided" }}</p>
                         <input type="tel" class="info-input hidden" id="phone-input"
                             value="{{ user.profile.phone|default:'' }}">
                     </div>
@@ -85,15 +85,15 @@
         <div class="card-header-row">
             <h2 class="card-title">Business Information</h2>
             <div class="business-actions">
-                <button class="btn-secondary edit-business-btn" onclick="toggleBusinessEdit()">
+                <button class="btn-secondary edit-business-btn">
                     <span class="material-icons-round">edit</span>
                     Edit Business
                 </button>
-                <button class="btn-primary save-business-btn hidden" onclick="saveBusinessInfo()">
+                <button class="btn-primary save-business-btn hidden">
                     <span class="material-icons-round">save</span>
                     Save Changes
                 </button>
-                <button class="btn-secondary cancel-business-btn hidden" onclick="cancelBusinessEdit()">
+                <button class="btn-secondary cancel-business-btn hidden">
                     <span class="material-icons-round">close</span>
                     Cancel
                 </button>
@@ -214,6 +214,19 @@
                 </div>
             </div>
 
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4 class="setting-title" style="color: #dc3545;">Delete Account</h4>
+                    <p class="setting-description">Permanently remove your account</p>
+                </div>
+                <button class="btn-secondary" style="color: #dc3545; border-color: #dc3545;"
+                    onclick="showDeleteModal()">
+                    <span class="material-icons-round">delete_forever</span>
+                    Delete
+                </button>
+            </div>
+
+
             <div class="settings-section">
                 <h3 class="section-title">Notification Preferences</h3>
                 <div class="settings-list">
@@ -251,44 +264,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="settings-section">
-                <h3 class="section-title">Payment Settings</h3>
-                <div class="settings-list">
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h4 class="setting-title">Payment Methods</h4>
-                            <p class="setting-description">Manage your payment options</p>
-                        </div>
-                        <a href="{% url 'aid_app:view_orders' %}" class="btn-secondary setting-btn">
-                            <span class="material-icons-round">credit_card</span>
-                            Manage
-                        </a>
-                    </div>
-
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h4 class="setting-title">Billing Address</h4>
-                            <p class="setting-description">Update billing information</p>
-                        </div>
-                        <a href="{% url 'aid_app:manage_delivery' %}" class="btn-secondary setting-btn">
-                            <span class="material-icons-round">location_on</span>
-                            Update
-                        </a>
-                    </div>
-
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <h4 class="setting-title">Tax Information</h4>
-                            <p class="setting-description">Manage tax settings</p>
-                        </div>
-                        <a href="{% url 'aid_app:seller_report' %}" class="btn-secondary setting-btn">
-                            <span class="material-icons-round">receipt</span>
-                            Configure
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -310,172 +285,46 @@
         </div>
     </section>
 </div>
+
+<!-- Delete Account Modal -->
+<div id="delete-account-modal" class="modal-overlay hidden"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="glass-card modal-box"
+        style="background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px;">
+        <h3 class="modal-title" style="color: #dc3545; margin-bottom: 1rem;">Delete Account</h3>
+        <p class="modal-text" style="color: #333; margin-bottom: 2rem;">Are you sure you want to delete your account?
+            This action cannot be undone.</p>
+        <div class="modal-actions" style="display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn-secondary" onclick="hideDeleteModal()">Cancel</button>
+            <form action="{% url 'aid_app:delete_seller_account' %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary"
+                    style="background-color: #dc3545; border-color: #dc3545;">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal() {
+        const modal = document.getElementById('delete-account-modal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    }
+
+    function hideDeleteModal() {
+        const modal = document.getElementById('delete-account-modal');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+</script>
+
+
+
+
+</div>
 {% endblock %}
 
 {% block seller_js %}
-<script>
-    // --- Profile Overview Logic ---
-    function toggleProfileEdit() {
-        // Show hidden inputs related to Profile Overview
-        const profileCard = document.querySelector('.profile-overview').closest('.glass-card');
-
-        // Hide display values within this card
-        profileCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'none');
-
-        // specific: business-name input, email input, phone input
-        // Also handle the special name-inputs div
-        document.getElementById('business-name-input').classList.remove('hidden');
-        document.getElementById('business-name-input').style.display = 'block';
-
-        document.querySelector('.name-inputs').classList.remove('hidden');
-        document.querySelector('.name-inputs').style.display = 'flex';
-
-        document.getElementById('email-input').classList.remove('hidden');
-        document.getElementById('email-input').style.display = 'block';
-
-        document.getElementById('phone-input').classList.remove('hidden');
-        document.getElementById('phone-input').style.display = 'block';
-
-        // Toggle Buttons
-        profileCard.querySelector('.edit-profile-btn').classList.add('hidden');
-        profileCard.querySelector('.save-profile-btn').classList.remove('hidden');
-        profileCard.querySelector('.cancel-profile-btn').classList.remove('hidden');
-
-        // Add edit mode style
-        profileCard.classList.add('edit-mode');
-    }
-
-    function cancelProfileEdit() {
-        const profileCard = document.querySelector('.profile-overview').closest('.glass-card');
-
-        // Show display values again
-        profileCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'block');
-
-        // Hide inputs
-        document.getElementById('business-name-input').style.display = 'none';
-        document.querySelector('.name-inputs').style.display = 'none';
-        document.getElementById('email-input').style.display = 'none';
-        document.getElementById('phone-input').style.display = 'none';
-
-        // Toggle Buttons
-        profileCard.querySelector('.edit-profile-btn').classList.remove('hidden');
-        profileCard.querySelector('.save-profile-btn').classList.add('hidden');
-        profileCard.querySelector('.cancel-profile-btn').classList.add('hidden');
-
-        // Remove edit mode style
-        profileCard.classList.remove('edit-mode');
-    }
-
-    function saveProfileInfo() {
-        const companyName = document.getElementById('business-name-input').value;
-        const firstName = document.getElementById('first-name-input').value;
-        const lastName = document.getElementById('last-name-input').value;
-        const email = document.getElementById('email-input').value;
-        const phone = document.getElementById('phone-input').value;
-
-        // Update Text
-        document.getElementById('business-name').textContent = companyName || 'Not Provided';
-        document.getElementById('contact-person').textContent = `${firstName} ${lastName}`;
-        document.getElementById('email').textContent = email;
-        document.getElementById('phone').textContent = phone ? `+1 ${phone}` : 'Not Provided';
-
-        // Sync company name to Business Info section if needed, or keep separate. 
-        // For now, let's keep them somewhat synced visually if logic requires, 
-        // but user asked for them to be separate. 
-        // If they edit "Business Name" here, it arguably should update common data.
-        if (document.getElementById('company-name')) {
-            document.getElementById('company-name').textContent = companyName || 'Not Provided';
-            document.getElementById('company-name-input').value = companyName || '';
-        }
-
-        cancelProfileEdit();
-        showMessage('Profile Overview updated successfully!', 'success');
-    }
-
-
-    // --- Business Information Logic ---
-    function toggleBusinessEdit() {
-        const businessCard = document.querySelector('.business-info').closest('.glass-card');
-
-        // Hide display values in this card
-        businessCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'none');
-
-        // Show inputs in this card
-        businessCard.querySelectorAll('.info-input').forEach(el => el.style.display = 'block');
-
-        // Toggle Buttons
-        businessCard.querySelector('.edit-business-btn').classList.add('hidden');
-        businessCard.querySelector('.save-business-btn').classList.remove('hidden');
-        businessCard.querySelector('.cancel-business-btn').classList.remove('hidden');
-
-        businessCard.classList.add('edit-mode');
-    }
-
-    function cancelBusinessEdit() {
-        const businessCard = document.querySelector('.business-info').closest('.glass-card');
-
-        // Show values, Hide inputs
-        businessCard.querySelectorAll('.info-value').forEach(el => el.style.display = 'block');
-        businessCard.querySelectorAll('.info-input').forEach(el => el.style.display = 'none');
-
-        // Toggle Buttons
-        businessCard.querySelector('.edit-business-btn').classList.remove('hidden');
-        businessCard.querySelector('.save-business-btn').classList.add('hidden');
-        businessCard.querySelector('.cancel-business-btn').classList.add('hidden');
-
-        businessCard.classList.remove('edit-mode');
-    }
-
-    function saveBusinessInfo() {
-        const companyName = document.getElementById('company-name-input').value;
-        const businessType = document.getElementById('business-type-input').value;
-        const taxId = document.getElementById('tax-id-input').value;
-        const licenseNumber = document.getElementById('license-number-input').value;
-
-        const city = document.getElementById('city-input').value;
-        const state = document.getElementById('state-input').value;
-        const postalCode = document.getElementById('postal-code-input').value;
-        const country = document.getElementById('country-input').value;
-
-        // Update Text
-        document.getElementById('company-name').textContent = companyName || 'Not Provided';
-        document.getElementById('business-type').textContent = businessType;
-        document.getElementById('tax-id').textContent = taxId;
-        document.getElementById('license-number').textContent = licenseNumber;
-
-        document.getElementById('city').textContent = city || 'Not Provided';
-        document.getElementById('state').textContent = state || 'Not Provided';
-        document.getElementById('postal-code').textContent = postalCode || 'Not Provided';
-        document.getElementById('country').textContent = country || 'Not Provided';
-
-        // Sync back to profile overview if changed here
-        if (document.getElementById('business-name')) {
-            document.getElementById('business-name').textContent = companyName || 'Not Provided';
-            document.getElementById('business-name-input').value = companyName || '';
-        }
-
-        cancelBusinessEdit();
-        showMessage('Business Information updated successfully!', 'success');
-    }
-
-    function showMessage(message, type) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message message-${type}`;
-        messageDiv.textContent = message;
-        messageDiv.classList.add('message-toast');
-        if (type === 'success') messageDiv.classList.add('message-success');
-        else if (type === 'error') messageDiv.classList.add('message-error');
-        else messageDiv.classList.add('message-info');
-
-        document.body.appendChild(messageDiv);
-
-        setTimeout(() => {
-            messageDiv.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => {
-                document.body.removeChild(messageDiv);
-            }, 300);
-        }, 3000);
-    }
-
-</script>
+<script src="{% static 'js/seller/seller_profile.js' %}"></script>
 {% endblock %}

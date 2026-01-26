@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="stat-content">
-            <p class="stat-value">2</p>
+            <p class="stat-value">{{ active_reports_count }}</p>
             <h3 class="stat-title">Active Reports</h3>
         </div>
     </div>
@@ -28,7 +28,7 @@
             </div>
         </div>
         <div class="stat-content">
-            <p class="stat-value">1</p>
+            <p class="stat-value">{{ active_orders_count }}</p>
             <h3 class="stat-title">Active Orders</h3>
         </div>
     </div>
@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="stat-content">
-            <p class="stat-value">0</p>
+            <p class="stat-value">{{ booked_responders_count }}</p>
             <h3 class="stat-title">Booked Responders</h3>
         </div>
     </div>
@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="stat-content">
-            <p class="stat-value">5</p>
+            <p class="stat-value">{{ emergency_contacts_count }}</p>
             <h3 class="stat-title">Emergency Contacts</h3>
         </div>
     </div>
@@ -94,6 +94,14 @@
         </div>
         <p>Medical supplies</p>
     </div>
+
+    <div class="quick-action-card gradient-blue" onclick="openSurveyModal()">
+        <div class="header">
+            <span class="material-icons-round">assignment</span>
+            <h3>Survey</h3>
+        </div>
+        <p>Update Profile</p>
+    </div>
 </div>
 
 <div class="two-column-grid">
@@ -115,22 +123,26 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for incident in recent_incidents %}
                     <tr>
-                        <td>INC-001</td>
-                        <td>Medical Emergency</td>
-                        <td>2024-05-15</td>
-                        <td><span class="badge badge-active">Open</span></td>
+                        <td>INC-{{ incident.id }}</td>
+                        <td>{{ incident.incident_type|title }}</td>
+                        <td>{{ incident.created_at|date:"Y-m-d" }}</td>
+                        <td>
+                            {% if incident.status == 'new' or incident.status == 'en_route' %}
+                            <span class="badge badge-active">{{ incident.get_status_display }}</span>
+                            {% else %}
+                            <span class="badge badge-inactive">{{ incident.get_status_display }}</span>
+                            {% endif %}
+                        </td>
                         <td><button class="btn btn-sm btn-primary"
                                 onclick="window.location.href='{% url 'aid_app:incident_history' %}'">View</button></td>
                     </tr>
+                    {% empty %}
                     <tr>
-                        <td>INC-002</td>
-                        <td>Fire Hazard</td>
-                        <td>2024-04-10</td>
-                        <td><span class="badge badge-inactive">Resolved</span></td>
-                        <td><button class="btn btn-sm btn-primary"
-                                onclick="window.location.href='{% url 'aid_app:incident_history' %}'">View</button></td>
+                        <td colspan="5" class="text-center">No recent incidents found.</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -143,30 +155,26 @@
         </div>
 
         <div class="order-list">
+            {% for order in recent_orders %}
             <div class="order-item">
                 <div class="content">
                     <div>
-                        <h4>First Aid Kit</h4>
-                        <p class="text-muted">Order #ORD-001</p>
+                        <h4>Order #{{ order.id }}</h4>
+                        <p class="text-muted">Total: ${{ order.total_amount }}</p>
                     </div>
                     <div class="status">
-                        <span class="badge badge-active">In Transit</span>
-                        <p class="text-muted">Est. Today</p>
+                        {% if order.status == 'pending' or order.status == 'shipped' %}
+                        <span class="badge badge-active">{{ order.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge badge-inactive">{{ order.get_status_display }}</span>
+                        {% endif %}
+                        <p class="text-muted">{{ order.created_at|date:"M d, Y" }}</p>
                     </div>
                 </div>
             </div>
-            <div class="order-item">
-                <div class="content">
-                    <div>
-                        <h4>Medical Supplies</h4>
-                        <p class="text-muted">Order #ORD-002</p>
-                    </div>
-                    <div class="status">
-                        <span class="badge badge-inactive">Delivered</span>
-                        <p class="text-muted">May 10</p>
-                    </div>
-                </div>
-            </div>
+            {% empty %}
+            <div class="text-center p-3 text-muted">No recent orders found.</div>
+            {% endfor %}
         </div>
     </section>
 </div>
@@ -229,4 +237,210 @@
         </div>
     </section>
 </div>
+</div>
+
+<!-- Profile Survey Modal -->
+<div id="surveyModal" class="modal">
+    <div class="modal-content glass-card">
+        <span class="close-modal" onclick="closeSurveyModal()">&times;</span>
+        <h2>Complete Your Profile</h2>
+        <form id="profileSurveyForm" onsubmit="submitSurvey(event)">
+            {% csrf_token %}
+            <div class="form-section">
+                <h3>Address Information</h3>
+                <div class="form-group">
+                    <label>Home Address</label>
+                    <textarea name="address" class="glass-input" rows="2"
+                        required>{{ user.profile.address|default:'' }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" name="city" class="glass-input" value="{{ user.profile.city|default:'' }}"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>State/Province</label>
+                        <input type="text" name="state" class="glass-input" value="{{ user.profile.state|default:'' }}"
+                            required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Postal Code</label>
+                        <input type="text" name="postal_code" class="glass-input"
+                            value="{{ user.profile.postal_code|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" name="country" class="glass-input"
+                            value="{{ user.profile.country|default:'' }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Emergency Contacts</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Primary Contact Name</label>
+                        <input type="text" name="emergency_contact" class="glass-input"
+                            value="{{ user.profile.emergency_contact|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Contact Phone</label>
+                        <input type="text" name="emergency_phone" class="glass-input"
+                            value="{{ user.profile.emergency_phone|default:'' }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Medical Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Blood Type</label>
+                        <select name="blood_type" class="glass-input" required>
+                            <option value="">Select Blood Type</option>
+                            <option value="A+" {% if user.profile.blood_type == "A+" %}selected{% endif %}>A+</option>
+                            <option value="A-" {% if user.profile.blood_type == "A-" %}selected{% endif %}>A-</option>
+                            <option value="B+" {% if user.profile.blood_type == "B+" %}selected{% endif %}>B+</option>
+                            <option value="B-" {% if user.profile.blood_type == "B-" %}selected{% endif %}>B-</option>
+                            <option value="AB+" {% if user.profile.blood_type == "AB+" %}selected{% endif %}>AB+</option>
+                            <option value="AB-" {% if user.profile.blood_type == "AB-" %}selected{% endif %}>AB-</option>
+                            <option value="O+" {% if user.profile.blood_type == "O+" %}selected{% endif %}>O+</option>
+                            <option value="O-" {% if user.profile.blood_type == "O-" %}selected{% endif %}>O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Allergies</label>
+                        <input type="text" name="allergies" class="glass-input"
+                            value="{{ user.profile.allergies|default:'None' }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openSurveyModal() {
+        document.getElementById('surveyModal').style.display = 'block';
+    }
+
+    function closeSurveyModal() {
+        document.getElementById('surveyModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        if (event.target == document.getElementById('surveyModal')) {
+            closeSurveyModal();
+        }
+    }
+
+    function submitSurvey(event) {
+        event.preventDefault();
+        const form = document.getElementById('profileSurveyForm');
+        const formData = new FormData(form);
+
+        fetch("{% url 'aid_app:update_profile_api' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Profile updated successfully!');
+                    closeSurveyModal();
+                    // Optionally reload or update UI
+                    location.reload();
+                } else {
+                    alert('Error updating profile: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+    }
+</script>
+
+<style>
+    /* Simple Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background-color: var(--glass-bg, rgba(255, 255, 255, 0.9));
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+        width: 80%;
+        max-width: 600px;
+        border-radius: 12px;
+        color: var(--text-primary, #333);
+    }
+
+    .close-modal {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close-modal:hover,
+    .close-modal:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-actions {
+        text-align: right;
+        margin-top: 20px;
+    }
+
+    .glass-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.5);
+        color: inherit;
+    }
+</style>
 {% endblock %}

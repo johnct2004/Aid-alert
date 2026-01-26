@@ -222,151 +222,16 @@
 {% endblock %}
 
 {% block user_js %}
+<script src="{% static 'js/user/check_out.js' %}"></script>
 <script>
-    // Load cart from sessionStorage
-    const cartItems = JSON.parse(sessionStorage.getItem('checkoutCart')) || [];
-
-    let shippingCost = 9.99;
-    let taxRate = 0.1;
-    let discount = 0;
-
-    // Initialize the page
     document.addEventListener('DOMContentLoaded', function () {
-        if (cartItems.length === 0) {
-            // Redirect back if empty
-            window.location.href = '{% url "aid_app:buy_products" %}';
-            return;
-        }
-        renderCartItems();
-        updateOrderSummary();
-        setupEventListeners();
-    });
-
-    function setupEventListeners() {
-        // Form submission
-        document.getElementById('checkoutForm').addEventListener('submit', handleCheckout);
-
-        // ... (rest of listeners same as before) ...
-        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-            radio.addEventListener('change', togglePaymentMethod);
+        initCheckout({
+            processCheckoutUrl: '{% url "aid_app:process_checkout" %}',
+            csrfToken: '{{ csrf_token }}',
+            processingUrl: '{% url "aid_app:processing" %}',
+            buyProductsUrl: '{% url "aid_app:buy_products" %}',
+            cartUrl: '{% url "aid_app:buy_products" %}' // Fallback for goBack
         });
-
-        // ... (card inputs listeners) ... 
-    }
-
-    // ... (renderCartItems, updateOrderSummary, togglePaymentMethod, applyPromo, showNotification functions same as before) ...
-
-    function renderCartItems() {
-        const cartContainer = document.getElementById('cartItems');
-
-        cartContainer.innerHTML = cartItems.map(item => `
-                <div class="cart-item">
-                    <div class="item-image">
-                        <img src="${item.image}" alt="${item.name}">
-                    </div>
-                    <div class="item-details">
-                        <h4>${item.name}</h4>
-                        <p>Qty: ${item.quantity}</p>
-                    </div>
-                    <div class="item-price">
-                        $${(item.price * item.quantity).toFixed(2)}
-                    </div>
-                </div>
-            `).join('');
-    }
-
-    function updateOrderSummary() {
-        const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-        const tax = subtotal * taxRate;
-        const total = subtotal + shippingCost + tax - discount;
-
-        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('shipping').textContent = `$${shippingCost.toFixed(2)}`;
-        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
-        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
-    }
-
-    function togglePaymentMethod() {
-        // ... (Logic from before) ...
-        const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-        const cardPayment = document.getElementById('cardPayment');
-
-        if (method === 'card') {
-            cardPayment.style.display = 'block';
-            document.querySelectorAll('#cardPayment input').forEach(i => i.required = true);
-        } else {
-            cardPayment.style.display = 'none';
-            document.querySelectorAll('#cardPayment input').forEach(i => i.required = false);
-        }
-    }
-
-    function applyPromo() {
-        // ... (Logic from before) ...
-        const promoCode = document.getElementById('promoCode').value.toUpperCase();
-        if (promoCode === 'SAVE10') { discount = 10; showNotification('Applied!'); }
-        updateOrderSummary();
-    }
-
-    async function handleCheckout(event) {
-        event.preventDefault();
-
-        // Basic validation
-        const form = document.getElementById('checkoutForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-
-        showNotification('Processing your order...');
-
-        // Prepare data for backend
-        const checkoutData = {
-            cart: cartItems.map(item => ({
-                id: item.id,
-                quantity: item.quantity
-            })),
-            shipping: {
-                firstName: document.getElementById('firstName').value,
-                // ... other fields ...
-            }
-        };
-
-        try {
-            const response = await fetch('{% url "aid_app:process_checkout" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify(checkoutData)
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                showNotification('Order placed successfully!');
-                // Clear cart
-                sessionStorage.removeItem('checkoutCart');
-                // Redirect
-                setTimeout(() => {
-                    window.location.href = '{% url "aid_app:processing" %}';
-                }, 1500);
-            } else {
-                showNotification(result.message || 'Order failed');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showNotification('An error occurred. Please try again.');
-        }
-    }
-
-    function showNotification(message) {
-        // ... (same as before) ...
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
-    }
+    });
 </script>
 {% endblock %}

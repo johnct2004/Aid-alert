@@ -6,6 +6,7 @@
 
 {% block seller_css %}
 <link rel="stylesheet" href="{% static 'css/seller/update_product.css' %}">
+
 {% endblock %}
 
 {% block seller_content %}
@@ -41,8 +42,7 @@
                     </div>
                 </div>
                 <div class="product-actions">
-                    <button class="btn-action edit-btn" data-product-id="{{ product.id }}"
-                        onclick="editProduct('{{ product.id }}')">
+                    <button class="btn-action edit-btn" data-product-id="{{ product.id }}">
                         <span class="material-icons-round">edit</span>
                         Edit
                     </button>
@@ -160,75 +160,23 @@
 {% block seller_js %}
 <script>
     // Product data (injected from Django)
-    const products = {
+    window.productData = {
         {% for product in products %}
     '{{ product.id }}': {
         id: '{{ product.id }}',
             name: '{{ product.name|escapejs }}',
                 category: '{{ product.category }}',
                     condition: '{{ product.condition }}',
-                        sku: 'Generic-SKU', // Placeholder if no SKU field
-                            price: { { product.price } },
-        stock: { { product.stock_quantity } },
-        description: '{{ product.description|escapejs|linebreaksbr }}',
-            status: '{{ product.status }}'
+                        sku: '{{ product.sku|default:"Generic-SKU" }}',
+                            price: '{{ product.price|default:"0" }}',
+                                stock: '{{ product.stock_quantity|default:"0" }}',
+                                    description: '{{ product.description|escapejs }}',
+                                        status: '{{ product.status }}'
     },
     {% endfor %}
     };
-
-    // Product search functionality
-    document.getElementById('productSearch').addEventListener('input', function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const productCards = document.querySelectorAll('.product-card');
-
-        productCards.forEach(card => {
-            const productName = card.querySelector('.product-name').textContent.toLowerCase();
-            // Search by name or category text
-            if (productName.includes(searchTerm)) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-
-    // Edit product functionality
-    window.editProduct = function (productId) {
-        const product = products[productId];
-        if (!product) return;
-
-        // Show the edit form
-        const editForm = document.getElementById('editForm');
-        editForm.style.display = 'block';
-
-        // Populate form with product data
-        document.getElementById('editProductId').value = product.id;
-        document.getElementById('editProductName').value = product.name;
-        document.getElementById('editProductCategory').value = product.category;
-        document.getElementById('editProductCondition').value = product.condition;
-        document.getElementById('editProductPrice').value = product.price;
-        document.getElementById('editProductStock').value = product.stock;
-
-        // Handle description (convert break tags back to newlines if necessary, or just use raw if simplified)
-        // For simplicity, using textContent logic or direct value. 
-        // Note: linebreaksbr adds <br>, so standard value might have tags. 
-        // Ideally we pass raw description. Let's assume simplified text for now.
-        // Or better: use a textarea and rely on raw content. 
-        // Re-injecting description without filters for the edit form:
-        document.getElementById('editProductDescription').value = product.description.replace(/<br\s*\/?>/gi, '\n');
-
-        document.getElementById('editProductStatus').value = product.status;
-
-        // Scroll to the edit form
-        editForm.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    // Cancel edit functionality
-    document.querySelectorAll('.cancel-edit-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.getElementById('editForm').style.display = 'none';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    });
+    window.selectedProductId = "{{ selected_product_id|default:'' }}";
 </script>
+<script src="{% static 'js/seller/update_product.js' %}"></script>
+
 {% endblock %}

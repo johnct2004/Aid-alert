@@ -228,6 +228,27 @@
     background-color: #95a5a6;
 }
 
+.legend-color.accident,
+.bar.accident,
+.pie-slice.accident {
+    background-color: #e67e22;
+    /* Orange */
+}
+
+.legend-color.crime,
+.bar.crime,
+.pie-slice.crime {
+    background-color: #f1c40f;
+    /* Yellow */
+}
+
+.legend-color.natural,
+.bar.natural,
+.pie-slice.natural {
+    background-color: #2ecc71;
+    /* Green */
+}
+
 /* --- Trend Chart --- */
 .trend-chart {
     display: flex;

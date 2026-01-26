@@ -72,9 +72,23 @@
                     <span class="tag">{{ feedback.tags }}</span>
                     {% endif %}
                 </div>
+
+                {% if feedback.reply %}
+                <div class="admin-reply-preview"
+                    style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.9em; border-left: 3px solid var(--primary-color);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong style="color: var(--primary-color);">Admin</strong>
+                        <span style="color: #999; font-size: 0.85em;">{{ feedback.replied_at|date:"M d, Y" }}</span>
+                    </div>
+                    <p style="margin: 0; color: #4a5568; line-height: 1.5;">{{ feedback.reply }}</p>
+                </div>
+                {% endif %}
             </div>
             <div class="feedback-actions">
-                <button class="btn-reply" onclick="openReplyModal(this)" data-id="{{ feedback.id }}">Reply</button>
+                <button class="btn-reply" onclick="openReplyModal(this)" data-id="{{ feedback.id }}"
+                    data-reply="{{ feedback.reply|default:'' }}">
+                    {% if feedback.reply %}Edit Reply{% else %}Reply{% endif %}
+                </button>
                 <button class="btn-resolve" onclick="markAsResolved(this)" data-id="{{ feedback.id }}">Mark as
                     Resolved</button>
             </div>
@@ -112,38 +126,9 @@
 </div>
 
 <script>
-    function openReplyModal(btn) {
-        const id = btn.dataset.id;
-        const modal = document.getElementById('replyModal');
-        const form = document.getElementById('replyForm');
-
-        // Set the form action dynamically
-        form.action = "{% url 'aid_app:reply_feedback' 0 %}".replace('0', id);
-
-        modal.style.display = 'flex';
-    }
-
-    function closeReplyModal() {
-        document.getElementById('replyModal').style.display = 'none';
-    }
-
-    function markAsResolved(btn) {
-        const id = btn.dataset.id;
-        if (confirm("Mark Feedback #" + id + " as resolved?")) {
-            const item = btn.closest('.feedback-item');
-            item.style.opacity = '0.7';
-            btn.textContent = 'Resolved';
-            btn.disabled = true;
-            // In a real app, you would make an AJAx request here
-        }
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function (event) {
-        const modal = document.getElementById('replyModal');
-        if (event.target == modal) {
-            closeReplyModal();
-        }
-    }
+    window.feedbackConfig = {
+        replyUrlBase: "{% url 'aid_app:reply_feedback' 0 %}"
+    };
 </script>
+<script src="{% static 'js/admin/feedback_analysis.js' %}"></script>
 {% endblock %}

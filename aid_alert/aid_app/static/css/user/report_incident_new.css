@@ -1,6 +1,31 @@
 /* Report Incident Page Specific Styles */
 /* Extending user_theme.css */
 
+/* --- Notification Animations --- */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 /* --- Form Styles --- */
 .incident-form {
     display: flex;
@@ -81,6 +106,12 @@
     margin-top: 10px;
 }
 
+.form-actions .btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    width: auto;
+}
+
 /* --- Emergency Contacts Styles --- */
 .emergency-contacts {
     display: flex;
@@ -156,4 +187,10 @@
         flex-direction: column;
         text-align: center;
     }
+}
+
+.contact-item .btn {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    width: auto;
 }

@@ -1,14 +1,17 @@
 {% extends 'facility manager/base_facility.html' %}
 {% load static %}
 
-{% block page_title %}Facility Notifications{% endblock %}
-{% block content_title %}Facility Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block content_title %}Notifications{% endblock %}
 
 {% block facility_css %}
 <link rel="stylesheet" href="{% static 'css/facility manager/facility_notifications.css' %}">
 {% endblock %}
 
 {% block facility_content %}
+<!-- CSRF Token for AJAX -->
+<form style="display:none;">{% csrf_token %}</form>
+
 <!-- Notification Overview -->
 <div class="stats-grid">
     <div class="glass-card stat-card">
@@ -18,12 +21,14 @@
             </div>
         </div>
         <h3 class="stat-label">Critical Alerts</h3>
-        <p class="stat-value" id="criticalAlerts">3</p>
+        <p class="stat-value" id="criticalAlerts">{{ critical_alerts }}</p>
         <div class="stat-change negative">
             <span class="material-icons-round">trending_up</span>
-            <span>2 new today</span>
+            <span>Action Required</span>
         </div>
     </div>
+    <!-- ... (keep other stat cards unchanged, skipping for brevity in replacement if possible, but replace requires contiguous block. I will just target the top part to insert form) -->
+
 
     <div class="glass-card stat-card">
         <div class="stat-header">
@@ -32,10 +37,10 @@
             </div>
         </div>
         <h3 class="stat-label">High Priority</h3>
-        <p class="stat-value" id="highPriority">12</p>
+        <p class="stat-value" id="highPriority">{{ high_priority }}</p>
         <div class="stat-change positive">
             <span class="material-icons-round">trending_down</span>
-            <span>5 resolved</span>
+            <span>Active Issues</span>
         </div>
     </div>
 
@@ -46,10 +51,10 @@
             </div>
         </div>
         <h3 class="stat-label">Information</h3>
-        <p class="stat-value" id="information">28</p>
+        <p class="stat-value" id="information">{{ info_alerts }}</p>
         <div class="stat-change positive">
             <span class="material-icons-round">trending_up</span>
-            <span>8 new updates</span>
+            <span>Updates</span>
         </div>
     </div>
 
@@ -60,37 +65,43 @@
             </div>
         </div>
         <h3 class="stat-label">Resolved Today</h3>
-        <p class="stat-value" id="resolvedToday">15</p>
+        <p class="stat-value" id="resolvedToday">{{ resolved_today }}</p>
         <div class="stat-change positive">
             <span class="material-icons-round">trending_up</span>
-            <span>3 more than average</span>
+            <span>Incidents Closed</span>
         </div>
     </div>
 </div>
 
-<!-- Notification Management -->
+<!-- Active Notifications & Management Combined -->
 <section class="glass-card content-card">
     <div class="card-header-row">
-        <h2 class="card-title">Notification Management</h2>
-        <div class="notification-actions">
-            <button class="btn-action mark-all-read">
+        <h2 class="card-title">Active Notifications</h2>
+        <div class="notification-actions" style="display: flex; gap: 1rem;">
+            <div class="view-toggle">
+                <button class="toggle-btn active" data-view="list">
+                    <span class="material-icons-round">list</span>
+                </button>
+                <button class="toggle-btn" data-view="grid">
+                    <span class="material-icons-round">grid_view</span>
+                </button>
+            </div>
+            <button class="btn-action mark-all-read" onclick="markAllRead()" style="margin-left: 10px;">
                 <span class="material-icons-round">done_all</span>
                 Mark All Read
-            </button>
-            <button class="btn-action create-notification">
-                <span class="material-icons-round">add</span>
-                Create Notification
             </button>
         </div>
     </div>
 
-    <div class="notification-filters">
+    <!-- Filters -->
+    <div class="notification-filters" style="margin-bottom: 20px;">
         <div class="filters-wrapper">
             <div class="search-box">
                 <span class="material-icons-round search-icon">search</span>
-                <input type="text" class="glass-input search-input" placeholder="Search notifications...">
+                <input type="text" class="glass-input search-input" id="notifSearch"
+                    placeholder="Search notifications..." onkeyup="filterNotifications()">
             </div>
-            <select class="glass-select filter-select" id="typeFilter">
+            <select class="glass-select filter-select" id="typeFilter" onchange="filterNotifications()">
                 <option value="all">All Types</option>
                 <option value="critical">Critical</option>
                 <option value="high">High Priority</option>
@@ -98,165 +109,63 @@
                 <option value="low">Low Priority</option>
                 <option value="info">Information</option>
             </select>
-            <select class="glass-select filter-select" id="statusFilter">
-                <option value="all">All Status</option>
-                <option value="unread">Unread</option>
-                <option value="read">Read</option>
-                <option value="archived">Archived</option>
-            </select>
-            <select class="glass-select filter-select" id="categoryFilter">
-                <option value="all">All Categories</option>
-                <option value="incident">Incident</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="staff">Staff</option>
-                <option value="equipment">Equipment</option>
-                <option value="system">System</option>
-            </select>
-        </div>
-    </div>
-</section>
-
-<!-- Active Notifications -->
-<section class="glass-card content-card">
-    <div class="card-header-row">
-        <h2 class="card-title">Active Notifications</h2>
-        <div class="view-toggle">
-            <button class="toggle-btn active" data-view="list">
-                <span class="material-icons-round">list</span>
-            </button>
-            <button class="toggle-btn" data-view="grid">
-                <span class="material-icons-round">grid_view</span>
-            </button>
         </div>
     </div>
 
     <div class="notifications-list" id="notificationsList">
-        <!-- Critical Alert -->
-        <div class="glass-card notification-item critical unread" data-type="critical" data-category="incident">
+        {% for notif in notifications %}
+        <div class="glass-card notification-item {% if notif.notification_type == 'critical' %}critical{% elif notif.notification_type == 'info' %}information{% else %}{{ notif.notification_type }}-priority{% endif %} unread"
+            data-type="{{ notif.notification_type }}" data-category="{{ notif.category }}" id="notif-{{ notif.id }}">
             <div class="notification-icon">
+                {% if notif.notification_type == 'critical' %}
                 <span class="material-icons-round">error</span>
-            </div>
-            <div class="notification-content">
-                <div class="notification-header">
-                    <h4 class="notification-title">Critical Medical Emergency - Building A</h4>
-                    <span class="notification-time">2 minutes ago</span>
-                </div>
-                <p class="notification-message">Medical emergency reported on Floor 3, Room 305. Immediate response
-                    required. Patient condition unknown.</p>
-                <div class="notification-meta">
-                    <span class="notification-category">Incident</span>
-                    <span class="notification-priority">Critical</span>
-                    <span class="notification-location">Building A, Floor 3</span>
-                </div>
-            </div>
-            <div class="notification-actions">
-                <button class="btn-sm action-btn mark-read">Mark Read</button>
-                <button class="btn-sm action-btn view-details">View Details</button>
-                <button class="btn-sm action-btn escalate">Escalate</button>
-            </div>
-            <div class="notification-status unread-indicator"></div>
-        </div>
-
-        <!-- High Priority -->
-        <div class="glass-card notification-item high-priority unread" data-type="high" data-category="equipment">
-            <div class="notification-icon">
+                {% elif notif.notification_type == 'high' %}
                 <span class="material-icons-round">warning</span>
-            </div>
-            <div class="notification-content">
-                <div class="notification-header">
-                    <h4 class="notification-title">Fire Alarm System Maintenance Required</h4>
-                    <span class="notification-time">15 minutes ago</span>
-                </div>
-                <p class="notification-message">Routine maintenance required for fire alarm system in Building B.
-                    Schedule within 48 hours.</p>
-                <div class="notification-meta">
-                    <span class="notification-category">Equipment</span>
-                    <span class="notification-priority">High Priority</span>
-                    <span class="notification-location">Building B</span>
-                </div>
-            </div>
-            <div class="notification-actions">
-                <button class="btn-sm action-btn mark-read">Mark Read</button>
-                <button class="btn-sm action-btn view-details">View Details</button>
-                <button class="btn-sm action-btn schedule">Schedule</button>
-            </div>
-            <div class="notification-status unread-indicator"></div>
-        </div>
-
-        <!-- Medium Priority -->
-        <div class="glass-card notification-item medium-priority" data-type="medium" data-category="staff">
-            <div class="notification-icon">
-                <span class="material-icons-round">people</span>
-            </div>
-            <div class="notification-content">
-                <div class="notification-header">
-                    <h4 class="notification-title">Staff Training Session Tomorrow</h4>
-                    <span class="notification-time">1 hour ago</span>
-                </div>
-                <p class="notification-message">Quarterly safety training scheduled for tomorrow at 10:00 AM in
-                    Conference Room A.</p>
-                <div class="notification-meta">
-                    <span class="notification-category">Staff</span>
-                    <span class="notification-priority">Medium Priority</span>
-                    <span class="notification-location">Conference Room A</span>
-                </div>
-            </div>
-            <div class="notification-actions">
-                <button class="btn-sm action-btn mark-read">Mark Read</button>
-                <button class="btn-sm action-btn view-details">View Details</button>
-                <button class="btn-sm action-btn confirm">Confirm Attendance</button>
-            </div>
-        </div>
-
-        <!-- Information -->
-        <div class="glass-card notification-item information unread" data-type="info" data-category="system">
-            <div class="notification-icon">
+                {% elif notif.notification_type == 'info' %}
                 <span class="material-icons-round">info</span>
+                {% else %}
+                <span class="material-icons-round">notifications</span>
+                {% endif %}
             </div>
             <div class="notification-content">
                 <div class="notification-header">
-                    <h4 class="notification-title">System Update Completed</h4>
-                    <span class="notification-time">2 hours ago</span>
+                    <h4 class="notification-title">{{ notif.title }}</h4>
+                    <span class="notification-time">{{ notif.created_at|timesince }} ago</span>
                 </div>
-                <p class="notification-message">Emergency response system has been successfully updated to version 2.4.1
-                    with improved performance.</p>
+                <p class="notification-message">{{ notif.message }}</p>
                 <div class="notification-meta">
-                    <span class="notification-category">System</span>
-                    <span class="notification-priority">Information</span>
-                    <span class="notification-location">System-wide</span>
+                    <span class="notification-category">{{ notif.get_category_display }}</span>
+                    <span class="notification-priority">{{ notif.get_notification_type_display }}</span>
                 </div>
             </div>
             <div class="notification-actions">
-                <button class="btn-sm action-btn mark-read">Mark Read</button>
-                <button class="btn-sm action-btn view-details">View Details</button>
+                <button class="btn-sm action-btn mark-read" onclick="markRead({{ notif.id }})">Mark Read</button>
+                {% if notif.related_incident %}
+                <button class="btn-sm action-btn view-details"
+                    onclick="window.location.href='{% url 'aid_app:facility_incident_log' %}?open_incident={{ notif.related_incident.id }}'">View
+                    Incident</button>
+
+                <!-- Forward to Admin logic for Blood Loss -->
+                {% if 'Blood Loss' in notif.title or 'blood loss' in notif.title %}
+                <button class="btn-sm action-btn" style="background: #e74c3c; color: white; border: none;"
+                    onclick="forwardToAdmin('{{ notif.related_incident.id }}', this)">
+                    <span class="material-icons-round"
+                        style="font-size: 14px; vertical-align: middle;">forward_to_inbox</span>
+                    Forward to Admin
+                </button>
+                {% endif %}
+                {% endif %}
             </div>
             <div class="notification-status unread-indicator"></div>
         </div>
-
-        <!-- Low Priority -->
-        <div class="glass-card notification-item low-priority" data-type="low" data-category="maintenance">
-            <div class="notification-icon">
-                <span class="material-icons-round">build</span>
-            </div>
-            <div class="notification-content">
-                <div class="notification-header">
-                    <h4 class="notification-title">Monthly Maintenance Reminder</h4>
-                    <span class="notification-time">3 hours ago</span>
-                </div>
-                <p class="notification-message">Monthly equipment inspection due this week. Please check maintenance
-                    schedule.</p>
-                <div class="notification-meta">
-                    <span class="notification-category">Maintenance</span>
-                    <span class="notification-priority">Low Priority</span>
-                    <span class="notification-location">All Facilities</span>
-                </div>
-            </div>
-            <div class="notification-actions">
-                <button class="btn-sm action-btn mark-read">Mark Read</button>
-                <button class="btn-sm action-btn view-details">View Details</button>
-                <button class="btn-sm action-btn schedule">Schedule</button>
-            </div>
+        {% empty %}
+        <div class="empty-state"
+            style="text-align: center; padding: 40px; color: #999; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <span class="material-icons-round"
+                style="font-size: 48px; margin-bottom: 10px; opacity: 0.5;">notifications_off</span>
+            <p style="margin: 0; font-size: 1rem;">No active notifications</p>
         </div>
+        {% endfor %}
     </div>
 </section>
 
@@ -264,67 +173,191 @@
 <section class="glass-card content-card">
     <div class="card-header-row">
         <h2 class="card-title">Recent History</h2>
-        <div class="history-filters">
-            <select class="glass-select filter-select">
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-            </select>
-        </div>
     </div>
 
     <div class="history-timeline">
+        {% for notif in history_notifications %}
         <div class="timeline-item resolved">
             <div class="timeline-marker">
                 <span class="material-icons-round">check_circle</span>
             </div>
             <div class="timeline-content glass-card">
                 <div class="timeline-header">
-                    <h5 class="timeline-title">Fire Alarm Test Completed</h5>
-                    <span class="timeline-time">30 minutes ago</span>
+                    <h5 class="timeline-title">{{ notif.title }}</h5>
+                    <span class="timeline-time">{{ notif.created_at|timesince }} ago</span>
                 </div>
-                <p class="timeline-description">Routine fire alarm test completed successfully in all buildings.</p>
+                <p class="timeline-description">{{ notif.message }} (Marked Read)</p>
                 <div class="timeline-meta">
                     <span class="timeline-status">Resolved</span>
-                    <span class="timeline-category">Equipment</span>
+                    <span class="timeline-category">{{ notif.get_category_display }}</span>
                 </div>
             </div>
         </div>
-
-        <div class="timeline-item resolved">
-            <div class="timeline-marker">
-                <span class="material-icons-round">check_circle</span>
-            </div>
-            <div class="timeline-content glass-card">
-                <div class="timeline-header">
-                    <h5 class="timeline-title">Medical Supply Restocked</h5>
-                    <span class="timeline-time">1 hour ago</span>
-                </div>
-                <p class="timeline-description">Emergency medical supplies have been restocked in all first aid
-                    stations.</p>
-                <div class="timeline-meta">
-                    <span class="timeline-status">Resolved</span>
-                    <span class="timeline-category">Maintenance</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="timeline-item resolved">
-            <div class="timeline-marker">
-                <span class="material-icons-round">check_circle</span>
-            </div>
-            <div class="timeline-content glass-card">
-                <div class="timeline-header">
-                    <h5 class="timeline-title">Staff Shift Change Completed</h5>
-                    <span class="timeline-time">2 hours ago</span>
-                </div>
-                <p class="timeline-description">Night shift to day shift transition completed without issues.</p>
-                <div class="timeline-meta">
-                    <span class="timeline-status">Resolved</span>
-                    <span class="timeline-category">Staff</span>
-                </div>
-            </div>
-        </div>
+        {% empty %}
+        <p style="text-align: center; color: #888; padding: 20px;">No history available.</p>
+        {% endfor %}
     </div>
 </section>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function markRead(id) {
+        const csrftoken = getCookie('csrftoken');
+        if (!csrftoken) {
+            alert('Session Error: CSRF Token missing. Please refresh the page.');
+            return;
+        }
+
+        fetch(`/api/notifications/mark-read/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Animate removal
+                    const item = document.getElementById(`notif-${id}`);
+                    if (item) {
+                        item.style.opacity = '0';
+                        setTimeout(() => item.remove(), 300);
+                    }
+                } else {
+                    alert('Error: Could not mark notification as read.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error. Please check your connection.');
+            });
+    }
+
+    function markAllRead() {
+        if (!confirm('Mark all notifications as read?')) return;
+
+        fetch(`/api/notifications/mark-all-read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+    }
+
+    // Client-side filtering
+    function filterNotifications() {
+        const searchText = document.getElementById('notifSearch').value.toLowerCase();
+        const typeFilter = document.getElementById('typeFilter').value;
+        const items = document.querySelectorAll('.notifications-list .notification-item');
+
+        items.forEach(item => {
+            const title = item.querySelector('.notification-title').innerText.toLowerCase();
+            const message = item.querySelector('.notification-message').innerText.toLowerCase();
+            const type = item.getAttribute('data-type');
+
+            const matchesSearch = title.includes(searchText) || message.includes(searchText);
+            const matchesType = typeFilter === 'all' || type === typeFilter;
+
+            if (matchesSearch && matchesType) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // View Toggle Logic
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const listContainer = document.getElementById('notificationsList');
+
+        // Check local storage for preference
+        const savedView = localStorage.getItem('notificationView') || 'list';
+        setview(savedView);
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const viewType = btn.dataset.view;
+                setview(viewType);
+            });
+        });
+
+        function setview(viewType) {
+            // Update buttons
+            toggleBtns.forEach(btn => {
+                if (btn.dataset.view === viewType) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update container
+            if (viewType === 'grid') {
+                listContainer.classList.add('grid-view');
+            } else {
+                listContainer.classList.remove('grid-view');
+            }
+
+            // Save preference
+            localStorage.setItem('notificationView', viewType);
+        }
+    });
+
+    function forwardToAdmin(incidentId, btnElement) {
+        if (!confirm('Forward this urgent request to Admin for donor search?')) return;
+
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = 'Forwarding...';
+        btnElement.disabled = true;
+
+        fetch('/api/forward-medical-alert/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ incident_id: incidentId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Request forwarded to Admin successfully.');
+                    btnElement.innerHTML = 'Forwarded';
+                    // btnElement.style.background = '#2ecc71'; 
+                } else {
+                    alert('Error: ' + data.message);
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error.');
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
+            });
+    }
+</script>
 {% endblock %}

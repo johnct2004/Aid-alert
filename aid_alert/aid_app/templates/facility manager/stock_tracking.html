@@ -18,7 +18,7 @@
             </div>
         </div>
         <h3 class="stat-label">Total Items</h3>
-        <p class="stat-value" id="totalItems">156</p>
+        <p class="stat-value" id="totalItems">{{ total_items }}</p>
     </div>
 
     <div class="glass-card stat-card">
@@ -28,7 +28,7 @@
             </div>
         </div>
         <h3 class="stat-label">In Stock</h3>
-        <p class="stat-value" id="inStock">142</p>
+        <p class="stat-value" id="inStock">{{ in_stock }}</p>
     </div>
 
     <div class="glass-card stat-card">
@@ -38,7 +38,7 @@
             </div>
         </div>
         <h3 class="stat-label">Low Stock</h3>
-        <p class="stat-value" id="lowStock">8</p>
+        <p class="stat-value" id="lowStock">{{ low_stock }}</p>
     </div>
 
     <div class="glass-card stat-card">
@@ -48,33 +48,23 @@
             </div>
         </div>
         <h3 class="stat-label">Out of Stock</h3>
-        <p class="stat-value" id="outOfStock">6</p>
+        <p class="stat-value" id="outOfStock">{{ out_of_stock }}</p>
     </div>
 </div>
 
 <!-- Stock Chart -->
-<section class="glass-card content-card">
+<section class="glass-card content-card" style="margin-bottom: 40px;">
     <div class="card-header-row">
-        <h2 class="card-title">Stock Overview</h2>
-        <div class="chart-filters">
-            <select class="glass-select filter-select">
-                <option value="week">Last Week</option>
-                <option value="month" selected>Last Month</option>
-                <option value="year">Last Year</option>
-            </select>
-        </div>
+        <h2 class="card-title">Stock Distribution (by Kit Type)</h2>
     </div>
 
     <div class="chart-container">
-        <!-- Placeholder for actual chart, simulating visual -->
         <div class="chart-placeholder">
             <div class="chart-graph">
-                <!-- Y-axis -->
+                <!-- Y-axis (Simplified dynamic scale) -->
                 <div class="y-axis">
-                    <div class="y-label">200</div>
-                    <div class="y-label">150</div>
-                    <div class="y-label">100</div>
-                    <div class="y-label">50</div>
+                    <div class="y-label">{{ max_val }}</div>
+                    <div class="y-label">{{ max_val|title|slice:":2" }}...</div> <!-- Rough approximation -->
                     <div class="y-label">0</div>
                 </div>
 
@@ -84,35 +74,30 @@
                         <div class="grid-line"></div>
                         <div class="grid-line"></div>
                         <div class="grid-line"></div>
-                        <div class="grid-line"></div>
                     </div>
                     <div class="chart-bars">
-                        <div class="chart-bar bar-height-71">
-                            <div class="bar-value">142</div>
-                            <div class="bar-tooltip">Week 1: 142</div>
+                        {% for data in chart_data %}
+                        <div class="chart-bar" style="height: {{ data.height_percent }}%; width: 60px;">
+                            <div class="bar-value">{{ data.value }}</div>
+                            <div class="bar-tooltip">{{ data.label }}: {{ data.value }}</div>
                         </div>
-                        <div class="chart-bar bar-height-57-5">
-                            <div class="bar-value">115</div>
-                            <div class="bar-tooltip">Week 2: 115</div>
+                        {% empty %}
+                        <div
+                            style="display:flex; justify-content:center; align-items:center; width:100%; height:100%; color:#888;">
+                            No data available
                         </div>
-                        <div class="chart-bar bar-height-80">
-                            <div class="bar-value">160</div>
-                            <div class="bar-tooltip">Week 3: 160</div>
-                        </div>
-                        <div class="chart-bar bar-height-66-5">
-                            <div class="bar-value">133</div>
-                            <div class="bar-tooltip">Week 4: 133</div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
 
             <!-- X-axis labels -->
             <div class="x-axis-labels">
-                <div class="x-label">Week 1</div>
-                <div class="x-label">Week 2</div>
-                <div class="x-label">Week 3</div>
-                <div class="x-label">Week 4</div>
+                {% for data in chart_data %}
+                <div class="x-label" style="width: 60px; word-wrap: break-word; font-size: 0.8rem;">
+                    {{ data.label|truncatechars:10 }}
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -124,27 +109,31 @@
         <h2 class="card-title">Inventory Details</h2>
     </div>
 
-    <div class="filters-wrapper">
+    <form id="filterForm" method="get" class="filters-wrapper">
         <div class="search-box">
             <span class="material-icons-round search-icon">search</span>
-            <input type="text" class="search-input glass-input" placeholder="Search items...">
+            <input type="text" name="search" class="search-input glass-input" placeholder="Search items..."
+                value="{{ request.GET.search }}">
         </div>
         <div class="select-group">
-            <select class="glass-select filter-select">
+            <select name="category" class="glass-select filter-select"
+                onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Categories</option>
-                <option value="first-aid">First Aid</option>
-                <option value="medical">Medical Supplies</option>
-                <option value="equipment">Equipment</option>
-                <option value="medication">Medication</option>
+                {% for category in categories %}
+                <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}
+                </option>
+                {% endfor %}
             </select>
-            <select class="glass-select filter-select">
+            <select name="status" class="glass-select filter-select"
+                onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Status</option>
-                <option value="in-stock">In Stock</option>
-                <option value="low-stock">Low Stock</option>
-                <option value="out-of-stock">Out of Stock</option>
+                <option value="in-stock" {% if selected_status == 'in-stock' %}selected{% endif %}>In Stock</option>
+                <option value="low-stock" {% if selected_status == 'low-stock' %}selected{% endif %}>Low Stock</option>
+                <option value="out-of-stock" {% if selected_status == 'out-of-stock' %}selected{% endif %}>Out of Stock
+                </option>
             </select>
         </div>
-    </div>
+    </form>
 
     <div class="table-responsive">
         <table class="glass-table">
@@ -161,98 +150,242 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>ITM-001</td>
-                    <td class="font-bold">Bandages</td>
-                    <td>First Aid</td>
-                    <td>45</td>
-                    <td>20</td>
-                    <td><span class="status-badge status-available">In Stock</span></td>
-                    <td>2 hours ago</td>
-                    <td><button class="btn-action">Update</button></td>
+                {% for item in items %}
+                <tr id="item-row-{{ item.id }}">
+                    <td>ITM-{{ item.id|stringformat:"03d" }}</td>
+                    <td class="font-bold">{{ item.name }}</td>
+                    <td>{{ item.kit.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.min_quantity }}</td>
+                    <td>
+                        {% if item.quantity == 0 %}
+                        <span class="status-badge status-expired">Out of Stock</span>
+                        {% elif item.quantity <= item.min_quantity %} <span class="status-badge status-maintenance">Low
+                            Stock</span>
+                            {% else %}
+                            <span class="status-badge status-available">In Stock</span>
+                            {% endif %}
+                    </td>
+                    <td>{{ item.updated_at|timesince }} ago</td>
+                    <td>
+                        <button class="btn-action update-stock-btn" data-id="{{ item.id }}" data-name="{{ item.name }}"
+                            data-quantity="{{ item.quantity }}" data-kit="{{ item.kit.name }}">
+                            Update
+                        </button>
+                    </td>
                 </tr>
+                {% empty %}
                 <tr>
-                    <td>ITM-002</td>
-                    <td class="font-bold">Gloves</td>
-                    <td>First Aid</td>
-                    <td>8</td>
-                    <td>10</td>
-                    <td><span class="status-badge status-maintenance">Low Stock</span></td>
-                    <td>5 hours ago</td>
-                    <td><button class="btn-action">Update</button></td>
+                    <td colspan="8" class="text-center py-4">No items found in inventory.</td>
                 </tr>
-                <tr>
-                    <td>ITM-003</td>
-                    <td class="font-bold">Antiseptic</td>
-                    <td>Medical Supplies</td>
-                    <td>0</td>
-                    <td>5</td>
-                    <td><span class="status-badge status-expired">Out of Stock</span></td>
-                    <td>1 day ago</td>
-                    <td><button class="btn-action">Update</button></td>
-                </tr>
-                <tr>
-                    <td>ITM-004</td>
-                    <td class="font-bold">Oxygen Mask</td>
-                    <td>Equipment</td>
-                    <td>12</td>
-                    <td>8</td>
-                    <td><span class="status-badge status-available">In Stock</span></td>
-                    <td>3 hours ago</td>
-                    <td><button class="btn-action">Update</button></td>
-                </tr>
-                <tr>
-                    <td>ITM-005</td>
-                    <td class="font-bold">Pain Relievers</td>
-                    <td>Medication</td>
-                    <td>28</td>
-                    <td>15</td>
-                    <td><span class="status-badge status-available">In Stock</span></td>
-                    <td>6 hours ago</td>
-                    <td><button class="btn-action">Update</button></td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Controls -->
+    {% if items.has_other_pages %}
+    <div class="pagination">
+        {% if items.has_previous %}
+        <a href="?page={{ items.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+            class="pagination-btn">
+            <span class="material-icons-round">chevron_left</span>
+        </a>
+        {% else %}
+        <span class="pagination-btn disabled" style="opacity: 0.5; cursor: default;">
+            <span class="material-icons-round">chevron_left</span>
+        </span>
+        {% endif %}
+
+        <div class="pagination-numbers">
+            <span class="pagination-number active">{{ items.number }}</span>
+            <span class="pagination-dots">of</span>
+            <span class="pagination-number">{{ items.paginator.num_pages }}</span>
+        </div>
+
+        {% if items.has_next %}
+        <a href="?page={{ items.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+            class="pagination-btn">
+            <span class="material-icons-round">chevron_right</span>
+        </a>
+        {% else %}
+        <span class="pagination-btn disabled" style="opacity: 0.5; cursor: default;">
+            <span class="material-icons-round">chevron_right</span>
+        </span>
+        {% endif %}
+    </div>
+    {% endif %}
 </section>
 
-<!-- Stock Alerts -->
-<section class="glass-card content-card">
-    <div class="card-header-row">
-        <h2 class="card-title">Stock Alerts</h2>
-    </div>
 
-    <div class="alerts-list">
-        <div class="glass-alert-item alert-critical">
-            <div class="alert-icon">
-                <span class="material-icons-round">error</span>
-            </div>
-            <div class="alert-content">
-                <div class="alert-title">Critical: Antiseptic (ITM-003) is out of stock</div>
-                <div class="alert-time">1 day ago</div>
-            </div>
-            <button class="btn-secondary">Restock</button>
+
+<!-- Update Stock Modal -->
+<div id="updateStockModal" class="modal-overlay hidden">
+    <div class="glass-modal">
+        <div class="modal-header">
+            <h2>Update Stock</h2>
+            <button class="close-modal" type="button" onclick="closeUpdateModal()">
+                <span class="material-icons-round">close</span>
+            </button>
         </div>
-        <div class="glass-alert-item alert-warning">
-            <div class="alert-icon">
-                <span class="material-icons-round">warning</span>
+        <div class="modal-content">
+            <div class="item-info-summary">
+                <h3 id="modalItemName">Item Name</h3>
+                <p id="modalKitName" class="text-sm text-gray">Kit Name</p>
             </div>
-            <div class="alert-content">
-                <div class="alert-title">Low Stock: Gloves (ITM-002) below minimum level</div>
-                <div class="alert-time">5 hours ago</div>
-            </div>
-            <button class="btn-secondary">Order</button>
-        </div>
-        <div class="glass-alert-item alert-info">
-            <div class="alert-icon">
-                <span class="material-icons-round">info</span>
-            </div>
-            <div class="alert-content">
-                <div class="alert-title">Scheduled restock for Bandages (ITM-001) tomorrow</div>
-                <div class="alert-time">2 hours ago</div>
-            </div>
-            <button class="btn-secondary">View</button>
+
+            <form id="updateStockForm">
+                <div class="form-group">
+                    <label class="form-label">New Quantity</label>
+                    <div class="input-wrapper">
+                        <span class="material-icons-round input-icon">inventory_2</span>
+                        <input type="number" id="updateQuantity" class="glass-input" min="0" required>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeUpdateModal()">Cancel</button>
+                    <button type="submit" class="btn-action">
+                        <span class="material-icons-round">save</span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</section>
+</div>
+{% endblock %}
+
+{% block facility_js %}
+<script>
+    console.log("INLINE JS LOADED");
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    let currentItemId = null;
+
+    function openUpdateModal(itemId, itemName, currentQty, kitName) {
+        console.log('Opening modal for:', itemId, itemName);
+        currentItemId = itemId;
+        const nameEl = document.getElementById('modalItemName');
+        const kitEl = document.getElementById('modalKitName');
+        const qtyInput = document.getElementById('updateQuantity');
+
+        if (nameEl) nameEl.textContent = itemName;
+        if (kitEl) kitEl.textContent = kitName;
+        if (qtyInput) qtyInput.value = currentQty;
+
+        const modal = document.getElementById('updateStockModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // Force reflow
+            modal.classList.add('visible');
+        } else {
+            alert("Error: Modal not found!");
+        }
+    }
+
+    function closeUpdateModal() {
+        const modal = document.getElementById('updateStockModal');
+        if (modal) {
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentItemId = null;
+            }, 300);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("DOM Content Loaded - Stock Tracking");
+
+        // Event Delegation
+        document.body.addEventListener('click', function (e) {
+            const btn = e.target.closest('.update-stock-btn');
+            if (btn) {
+                e.preventDefault(); // Stop any default behavior
+                console.log("Update button clicked", btn.dataset);
+                const { id, name, quantity, kit } = btn.dataset;
+                openUpdateModal(id, name, quantity, kit);
+            }
+
+            const modal = document.getElementById('updateStockModal');
+            if (e.target === modal) {
+                closeUpdateModal();
+            }
+        });
+
+        const form = document.getElementById('updateStockForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (!currentItemId) {
+                    alert("No item selected!");
+                    return;
+                }
+
+                const newQty = document.getElementById('updateQuantity').value;
+                const btn = form.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+
+                btn.innerHTML = '<span class="material-icons-round spin">sync</span> Updating...';
+                btn.disabled = true;
+
+                fetch('/api/stock/update/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        item_id: currentItemId,
+                        quantity: parseInt(newQty)
+                    })
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const row = document.getElementById(`item-row-${currentItemId}`);
+                            if (row) {
+                                row.cells[3].textContent = newQty;
+                                row.cells[5].innerHTML = `<span class="status-badge ${data.status_class}">${data.new_status}</span>`;
+                                const btnArg = row.querySelector('.update-stock-btn');
+                                if (btnArg) btnArg.dataset.quantity = newQty;
+                            }
+                            closeUpdateModal();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Update failed: ' + error);
+                    })
+                    .finally(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    });
+            });
+        } else {
+            console.error("Form not found!");
+        }
+    });
+</script>
 {% endblock %}

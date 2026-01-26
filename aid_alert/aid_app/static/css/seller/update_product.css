@@ -14,7 +14,8 @@
 
 .search-box {
     position: relative;
-    width: 300px;
+    width: 100%;
+    max-width: 500px;
     min-width: 250px;
     margin-bottom: 25px;
 }
@@ -22,7 +23,8 @@
 .search-input {
     width: 100%;
     box-sizing: border-box;
-    padding: 14px 16px 14px 45px;
+    padding: 14px 16px 14px 60px;
+    /* Adjusted left padding for optimal spacing */
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.8);
@@ -44,8 +46,16 @@
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    /* Ensures icon glyph is centered in its box */
+    align-items: center;
+    justify-content: center;
     color: #888;
     font-size: 24px;
+    line-height: 1;
+    /* Prevents font line-height from offsetting center */
+    pointer-events: none;
+    z-index: 2;
 }
 
 /* Product List Grid */
@@ -53,6 +63,15 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+}
+
+/* Specific Search Overrides */
+.search-input {
+    padding-left: 60px !important;
+}
+
+.search-icon {
+    z-index: 10 !important;
 }
 
 .product-card {

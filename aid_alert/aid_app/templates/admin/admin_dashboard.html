@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Admin Dashboard - Aid Alert{% endblock %}
-{% block page_title %}Admin Home{% endblock %}
+{% block page_title %}Home{% endblock %}
 
 {% block admin_css %}
 <link rel="stylesheet" href="{% static 'css/admin/admin_dashboard.css' %}">
@@ -64,41 +64,59 @@
     <div class="glass-card activity-card">
         <h3 class="activity-header">Recent Activity</h3>
         <div class="activity-list">
-            <div class="activity-item">
-                <div class="activity-icon type-emergency">
-                    <span class="material-icons-round">emergency</span>
-                </div>
-                <div class="activity-content">
-                    <h4 class="activity-title">Emergency Response Activated</h4>
-                    <p class="activity-desc">Fire incident reported at downtown location</p>
-                    <span class="activity-time">5 minutes ago</span>
-                </div>
-                <a href="{% url 'aid_app:view_all_incidents' %}" class="btn btn-sm btn-secondary">View</a>
+            {% if not pending_sellers_count and not recent_incidents and not recent_feedback %}
+            <div class="empty-state" style="padding: 20px; text-align: center; color: #888;">
+                <p>No recent activity data found.</p>
             </div>
+            {% endif %}
 
+            <!-- Pending Sellers Alert -->
+            {% if pending_sellers_count > 0 %}
             <div class="activity-item">
                 <div class="activity-icon type-seller">
                     <span class="material-icons-round">warning</span>
                 </div>
                 <div class="activity-content">
                     <h4 class="activity-title">New Seller Registration</h4>
-                    <p class="activity-desc">5 new sellers awaiting approval</p>
-                    <span class="activity-time">1 hour ago</span>
+                    <p class="activity-desc">{{ pending_sellers_count }} new sellers awaiting approval</p>
+                    <span class="activity-time">Action Required</span>
                 </div>
                 <a href="{% url 'aid_app:approve_sellers' %}" class="btn btn-sm btn-secondary">Review</a>
             </div>
+            {% endif %}
 
+            <!-- Recent Incidents -->
+            {% for incident in recent_incidents %}
+            <div class="activity-item">
+                <div class="activity-icon type-emergency">
+                    <span class="material-icons-round">emergency</span>
+                </div>
+                <div class="activity-content">
+                    <h4 class="activity-title">Emergency Response Activated</h4>
+                    <!-- Display incident type or first part of description -->
+                    <p class="activity-desc">{{ incident.incident_type|title }}: {{
+                        incident.description|truncatechars:40 }}</p>
+                    <span class="activity-time">{{ incident.created_at|timesince }} ago</span>
+                </div>
+                <a href="{% url 'aid_app:view_all_incidents' %}" class="btn btn-sm btn-secondary">View</a>
+            </div>
+            {% endfor %}
+
+            <!-- Recent Feedback -->
+            {% for feedback in recent_feedback %}
             <div class="activity-item">
                 <div class="activity-icon type-feedback">
                     <span class="material-icons-round">feedback</span>
                 </div>
                 <div class="activity-content">
                     <h4 class="activity-title">New User Feedback</h4>
-                    <p class="activity-desc">12 new feedback submissions received</p>
-                    <span class="activity-time">3 hours ago</span>
+                    <p class="activity-desc">Received from {{ feedback.user.get_full_name|default:feedback.user.username
+                        }}</p>
+                    <span class="activity-time">{{ feedback.created_at|timesince }} ago</span>
                 </div>
                 <a href="{% url 'aid_app:feedback_analysis' %}" class="btn btn-sm btn-secondary">Analysis</a>
             </div>
+            {% endfor %}
         </div>
     </div>
 

@@ -25,8 +25,17 @@ class UserProfile(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
     shipping_address = models.TextField(blank=True, null=True)
     emergency_contacts = models.TextField(blank=True, null=True, help_text="Emergency contact details")
+    # Specific fields for primary contact
+    emergency_contact = models.CharField(max_length=100, blank=True, null=True)
+    emergency_phone = models.CharField(max_length=20, blank=True, null=True)
+    blood_type = models.CharField(max_length=10, blank=True, null=True)
+    allergies = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -256,6 +265,15 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    # Delivery Tracking Fields
+    carrier = models.CharField(max_length=50, default='Local', blank=True)
+    tracking_number = models.CharField(max_length=100, blank=True)
+    priority = models.CharField(max_length=20, default='Standard')
+    current_location = models.CharField(max_length=200, blank=True, help_text="Current city or facility")
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -272,6 +290,7 @@ class Order(models.Model):
 class Feedback(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('approved', 'Approved'),
         ('replied', 'Replied'),
         ('resolved', 'Resolved'),
     ]
@@ -467,3 +486,77 @@ def update_resolved_at(sender, instance, **kwargs):
         if instance.status in ['open', 'en_route', 'on_scene', 'providing_aid', 'transporting']:
              instance.resolved_at = None
 
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ('critical', 'Critical'),
+        ('high', 'High Priority'),
+        ('medium', 'Medium Priority'),
+        ('low', 'Low Priority'),
+        ('info', 'Information'),
+    ]
+    
+    CATEGORY_CHOICES = [
+        ('incident', 'Incident'),
+        ('system', 'System'),
+        ('maintenance', 'Maintenance'),
+        ('staff', 'Staff'),
+        ('equipment', 'Equipment'),
+    ]
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='info')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='system')
+    related_incident = models.ForeignKey(Incident, on_delete=models.SET_NULL, null=True, blank=True, related_name='generated_notifications')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.notification_type.upper()}: {self.title}"
+
+# Signals for Notifications
+@receiver(post_save, sender=Incident)
+def create_incident_notification(sender, instance, created, **kwargs):
+    if created:
+        # Notify Facility Managers for Critical/High incidents
+        if instance.severity in ['critical', 'high']:
+            # Find facility managers
+            facility_profiles = UserProfile.objects.filter(role='facility') 
+            
+            for profile in facility_profiles:
+                Notification.objects.create(
+                    recipient=profile.user,
+                    title=f"New {instance.get_severity_display()} Incident",
+                    message=f"Type: {instance.get_incident_type_display()}. Location: {instance.location}",
+                    notification_type=instance.severity,
+                    category='incident',
+                    related_incident=instance
+                )
+
+class FirstAidGuide(models.Model):
+    URGENCY_CHOICES = [
+        ('moderate', 'Moderate'),
+        ('urgent', 'Urgent'),
+        ('critical', 'Critical (Life-Threatening)'),
+    ]
+
+    title = models.CharField(max_length=200)
+    urgency = models.CharField(max_length=20, choices=URGENCY_CHOICES, default='moderate')
+    icon = models.CharField(max_length=50, default='health_and_safety', help_text="Material Icons name")
+    steps = models.TextField(help_text="Enter steps separated by newlines")
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_guides', null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def get_steps_list(self):
+        return [step.strip() for step in self.steps.split('\n') if step.strip()]
+
+    class Meta:
+        ordering = ['-created_at']

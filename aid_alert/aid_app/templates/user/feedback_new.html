@@ -18,8 +18,13 @@
                 <p class="card-subtitle" style="margin:0; color: var(--text-color); font-weight: 500;">
                     Feedback for Incident #{{ incident.incident_id }}
                 </p>
-                <small style="color: #666;">{{ incident.get_incident_type_display }} - {{ incident.created_at|date:"M d,
-                    Y" }}</small>
+                <small style="color: #666;">
+                    {{ incident.get_incident_type_display }} - {{ incident.created_at|date:"M d, Y" }}
+                    <br>
+                    <strong>Responder:</strong> {{
+                    incident.assigned_responder.user.get_full_name|default:incident.assigned_responder.user.username|default:"Unassigned"
+                    }}
+                </small>
             </div>
             {% else %}
             <p class="card-subtitle">We value your feedback to improve our services.</p>
@@ -121,16 +126,5 @@
 {% endblock %}
 
 {% block user_js %}
-<script>
-    // Simple interactions for better UX
-    document.querySelectorAll('.form-input').forEach(input => {
-        input.addEventListener('focus', function () {
-            this.parentElement.classList.add('focused');
-        });
-
-        input.addEventListener('blur', function () {
-            this.parentElement.classList.remove('focused');
-        });
-    });
-</script>
+<script src="{% static 'js/user/feedback.js' %}"></script>
 {% endblock %}

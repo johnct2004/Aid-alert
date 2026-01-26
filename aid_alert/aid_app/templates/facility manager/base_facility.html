@@ -58,6 +58,13 @@
                 </a>
             </li>
             <li class="menu-item">
+                <a href="{% url 'aid_app:add_guide' %}"
+                    class="menu-link {% if request.resolver_match.url_name == 'add_guide' %}active{% endif %}">
+                    <span class="material-icons-round menu-icon">medical_services</span>
+                    <span>First Aid Guide</span>
+                </a>
+            </li>
+            <li class="menu-item">
                 <a href="{% url 'aid_app:facility_reports' %}"
                     class="menu-link {% if request.resolver_match.url_name == 'facility_reports' %}active{% endif %}">
                     <span class="material-icons-round menu-icon">analytics</span>
@@ -88,7 +95,7 @@
             <h1 class="page-title">{% block content_title %}{% endblock %}</h1>
             <a href="{% url 'aid_app:facility_profile' %}" class="user-profile-link">
                 <div class="user-profile">
-                    <span class="user-name">{{ user.username|default:"Facility Manager" }}</span>
+                    <span class="user-name">{{ user.get_full_name|default:"Facility Manager" }}</span>
                     <div class="avatar-circle">
                         <span class="material-icons-round">person</span>
                     </div>

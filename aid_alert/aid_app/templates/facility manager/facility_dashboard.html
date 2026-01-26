@@ -1,8 +1,8 @@
 {% extends 'facility manager/base_facility.html' %}
 {% load static %}
 
-{% block page_title %}Facility Dashboard{% endblock %}
-{% block content_title %}Facility Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content_title %}Dashboard{% endblock %}
 
 {% block facility_css %}
 <link rel="stylesheet" href="{% static 'css/facility manager/facility_dashboard.css' %}">
@@ -19,7 +19,7 @@
                 </div>
             </div>
             <h3 class="stat-label">Total Kits</h3>
-            <p class="stat-value" id="totalKits">{{ total_kits|default:"24" }}</p>
+            <p class="stat-value" id="totalKits">{{ total_kits }}</p>
         </a>
 
         <a href="{% url 'aid_app:stock_tracking' %}" class="glass-card stat-card">
@@ -29,7 +29,7 @@
                 </div>
             </div>
             <h3 class="stat-label">In Stock</h3>
-            <p class="stat-value" id="inStock">{{ in_stock|default:"45" }}</p>
+            <p class="stat-value" id="inStock">{{ in_stock }}</p>
         </a>
 
         <a href="{% url 'aid_app:stock_tracking' %}" class="glass-card stat-card">
@@ -39,7 +39,7 @@
                 </div>
             </div>
             <h3 class="stat-label">Low Stock</h3>
-            <p class="stat-value" id="lowStock">{{ low_stock|default:"12" }}</p>
+            <p class="stat-value" id="lowStock">{{ low_stock }}</p>
         </a>
 
         <a href="{% url 'aid_app:assign_responders' %}" class="glass-card stat-card">
@@ -49,7 +49,7 @@
                 </div>
             </div>
             <h3 class="stat-label">Active Responders</h3>
-            <p class="stat-value" id="activeResponders">{{ active_responders|default:"23" }}</p>
+            <p class="stat-value" id="activeResponders">{{ active_responders }}</p>
         </a>
     </div>
 
@@ -60,42 +60,26 @@
         </div>
 
         <div class="activity-list">
+            {% for activity in recent_activity %}
             <div class="activity-item">
-                <div class="activity-icon icon-green">
-                    <span class="material-icons-round">check_circle</span>
+                <div class="activity-icon icon-{{ activity.icon_color }}">
+                    <span class="material-icons-round">{{ activity.icon }}</span>
                 </div>
                 <div class="activity-content">
-                    <div class="activity-title">Kit KIT-001 Restocked</div>
-                    <div class="activity-time">2 hours ago</div>
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">{{ activity.description }}</div>
+                    <div class="activity-time">{{ activity.timestamp|timesince }} ago</div>
                 </div>
             </div>
-            <div class="activity-item">
-                <div class="activity-icon icon-orange">
-                    <span class="material-icons-round">warning</span>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">Low Stock Alert: Kit KIT-005</div>
-                    <div class="activity-time">4 hours ago</div>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon icon-blue">
-                    <span class="material-icons-round">assignment</span>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">Incident Report Filed</div>
-                    <div class="activity-time">6 hours ago</div>
+            {% empty %}
+            <div class="activity-item" style="justify-content: center; opacity: 0.7;">
+                <div class="activity-content" style="text-align: center;">
+                    <span class="material-icons-round"
+                        style="font-size: 24px; color: #999; margin-bottom: 8px;">history</span>
+                    <div class="activity-title" style="color: #666;">No recent activity</div>
                 </div>
             </div>
-            <div class="activity-item">
-                <div class="activity-icon icon-yellow">
-                    <span class="material-icons-round">person_add</span>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">New Responder Assigned</div>
-                    <div class="activity-time">8 hours ago</div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </section>
 
@@ -130,7 +114,7 @@
                     <span>View Inventory</span>
                 </button>
             </a>
-            <a href="{% url 'aid_app:first_aid_guides' %}" class="quick-action-link">
+            <a href="{% url 'aid_app:add_guide' %}" class="quick-action-link">
                 <button class="quick-action-btn">
                     <span class="material-icons-round">post_add</span>
                     <span>Add First Aid Guide</span>

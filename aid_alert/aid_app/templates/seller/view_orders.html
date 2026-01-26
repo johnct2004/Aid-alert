@@ -134,7 +134,7 @@
 
             <div class="table-body">
                 {% for order in orders %}
-                <div class="table-row">
+                <div class="table-row" data-order-id="{{ order.id }}">
                     <div class="table-cell order-id-cell">
                         <span class="order-id">{{ order.order_id }}</span>
                     </div>
@@ -156,34 +156,29 @@
                         <span class="status-badge {{ order.status }}">{{ order.status|title }}</span>
                     </div>
                     <div class="table-cell actions-cell">
-                        <button class="action-btn view-btn" title="View Details"
-                            onclick="viewOrder('{{ order.order_id }}')">
+                        <button class="action-btn view-btn" title="View Details">
                             <span class="material-icons-round">visibility</span>
                         </button>
                         {% if order.status == 'pending' %}
-                        <button class="action-btn process-btn" title="Process" onclick="processOrder({{ order.id }})">
+                        <button class="action-btn process-btn" title="Process">
                             <span class="material-icons-round">play_arrow</span>
                         </button>
-                        <button class="action-btn cancel-btn" title="Cancel" onclick="cancelOrder({{ order.id }})">
-                            <span class="material-icons-round">cancel</span>
+                        <button class="action-btn cancel-btn" title="Cancel">
+                            <span class="material-icons-round">close</span>
                         </button>
                         {% elif order.status == 'processing' %}
-                        <button class="action-btn process-btn" title="Mark Shipped"
-                            onclick="markShipped({{ order.id }})">
+                        <button class="action-btn ship-btn" title="Ship">
                             <span class="material-icons-round">local_shipping</span>
                         </button>
                         {% elif order.status == 'shipped' %}
+                        <button class="action-btn deliver-btn" title="Mark Delivered">
+                            <span class="material-icons-round">check_circle</span>
+                        </button>
                         <button class="action-btn track-btn" title="Track" onclick="trackOrder('{{ order.order_id }}')">
                             <span class="material-icons-round">location_on</span>
                         </button>
-                        <button class="action-btn process-btn" title="Mark Delivered"
-                            onclick="markDelivered({{ order.id }})"
-                            style="background: rgba(39, 174, 96, 0.1); color: #27ae60;">
-                            <span class="material-icons-round">check_circle</span>
-                        </button>
                         {% elif order.status == 'delivered' %}
-                        <button class="action-btn invoice-btn" title="Invoice"
-                            onclick="generateInvoice('{{ order.order_id }}')">
+                        <button class="action-btn invoice-btn" title="Invoice">
                             <span class="material-icons-round">receipt</span>
                         </button>
                         {% elif order.status == 'cancelled' %}
@@ -207,86 +202,20 @@
         </div>
     </div>
 
-    <!-- Pagination ... -->
+    <div class="pagination">
+        <button class="pagination-btn prev-btn">
+            <span class="material-icons-round">chevron_left</span>
+        </button>
+        <div class="pagination-numbers">
+            <!-- Numbers injected by JS -->
+        </div>
+        <button class="pagination-btn next-btn">
+            <span class="material-icons-round">chevron_right</span>
+        </button>
+    </div>
 </section>
 {% endblock %}
 
 {% block seller_js %}
-<script>
-    // Order Actions
-    function viewOrder(orderId) {
-        // In a real app, this would navigate to detail page
-        alert(`Viewing details for Order #${orderId}`);
-    }
-
-    // Generic status update function
-    function updateStatus(id, status, actionName) {
-        if (confirm(`Are you sure you want to ${actionName}?`)) {
-            // Construct URL: order/update-status/<id>/<status>/
-            // Use 999999 as placeholder for ID, and 'placeholder' for status
-            let url = "{% url 'aid_app:update_order_status' 999999 'placeholder' %}";
-            url = url.replace('999999', id).replace('placeholder', status);
-            window.location.href = url;
-        }
-    }
-
-    function processOrder(id) {
-        updateStatus(id, 'processing', 'start processing this order');
-    }
-
-    function markShipped(id) {
-        updateStatus(id, 'shipped', 'mark this order as shipped');
-    }
-
-    function markDelivered(id) {
-        updateStatus(id, 'delivered', 'mark this order as delivered');
-    }
-
-    function cancelOrder(id) {
-        updateStatus(id, 'cancelled', 'cancel this order');
-    }
-
-    function trackOrder(orderId) {
-        alert(`Opening tracking for Order #${orderId}...`);
-    }
-
-    function generateInvoice(orderId) {
-        alert(`Generating invoice for Order #${orderId}...`);
-        setTimeout(() => alert('Invoice downloaded!'), 1000);
-    }
-
-    function refundOrder(orderId) {
-        if (confirm(`Process refund for Order #${orderId}?`)) {
-            alert(`Refund initiated for Order #${orderId}.`);
-        }
-    }
-
-    // Search functionality
-    document.getElementById('orderSearch').addEventListener('input', function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('.table-row');
-
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-    });
-
-    // Filter functionality
-    document.getElementById('statusFilter').addEventListener('change', filterOrders);
-
-    function filterOrders() {
-        const status = document.getElementById('statusFilter').value;
-        const rows = document.querySelectorAll('.table-row');
-
-        rows.forEach(row => {
-            const statusBadge = row.querySelector('.status-badge').textContent.toLowerCase();
-            const statusMatch = !status || statusBadge.includes(status.toLowerCase());
-
-            if (row.style.display !== 'none') { // Only modify if not hidden by search
-                row.style.display = statusMatch ? '' : 'none';
-            }
-        });
-    }
-</script>
+<script src="{% static 'js/seller/view_orders.js' %}"></script>
 {% endblock %}

@@ -59,7 +59,8 @@
     <section class="glass-card content-card">
         <div class="card-header-row">
             <h2 class="card-title">Delivery Management</h2>
-            <div class="delivery-actions">
+            <div class="delivery-actions" data-schedule-url="{% url 'aid_app:schedule_pickup' %}"
+                data-bulk-ship-url="{% url 'aid_app:bulk_ship' %}">
                 <button class="btn-secondary schedule-btn">
                     <span class="material-icons-round">schedule</span>
                     Schedule Pickup
@@ -124,51 +125,39 @@
                     {% for delivery in deliveries %}
                     <div class="table-row">
                         <div class="table-cell order-id-cell">
-                            <span class="order-id">#{{ delivery.order.order_id }}</span>
+                            <span class="order-id">#{{ delivery.order_id }}</span>
                         </div>
                         <div class="table-cell customer-cell">
                             <div class="customer-info">
-                                <h4 class="customer-name">{{ delivery.order.customer.username }}</h4>
+                                <h4 class="customer-name">{{ delivery.customer.username }}</h4>
 
                             </div>
                         </div>
                         <div class="table-cell carrier-cell">
-                            <span class="carrier-badge {{ delivery.carrier|lower }}">{{ delivery.carrier }}</span>
+                            <span class="carrier-badge {{ delivery.carrier|lower|default:'local' }}">{{ delivery.carrier }}</span>
                         </div>
                         <div class="table-cell tracking-cell">
-                            <span class="tracking-number">{{ delivery.tracking_number }}</span>
+                            <span class="tracking-number">{{ delivery.tracking_number|default:'-' }}</span>
                         </div>
                         <div class="table-cell priority-cell">
                             {{ delivery.priority }}
                         </div>
                         <div class="table-cell status-cell">
-                            {{ delivery.order.get_status_display }}
+                            {{ delivery.get_status_display }}
+                            {% if delivery.current_location %}
+                            <br><small class="text-muted">{{ delivery.current_location }}</small>
+                            {% endif %}
                         </div>
                         <div class="table-cell actions-cell">
-                            <button class="action-btn track-btn" title="Track">
-                                <span class="material-icons-round">location_on</span>
+                            <button class="action-btn track-btn" title="Update Location" data-id="{{ delivery.id }}"
+                                data-status="{{ delivery.status }}" data-location="{{ delivery.current_location }}"
+                                data-lat="{{ delivery.latitude|default:0 }}"
+                                data-lng="{{ delivery.longitude|default:0 }}">
+                                <span class="material-icons-round">edit_location</span>
                             </button>
-                            {% if delivery.order.status == 'pending' %}
+                            {% if delivery.status == 'pending' %}
                             <button class="action-btn ship-btn" title="Ship">
                                 <span class="material-icons-round">local_shipping</span>
-                            </button>
-                            <button class="action-btn edit-btn" title="Edit">
-                                <span class="material-icons-round">edit</span>
-                            </button>
-                            {% elif delivery.order.status == 'shipped' %}
-                            <button class="action-btn notify-btn" title="Notify">
-                                <span class="material-icons-round">notifications</span>
-                            </button>
-                            {% elif delivery.order.status == 'delivered' %}
-                            <button class="action-btn details-btn" title="Details">
-                                <span class="material-icons-round">info</span>
-                            </button>
-                            {% elif delivery.order.status == 'cancelled' %}
-                            <button class="action-btn retry-btn" title="Retry">
-                                <span class="material-icons-round">refresh</span>
-                            </button>
-                            <button class="action-btn contact-btn" title="Contact">
-                                <span class="material-icons-round">phone</span>
                             </button>
                             {% endif %}
                         </div>
@@ -186,15 +175,55 @@
             </div>
         </div>
 
+        <!-- Update Location Modal -->
+        <div id="updateLocationModal" class="glass-card"
+            style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:2000; padding:20px; width:400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <h3>Update Delivery Status</h3>
+            <form id="updateLocationForm" onsubmit="submitUpdate(event)">
+                <input type="hidden" id="updateOrderId">
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; margin-bottom:5px;">Status</label>
+                    <select id="updateStatus" class="search-input">
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">In Transit (Shipped)</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; margin-bottom:5px;">Current Location</label>
+                    <input type="text" id="updateLocation" class="search-input"
+                        placeholder="e.g. Warehouse A, Springfield">
+                </div>
+
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <div style="flex:1">
+                        <label style="display:block; margin-bottom:5px;">Latitude</label>
+                        <input type="number" step="any" id="updateLat" class="search-input" placeholder="0.00">
+                    </div>
+                    <div style="flex:1">
+                        <label style="display:block; margin-bottom:5px;">Longitude</label>
+                        <input type="number" step="any" id="updateLng" class="search-input" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-secondary"
+                        onclick="document.getElementById('updateLocationModal').style.display='none'">Cancel</button>
+                    <button type="submit" class="bulk-ship-btn"
+                        style="border:none; padding:10px 20px; border-radius:10px; cursor:pointer;">Update</button>
+                </div>
+            </form>
+        </div>
+
         <div class="pagination">
             <button class="pagination-btn prev-btn">
                 <span class="material-icons-round">chevron_left</span>
             </button>
             <div class="pagination-numbers">
-                <button class="pagination-number active">1</button>
-                <button class="pagination-number">2</button>
-                <button class="pagination-number">3</button>
-                <span class="pagination-dots">...</span>
+                <!-- Injected by JS -->
             </div>
             <button class="pagination-btn next-btn">
                 <span class="material-icons-round">chevron_right</span>
@@ -249,303 +278,5 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const scheduleBtn = document.querySelector('.schedule-btn');
-        const bulkShipBtn = document.querySelector('.bulk-ship-btn');
-
-        if (scheduleBtn) {
-            scheduleBtn.addEventListener('click', function () {
-                alert('Schedule Pickup feature coming soon!\nThis will allow you to schedule a carrier pickup for multiple packages.');
-            });
-        }
-
-        if (bulkShipBtn) {
-            bulkShipBtn.addEventListener('click', function () {
-                const confirmed = confirm('Prepare bulk shipment for all pending orders?');
-                if (confirmed) {
-                    alert('Bulk shipment processing initiated! Labels are being generated.');
-                }
-            });
-        }
-
-        // Row Action Buttons
-        document.querySelectorAll('.track-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const row = this.closest('.table-row');
-                const orderId = row.querySelector('.order-id').innerText;
-                alert(`Opening detailed tracking for ${orderId}...\nCurrent Location: Distribution Center`);
-            });
-        });
-
-        document.querySelectorAll('.ship-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const row = this.closest('.table-row');
-                const orderId = row.querySelector('.order-id').innerText;
-                if (confirm(`Mark ${orderId} as Shipped?`)) {
-                    alert(`${orderId} has been marked as Shipped.`);
-                    // In a real app, this would update via AJAX
-                }
-            });
-        });
-
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const row = this.closest('.table-row');
-                const orderId = row.querySelector('.order-id').innerText;
-                alert(`Editing delivery details for ${orderId}`);
-            });
-        });
-    });
-</script>
-
-<script>
-    // Live Delivery Tracking Implementation
-    class DeliveryTracker {
-        constructor() {
-            this.map = null;
-            this.markers = [];
-            this.routes = [];
-            this.refreshInterval = null;
-            this.init();
-        }
-
-        init() {
-            this.initMap();
-            this.setupEventListeners();
-            this.startLiveTracking();
-        }
-
-        initMap() {
-            const mapContainer = document.getElementById('mapContainer');
-            if (!mapContainer) return;
-
-            // Create map centered on a default location
-            this.map = L.map('mapContainer').setView([40.7128, -74.0060], 12);
-
-            // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(this.map);
-        }
-
-        setupEventListeners() {
-            const refreshBtn = document.querySelector('.refresh-btn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', () => {
-                    this.refreshTrackingData();
-                    this.showRefreshAnimation();
-                });
-            }
-        }
-
-        startLiveTracking() {
-            // Load initial data
-            this.loadDeliveryData();
-
-            // Set up automatic refresh every 30 seconds
-            this.refreshInterval = setInterval(() => {
-                this.loadDeliveryData();
-            }, 30000);
-        }
-
-        async loadDeliveryData() {
-            try {
-                // Simulate API call - replace with actual API endpoint
-                const deliveryData = await this.fetchDeliveryData();
-                this.updateMap(deliveryData);
-                this.updateStats(deliveryData);
-            } catch (error) {
-                console.error('Error loading delivery data:', error);
-                this.showError('Failed to load delivery data');
-            }
-        }
-
-        async fetchDeliveryData() {
-            // Mock data for demonstration - replace with actual API call
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({
-                        deliveries: [
-                            {
-                                id: 'DEL-001',
-                                status: 'in_transit',
-                                driver_name: 'John Smith',
-                                customer_name: 'Alice Johnson',
-                                pickup_lat: 40.7128,
-                                pickup_lng: -74.0060,
-                                delivery_lat: 40.7580,
-                                delivery_lng: -73.9855,
-                                current_lat: 40.7350,
-                                current_lng: -73.9950,
-                                estimated_arrival: '2:30 PM',
-                                progress: 65
-                            },
-                            {
-                                id: 'DEL-002',
-                                status: 'delivered',
-                                driver_name: 'Sarah Wilson',
-                                customer_name: 'Bob Brown',
-                                pickup_lat: 40.7489,
-                                pickup_lng: -73.9680,
-                                delivery_lat: 40.7614,
-                                delivery_lng: -73.9776,
-                                current_lat: 40.7614,
-                                current_lng: -73.9776,
-                                estimated_arrival: 'Completed',
-                                progress: 100
-                            },
-                            {
-                                id: 'DEL-003',
-                                status: 'pending',
-                                driver_name: 'Mike Davis',
-                                customer_name: 'Carol White',
-                                pickup_lat: 40.7282,
-                                pickup_lng: -73.9942,
-                                delivery_lat: 40.7411,
-                                delivery_lng: -73.9903,
-                                current_lat: 40.7282,
-                                current_lng: -73.9942,
-                                estimated_arrival: '3:15 PM',
-                                progress: 0
-                            }
-                        ]
-                    });
-                }, 1000);
-            });
-        }
-
-        updateMap(data) {
-            if (!this.map) return;
-
-            // Clear existing markers and routes
-            this.clearMap();
-
-            // Add delivery routes and markers
-            data.deliveries.forEach(delivery => {
-                this.addDeliveryMarker(delivery);
-                this.addDeliveryRoute(delivery);
-            });
-
-            // Fit map to show all deliveries
-            if (this.markers.length > 0) {
-                const group = new L.featureGroup(this.markers);
-                this.map.fitBounds(group.getBounds().pad(0.1));
-            }
-        }
-
-        addDeliveryMarker(delivery) {
-            const markerIcon = L.divIcon({
-                className: 'delivery-marker',
-                html: `
-                <div class="marker-content" data-status="${delivery.status}">
-                    <span class="material-icons-round">
-                        ${delivery.status === 'delivered' ? 'check_circle' : 'local_shipping'}
-                    </span>
-                </div>
-            `,
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
-            });
-
-            const marker = L.marker([delivery.current_lat, delivery.current_lng], { icon: markerIcon })
-                .addTo(this.map)
-                .bindPopup(this.createPopupContent(delivery));
-
-            this.markers.push(marker);
-        }
-
-        addDeliveryRoute(delivery) {
-            if (delivery.status === 'delivered') return;
-
-            const routeCoordinates = [
-                [delivery.pickup_lat, delivery.pickup_lng],
-                [delivery.current_lat, delivery.current_lng],
-                [delivery.delivery_lat, delivery.delivery_lng]
-            ];
-
-            const route = L.polyline(routeCoordinates, {
-                color: delivery.status === 'in_transit' ? '#3b82f6' : '#f59e0b',
-                weight: 3,
-                opacity: 0.7,
-                dashArray: delivery.status === 'pending' ? '10, 10' : null
-            }).addTo(this.map);
-
-            this.routes.push(route);
-        }
-
-        createPopupContent(delivery) {
-            return `
-            <div class="delivery-popup">
-                <h4>${delivery.id}</h4>
-                <p><strong>Status:</strong> ${delivery.status.replace('_', ' ').toUpperCase()}</p>
-                <p><strong>Driver:</strong> ${delivery.driver_name}</p>
-                <p><strong>Customer:</strong> ${delivery.customer_name}</p>
-                <p><strong>ETA:</strong> ${delivery.estimated_arrival}</p>
-                <p><strong>Progress:</strong> ${delivery.progress}%</p>
-            </div>
-        `;
-        }
-
-        updateStats(data) {
-            const activeDeliveries = data.deliveries.filter(d => d.status === 'in_transit').length;
-            const inTransitCount = data.deliveries.filter(d => d.status === 'in_transit' || d.status === 'pending').length;
-            const deliveredToday = data.deliveries.filter(d => d.status === 'delivered').length;
-
-            document.getElementById('activeDeliveries').textContent = activeDeliveries;
-            document.getElementById('inTransitCount').textContent = inTransitCount;
-            document.getElementById('deliveredToday').textContent = deliveredToday;
-        }
-
-        clearMap() {
-            this.markers.forEach(marker => this.map.removeLayer(marker));
-            this.markers = [];
-            this.routes.forEach(route => this.map.removeLayer(route));
-            this.routes = [];
-        }
-
-        refreshTrackingData() {
-            this.loadDeliveryData();
-        }
-
-        showRefreshAnimation() {
-            const refreshBtn = document.querySelector('.refresh-btn');
-            if (refreshBtn) {
-                refreshBtn.querySelector('.material-icons-round').style.animation = 'spin 1s linear';
-                setTimeout(() => {
-                    refreshBtn.querySelector('.material-icons-round').style.animation = '';
-                }, 1000);
-            }
-        }
-
-        showLoadingIndicator() {
-            const mapContainer = document.getElementById('mapContainer');
-            if (mapContainer) {
-                mapContainer.innerHTML = '<div class="map-loading">Loading map...</div>';
-            }
-        }
-
-        showError(message) {
-            const mapContainer = document.getElementById('mapContainer');
-            if (mapContainer) {
-                mapContainer.innerHTML = `<div class="map-error">${message}</div>`;
-            }
-        }
-
-        destroy() {
-            if (this.refreshInterval) clearInterval(this.refreshInterval);
-            this.clearMap();
-        }
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        window.deliveryTracker = new DeliveryTracker();
-    });
-
-    // Clean up
-    window.addEventListener('beforeunload', () => {
-        if (window.deliveryTracker) window.deliveryTracker.destroy();
-    });
-</script>
+<script src="{% static 'js/seller/manage_delivery.js' %}"></script>
 {% endblock %}

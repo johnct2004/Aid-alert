@@ -36,15 +36,21 @@
                     <input type="text" id="last_name" name="last_name" class="glass-input" required>
                 </div>
 
-                <div class="input-group full-width">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" class="glass-input" required>
-                </div>
+
 
                 <div class="input-group">
                     <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" class="glass-input" placeholder="10-digit number"
-                        maxlength="10" pattern="[0-9]{10}" required>
+                    <div class="phone-input-wrapper">
+                        <select name="country_code" class="phone-prefix-select">
+                            <option value="+91" selected>+91 (IN)</option>
+                            <option value="+1">+1 (US)</option>
+                            <option value="+44">+44 (UK)</option>
+                            <option value="+61">+61 (AU)</option>
+                            <option value="+81">+81 (JP)</option>
+                        </select>
+                        <input type="tel" id="phone" name="phone" placeholder="10-digit number" maxlength="10"
+                            pattern="[0-9]{10}" required>
+                    </div>
                     <small class="form-hint">Enter exactly 10 digits</small>
                 </div>
 
@@ -92,7 +98,7 @@
                 <div id="facility_fields" class="role-specific-field" style="display: none; width: 100%;">
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="facility_name">Facility Name</label>
+                            <label for="facility_name">Organization/Hospital Name</label>
                             <input type="text" id="facility_name" name="facility_name" class="glass-input">
                         </div>
                         <div class="input-group">
@@ -102,10 +108,7 @@
                     </div>
                 </div>
 
-                <div class="input-group full-width">
-                    <label for="address">Address (Optional)</label>
-                    <input type="text" id="address" name="address" class="glass-input">
-                </div>
+
 
                 <div class="input-group full-width">
                     <label for="password">Password</label>
@@ -131,6 +134,8 @@
 
             <div class="form-footer">
                 <p>Already have an account? <a href="{% url 'aid_app:login' %}" class="sign-in">Sign in</a></p>
+                <p style="margin-top: 10px;"><a href="{% url 'aid_app:contact' %}"
+                        style="text-decoration: none; color: #555;">About Us</a></p>
             </div>
         </form>
     </div>
@@ -138,84 +143,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Enhanced phone number validation
-    const phoneInput = document.getElementById('phone');
-
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function (e) {
-            const value = e.target.value;
-            e.target.value = value.replace(/\D/g, ''); // Only numbers
-
-            if (e.target.value.length === 10) {
-                e.target.setCustomValidity('');
-                e.target.style.borderColor = '#2ecc71'; // Green
-            } else if (e.target.value.length > 0) {
-                e.target.setCustomValidity('Please enter exactly 10 digits');
-                e.target.style.borderColor = '#e74c3c'; // Red
-            } else {
-                e.target.setCustomValidity('');
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)'; // Default glass border
-            }
-        });
-    }
-
-    // Password requirements validation
-    const passwordInput = document.getElementById('password');
-    const requirementsList = document.querySelector('.requirements-list');
-
-    if (passwordInput && requirementsList) {
-        const requirements = [
-            { regex: /.{8,}/, text: 'At least 8 characters' },
-            { regex: /[A-Z]/, text: 'At least one uppercase letter' },
-            { regex: /[a-z]/, text: 'At least one lowercase letter' },
-            { regex: /[0-9]/, text: 'At least one number' }
-        ];
-
-        passwordInput.addEventListener('input', function () {
-            const password = this.value;
-            const listItems = requirementsList.querySelectorAll('li');
-
-            requirements.forEach((req, index) => {
-                const listItem = listItems[index];
-                if (req.regex.test(password)) {
-                    listItem.style.color = '#2ecc71'; // Green
-                    listItem.style.textDecoration = 'line-through';
-                } else {
-                    listItem.style.color = '#666'; // Default
-                    listItem.style.textDecoration = 'none';
-                }
-            });
-        });
-    }
-    function toggleRoleFields() {
-        const role = document.getElementById('user_role').value;
-        const sellerFields = document.getElementById('seller_fields');
-        const facilityFields = document.getElementById('facility_fields');
-        const shopName = document.getElementById('shop_name');
-        const licenseNo = document.getElementById('license_no');
-        const facilityName = document.getElementById('facility_name');
-        const capacity = document.getElementById('capacity');
-
-        // Reset all first
-        sellerFields.style.display = 'none';
-        facilityFields.style.display = 'none';
-
-        // Remove required attributes to avoid validation errors on hidden fields
-        shopName.required = false;
-        licenseNo.required = false;
-        facilityName.required = false;
-        capacity.required = false;
-
-        if (role === 'seller') {
-            sellerFields.style.display = 'block';
-            shopName.required = true;
-            licenseNo.required = true;
-        } else if (role === 'facility') {
-            facilityFields.style.display = 'block';
-            facilityName.required = true;
-            capacity.required = true; // Optional based on preference, but good for data
-        }
-    }
-</script>
+<script src="{% static 'js/common/register.js' %}"></script>
 {% endblock %}

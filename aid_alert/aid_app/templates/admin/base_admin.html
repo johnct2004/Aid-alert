@@ -92,16 +92,31 @@
     <main class="main-content">
         <header class="top-bar">
             <h1 class="page-title">{% block page_title %}Admin Dashboard{% endblock %}</h1>
-            <a href="{% url 'aid_app:profile' %}" class="user-profile-link"
-                style="text-decoration: none; color: inherit;">
-                <div class="user-profile">
-                    <span class="user-name" style="font-weight: 500;">{{ user.username }}</span>
-                    <div class="avatar-circle">
-                        <span class="material-icons-round" style="font-size: 20px;">person</span>
-                    </div>
+            <div class="user-profile">
+                <span class="user-name" style="font-weight: 500;">{{ user.username }}</span>
+                <div class="avatar-circle">
+                    <span class="material-icons-round" style="font-size: 20px;">person</span>
                 </div>
-            </a>
+            </div>
         </header>
+
+        {% if messages %}
+        <div class="messages-container" style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+                style="padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
+                 {% if message.tags == 'success' %}background: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}
+                 {% if message.tags == 'error' %}background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% endif %}
+                 {% if message.tags == 'warning' %}background: #fff3cd; color: #856404; border: 1px solid #ffeeba;{% endif %}">
+                <span class="material-icons-round">
+                    {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else
+                    %}info{% endif %}
+                </span>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% block admin_content %}{% endblock %}
     </main>

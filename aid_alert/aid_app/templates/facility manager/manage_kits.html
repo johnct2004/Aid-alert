@@ -91,62 +91,146 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    {% if kits.has_other_pages %}
+    <div class="pagination-wrapper">
+        <div class="pagination-info">
+            Showing {{ kits.start_index }}-{{ kits.end_index }} of {{ kits.paginator.count }}
+        </div>
+        <div class="pagination-controls">
+            {% if kits.has_previous %}
+            <a href="?page={{ kits.previous_page_number }}" class="glass-btn pagination-btn">
+                <span class="material-icons-round">chevron_left</span>
+            </a>
+            {% else %}
+            <button class="glass-btn pagination-btn disabled" disabled>
+                <span class="material-icons-round">chevron_left</span>
+            </button>
+            {% endif %}
+
+            {% for i in kits.paginator.page_range %}
+            {% if kits.number == i %}
+            <button class="glass-btn pagination-btn active">{{ i }}</button>
+            {% elif i > kits.number|add:'-3' and i < kits.number|add:'3' %} <a href="?page={{ i }}"
+                class="glass-btn pagination-btn">{{ i }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if kits.has_next %}
+                <a href="?page={{ kits.next_page_number }}" class="glass-btn pagination-btn">
+                    <span class="material-icons-round">chevron_right</span>
+                </a>
+                {% else %}
+                <button class="glass-btn pagination-btn disabled" disabled>
+                    <span class="material-icons-round">chevron_right</span>
+                </button>
+                {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </section>
+
+<!-- Add/Edit Kit Modal -->
+<div id="kitModal" class="modal-overlay hidden">
+    <div class="glass-modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="kitModalTitle">Add New Kit</h3>
+            <button class="btn-icon close-modal" onclick="closeKitModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <form id="kitForm">
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Kit ID</label>
+                    {{ form.kit_id }}
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    {{ form.name }}
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    {{ form.kit_type }}
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    {{ form.location }}
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    {{ form.expiry_date }}
+                </div>
+                <!-- Status field for edit mode only, handled by JS injection or separate simple select -->
+                <div class="form-group hidden" id="statusField">
+                    <label>Status</label>
+                    <select name="status" class="glass-input">
+                        <option value="available">Available</option>
+                        <option value="in_use">In Use</option>
+                        <option value="maintenance">Under Maintenance</option>
+                        <option value="expired">Expired</option>
+                        <option value="lost">Lost</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeKitModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Save Kit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View Kit Modal -->
+<div id="viewKitModal" class="modal-overlay hidden">
+    <div class="glass-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Kit Details</h3>
+            <button class="btn-icon close-modal" onclick="closeViewModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="info-grid single-column">
+                <div class="info-item">
+                    <h3 class="info-label">Kit ID</h3>
+                    <p class="info-value" id="viewKitId">--</p>
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Name</h3>
+                    <p class="info-value" id="viewKitName">--</p>
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Type</h3>
+                    <p class="info-value" id="viewKitType">--</p>
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Location</h3>
+                    <p class="info-value" id="viewKitLocation">--</p>
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Status</h3>
+                    <p class="info-value status-badge" id="viewKitStatus">--</p>
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Last Checked</h3>
+                    <p class="info-value" id="viewKitLastChecked">--</p>
+                </div>
+                <div class="info-item no-border-padding">
+                    <h3 class="info-label">Expiry Date</h3>
+                    <p class="info-value" id="viewKitExpiry">--</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-primary" onclick="closeViewModal()">Close</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block facility_js %}
-<script>
-    // Search functionality
-    document.querySelector('.search-input').addEventListener('input', function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('.kit-row');
-
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-    });
-
-    // Filter functionality
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            // Remove active class from all buttons
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            // Add active class to clicked button
-            this.classList.add('active');
-
-            const filter = this.getAttribute('data-filter');
-            const rows = document.querySelectorAll('.kit-row');
-
-            rows.forEach(row => {
-                const status = row.getAttribute('data-status');
-                if (filter === 'all' || status === filter) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    });
-
-    // Kit action functions (Mock)
-    function viewKit(kitId) {
-        // window.location.href = `/kit-details/${kitId}/`;
-        alert('View details for ' + kitId);
-    }
-
-    function editKit(kitId) {
-        // window.location.href = `/edit-kit/${kitId}/`;
-        alert('Edit kit ' + kitId);
-    }
-
-    function checkKit(kitId) {
-        // window.location.href = `/check-kit/${kitId}/`;
-        alert('Perform check on ' + kitId);
-    }
-
-    function showAddKitModal() {
-        alert('Show Add Kit Modal');
-    }
-</script>
+<script src="{% static 'js/facility_manager/manage_kits.js' %}"></script>
 {% endblock %}

@@ -17,12 +17,6 @@
     max-width: 600px;
     /* Wider than login for better layout */
     text-align: center;
-    max-height: 90vh;
-    /* Prevent overflowing screen on small devices */
-    overflow-y: auto;
-    /* Scroll inside card if needed */
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.3);
 }
 
 /* Custom Scrollbar */
@@ -177,4 +171,53 @@
     .register-card {
         padding: 20px;
     }
+}
+
+/* Phone Number Input Styling */
+.phone-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.phone-input-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+}
+
+
+.phone-prefix-select {
+    padding: 12px 8px 12px 12px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    color: #555;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    max-width: 110px;
+    appearance: none;
+    /* Hide default arrow for cleaner look if desired, or keep it */
+}
+
+/* Optional: Custom arrow for select if appearance: none is used
+   For now, standard select is fine but let's make sure it doesn't look out of place.
+*/
+
+.phone-input-wrapper input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    color: inherit;
+    font-family: inherit;
 }

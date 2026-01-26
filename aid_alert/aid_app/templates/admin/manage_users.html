@@ -58,7 +58,6 @@
     <div class="card-header-row">
         <div class="filter-actions">
             <div class="search-bar">
-                <span class="material-icons-round search-icon" style="color: #999;">search</span>
                 <input type="text" class="search-input" placeholder="Search users by name, email...">
             </div>
             <select class="filter-select">
@@ -115,6 +114,34 @@
                                 <h4 class="user-name">{{ user_obj.get_full_name|default:user_obj.username }}</h4>
                                 <p class="user-email">{{ user_obj.email|default:"No email" }}</p>
                             </div>
+                            <!-- Hidden Feedback Data -->
+                            <div class="user-feedback-data" style="display:none;">
+                                [
+                                {% for f in user_obj.feedback.all %}
+                                {
+                                "rating": "{{ f.rating }}",
+                                "message": "{{ f.message|escapejs }}",
+                                "date": "{{ f.created_at|date:'M d, Y' }}",
+                                "sentiment": "{{ f.sentiment }}",
+                                "status": "{{ f.get_status_display }}"
+                                }{% if not forloop.last %},{% endif %}
+                                {% endfor %}
+                                ]
+                            </div>
+
+                            <!-- Hidden Profile Data -->
+                            <div class="user-profile-data" style="display:none;"
+                                data-blood="{{ user_obj.profile.blood_type|default:'N/A' }}"
+                                data-allergies="{{ user_obj.profile.allergies|default:'None' }}"
+                                data-emergency-contact="{{ user_obj.profile.emergency_contact|default:'N/A' }}"
+                                data-emergency-phone="{{ user_obj.profile.emergency_phone|default:'N/A' }}"
+                                data-address="{{ user_obj.profile.address|default:'' }}"
+                                data-city="{{ user_obj.profile.city|default:'' }}"
+                                data-state="{{ user_obj.profile.state|default:'' }}"
+                                data-zip="{{ user_obj.profile.postal_code|default:'' }}"
+                                data-country="{{ user_obj.profile.country|default:'' }}">
+                            </div>
+
                         </div>
                     </td>
                     <td>
@@ -191,21 +218,47 @@
     </div>
 
     <!-- Pagination -->
+    <!-- Pagination -->
+    {% if users.has_other_pages %}
     <div
-        style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
-        <div style="font-size: 0.9rem; color: #666;">Showing {{ users|length }} of {{ total_users }} users</div>
-        <div style="display: flex; gap: 5px;">
-            <button class="btn btn-sm btn-secondary" disabled>
+        style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+        <div style="font-size: 0.9rem; color: #666;">
+            Showing {{ users.start_index }}-{{ users.end_index }} of {{ users.paginator.count }} users
+        </div>
+        <div style="display: flex; gap: 5px; justify-content: center;">
+            {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}&role={{ current_filters.role }}&status={{ current_filters.status }}&search={{ current_filters.search }}"
+                class="btn btn-sm btn-secondary">
+                <span class="material-icons-round" style="font-size: 16px;">chevron_left</span>
+            </a>
+            {% else %}
+            <button class="btn btn-sm btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed;">
                 <span class="material-icons-round" style="font-size: 16px;">chevron_left</span>
             </button>
-            <button class="btn btn-sm btn-primary">1</button>
-            <button class="btn btn-sm btn-secondary">2</button>
-            <button class="btn btn-sm btn-secondary">3</button>
-            <button class="btn btn-sm btn-secondary">
-                <span class="material-icons-round" style="font-size: 16px;">chevron_right</span>
-            </button>
+            {% endif %}
+
+            {% for i in users.paginator.page_range %}
+            {% if users.number == i %}
+            <button class="btn btn-sm btn-primary">{{ i }}</button>
+            {% elif i > users.number|add:'-3' and i < users.number|add:'3' %} <a
+                href="?page={{ i }}&role={{ current_filters.role }}&status={{ current_filters.status }}&search={{ current_filters.search }}"
+                class="btn btn-sm btn-secondary">{{ i }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}&role={{ current_filters.role }}&status={{ current_filters.status }}&search={{ current_filters.search }}"
+                    class="btn btn-sm btn-secondary">
+                    <span class="material-icons-round" style="font-size: 16px;">chevron_right</span>
+                </a>
+                {% else %}
+                <button class="btn btn-sm btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    <span class="material-icons-round" style="font-size: 16px;">chevron_right</span>
+                </button>
+                {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>
 
 <!-- Add User Modal -->
@@ -265,8 +318,6 @@
                             <option value="responder">Responder</option>
                             <option value="seller">Seller</option>
                             <option value="facility_manager">Facility Manager</option>
-                            <option value="hr">HR</option>
-                            <option value="admin">Admin</option>
                         </select>
                         <span class="material-icons-round select-arrow">expand_more</span>
                     </div>
@@ -278,15 +329,20 @@
                     <label for="password">Password</label>
                     <div class="input-wrapper">
                         <span class="material-icons-round input-icon">lock</span>
-                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required
+                            minlength="8">
                     </div>
+                    <small style="color:#666; font-size:0.8rem; margin-top:4px; display:block;">Min. 8
+                        characters</small>
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
                     <div class="input-wrapper">
                         <span class="material-icons-round input-icon">phone</span>
-                        <input type="tel" id="phone" name="phone" placeholder="+1 (714) 222-1111">
+                        <input type="tel" id="phone" name="phone" placeholder="1234567890" maxlength="10"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                     </div>
+                    <small style="color:#666; font-size:0.8rem; margin-top:4px; display:block;">10 digits only</small>
                 </div>
             </div>
 
@@ -626,479 +682,10 @@
 
 {% block admin_js %}
 <script>
-    // Make modal functions global
-    window.openAddUserModal = function () {
-        const modal = document.getElementById('addUserModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            modal.style.zIndex = '99999'; // Force High Z-Index
-            document.body.style.overflow = 'hidden';
-            // Reset form
-            const form = document.getElementById('addUserForm');
-            if (form) form.reset();
-        } else {
-            console.error('Modal element not found');
-            alert('Error: Add User Modal not found. Please refresh the page.');
-        }
-    }
-
-    window.closeAddUserModal = function () {
-        const modal = document.getElementById('addUserModal');
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    }
-
-    // Helper for role names
-    function getRoleDisplayName(role) {
-        const roleNames = {
-            'user': 'Regular User',
-            'seller': 'Seller',
-            'facility_manager': 'Facility Manager',
-            'responder': 'Responder',
-            'admin': 'Admin',
-            'hr': 'HR'
-        };
-        return roleNames[role] || role;
-    }
-
-    // Main initialization
-    document.addEventListener('DOMContentLoaded', function () {
-        // Search functionality
-        const searchInput = document.querySelector('.search-input');
-        const userRows = document.querySelectorAll('.user-row');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                const searchTerm = this.value.toLowerCase();
-                userRows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                });
-            });
-        }
-
-        // Filter functionality
-        const roleFilter = document.querySelector('.filter-select:nth-of-type(1)');
-        const statusFilter = document.querySelector('.filter-select:nth-of-type(2)');
-
-        function applyFilters() {
-            const selectedRole = roleFilter ? roleFilter.value : 'all';
-            const selectedStatus = statusFilter ? statusFilter.value : 'all';
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-
-            let filteredCount = 0;
-
-            userRows.forEach(row => {
-                const userName = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
-                const userEmail = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
-                const roleBadge = row.querySelector('.role-badge')?.textContent.toLowerCase() || '';
-                const statusBadge = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
-
-                // Check if row matches all filters
-                const matchesSearch = userName.includes(searchTerm) || userEmail.includes(searchTerm);
-                const matchesRole = selectedRole === 'all' || roleBadge.includes(selectedRole.toLowerCase());
-                const matchesStatus = selectedStatus === 'all' || statusBadge.includes(selectedStatus.toLowerCase());
-
-                const shouldShow = matchesSearch && matchesRole && matchesStatus;
-                row.style.display = shouldShow ? '' : 'none';
-
-                if (shouldShow) {
-                    filteredCount++;
-                }
-            });
-
-            // Update showing count
-            const showingText = document.querySelector('.stats-grid + .glass-card .text-muted');
-            if (showingText) {
-                showingText.textContent = `Showing ${filteredCount} of ${userRows.length} users`;
-            }
-
-            // Show notification
-            const filterDescription = [];
-            if (selectedRole !== 'all') filterDescription.push(`role: ${selectedRole}`);
-            if (selectedStatus !== 'all') filterDescription.push(`status: ${selectedStatus}`);
-            if (searchTerm) filterDescription.push(`search: "${searchTerm}"`);
-
-            const message = filterDescription.length > 0
-                ? `Filters applied: ${filterDescription.join(', ')} (${filteredCount} users found)`
-                : 'All filters cleared';
-
-            showNotification(message, 'info');
-        }
-
-        // Auto-apply filters when dropdown changes
-        if (roleFilter) roleFilter.addEventListener('change', applyFilters);
-        if (statusFilter) statusFilter.addEventListener('change', applyFilters);
-
-        // Clear filters function
-        function clearFilters() {
-            if (roleFilter) roleFilter.value = 'all';
-            if (statusFilter) statusFilter.value = 'all';
-            if (searchInput) searchInput.value = '';
-
-            userRows.forEach(row => {
-                row.style.display = '';
-            });
-
-            showNotification('Filters cleared', 'info');
-        }
-
-        // Add clear filters button (assuming filterBtn exists somewhere, if not, this will error)
-        const filterBtn = document.querySelector('.filter-btn'); // Assuming there's a filter button to attach 'Clear All' next to
-        if (filterBtn) {
-            const clearBtn = document.createElement('button');
-            clearBtn.className = 'btn btn-secondary';
-            clearBtn.textContent = 'Clear All';
-            clearBtn.style.marginLeft = '10px';
-            clearBtn.onclick = clearFilters;
-            filterBtn.parentNode.insertBefore(clearBtn, filterBtn.nextSibling);
-        }
-
-        // Checkbox & Bulk Actions Logic
-        const selectAllCheckbox = document.querySelector('.select-all-checkbox');
-        const userCheckboxes = document.querySelectorAll('.user-checkbox');
-        const selectedCount = document.querySelector('.selected-count');
-        const bulkButtons = document.querySelectorAll('.bulk-buttons button');
-
-        function updateBulkActions() {
-            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
-            if (selectedCount) selectedCount.textContent = `${checkedCount} user${checkedCount !== 1 ? 's' : ''} selected`;
-
-            if (bulkButtons) {
-                bulkButtons.forEach(button => {
-                    button.disabled = checkedCount === 0;
-                });
-            }
-        }
-
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function () {
-                userCheckboxes.forEach(checkbox => {
-                    checkbox.checked = this.checked;
-                });
-                updateBulkActions();
-            });
-        }
-
-        userCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateBulkActions);
-        });
-
-        // Attach Handle Add User to Form
-        const addUserForm = document.getElementById('addUserForm');
-        if (addUserForm) {
-            addUserForm.addEventListener('submit', handleAddUser);
-        }
-
-        // Initial call to update bulk actions in case of pre-checked boxes (e.g., from browser history)
-        updateBulkActions();
-
-        // Attach action listeners for view, edit, delete, suspend/activate buttons
-        attachActionListeners();
-    });
-
-    function handleAddUser(event) {
-        event.preventDefault();
-
-        const formData = new FormData(event.target);
-        const userData = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            email: formData.get('email'),
-            username: formData.get('username'),
-            password: formData.get('password'),
-            role: formData.get('role'),
-            phone: formData.get('phone'),
-            isActive: formData.get('isActive') === 'on',
-            sendWelcome: formData.get('sendWelcome') === 'on'
-        };
-
-        // Validate form data
-        if (!userData.firstName || !userData.lastName || !userData.email || !userData.username || !userData.password || !userData.role) {
-            showNotification('Please fill in all required fields', 'error');
-            return;
-        }
-
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(userData.email)) {
-            showNotification('Please enter a valid email address', 'error');
-            return;
-        }
-
-        // Show loading state
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Adding...';
-        submitBtn.disabled = true;
-
-        // Get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
-
-        // Call API
-        fetch("{% url 'aid_app:add_user' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify(userData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // close modal
-                    window.closeAddUserModal();
-                    showNotification(data.message, 'success');
-
-                    // Reload page to reflect changes (simplest way to update table and stats)
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    showNotification(data.message || 'Error creating user', 'error');
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('An unexpected error occurred', 'error');
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            });
-    }
-
-    function attachActionListeners() {
-        // Re-attach view button listeners
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const userName = row.querySelector('.user-name').textContent.trim();
-                const userEmail = row.querySelector('.user-email').textContent.trim();
-                const role = row.querySelector('.role-badge').textContent.trim();
-                const status = row.querySelector('.status-badge').textContent.trim();
-                const lastActive = row.querySelectorAll('.date-info p')[0].textContent.trim();
-                const joinedDate = row.querySelectorAll('.date-info')[1].querySelector('p').textContent.trim();
-
-                const modal = document.createElement('div');
-                modal.className = 'modal glass-modal';
-                modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
-                modal.innerHTML = `
-                    <div class="modal-content" style="background:white; padding:30px; border-radius:12px; width:500px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-                        <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
-                            <h2 style="margin:0; font-size:1.5rem; color:#333;">User Details</h2>
-                            <button onclick="this.closest('.modal').remove()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
-                        </div>
-                        <div class="user-details-view">
-                            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                                <div style="width:60px; height:60px; background:var(--primary-color); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:24px;">
-                                    <span class="material-icons-round" style="font-size:32px;">person</span>
-                                </div>
-                                <div>
-                                    <h3 style="margin:0; font-size:1.2rem;">${userName}</h3>
-                                    <p style="margin:0; color:#666;">${userEmail}</p>
-                                </div>
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                                <div><strong>Role:</strong> <span class="badge">${role}</span></div>
-                                <div><strong>Status:</strong> <span class="badge">${status}</span></div>
-                                <div><strong>Last Active:</strong> <br>${lastActive}</div>
-                                <div><strong>Joined:</strong> <br>${joinedDate}</div>
-                            </div>
-                        </div>
-                        <div style="margin-top:25px; text-align:right;">
-                            <button class="btn btn-primary" onclick="this.closest('.modal').remove()" style="padding:8px 20px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;">Close</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            });
-        });
-    }
-
-    // View User Modal
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const row = this.closest('tr');
-            const userName = row.querySelector('.user-name').textContent.trim();
-            const userEmail = row.querySelector('.user-email').textContent.trim();
-            const role = row.querySelector('.role-badge').textContent.trim();
-            const status = row.querySelector('.status-badge').textContent.trim();
-            const lastActive = row.querySelectorAll('.date-info p')[0].textContent.trim(); // First date p
-            const joinedDate = row.querySelectorAll('.date-info')[1].querySelector('p').textContent.trim(); // Second date-info div
-
-            const modal = document.createElement('div');
-            modal.className = 'modal glass-modal';
-            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
-            modal.innerHTML = `
-                <div class="modal-content" style="background:white; padding:30px; border-radius:12px; width:500px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-                    <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
-                        <h2 style="margin:0; font-size:1.5rem; color:#333;">User Details</h2>
-                        <button onclick="this.closest('.modal').remove()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
-                    </div>
-                    <div class="user-details-view">
-                        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                            <div style="width:60px; height:60px; background:var(--primary-color); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:24px;">
-                                <span class="material-icons-round" style="font-size:32px;">person</span>
-                            </div>
-                            <div>
-                                <h3 style="margin:0; font-size:1.2rem;">${userName}</h3>
-                                <p style="margin:0; color:#666;">${userEmail}</p>
-                            </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                            <div><strong>Role:</strong> <span class="badge">${role}</span></div>
-                            <div><strong>Status:</strong> <span class="badge">${status}</span></div>
-                            <div><strong>Last Active:</strong> <br>${lastActive}</div>
-                            <div><strong>Joined:</strong> <br>${joinedDate}</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:25px; text-align:right;">
-                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()" style="padding:8px 20px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;">Close</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        });
-    });
-
-    // Edit User Modal
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const row = this.closest('tr');
-            const userName = row.querySelector('.user-name').textContent.trim();
-            const userEmail = row.querySelector('.user-email').textContent.trim();
-
-            const modal = document.createElement('div');
-            modal.className = 'modal glass-modal';
-            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);';
-            modal.innerHTML = `
-                <div class="modal-content" style="background:white; padding:30px; border-radius:12px; width:500px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-                    <h2 style="margin-top:0; margin-bottom:20px;">Edit User</h2>
-                    <form onsubmit="event.preventDefault(); alert('Changes saved!'); this.closest('.modal').remove();">
-                        <div style="margin-bottom:15px;">
-                            <label style="display:block; margin-bottom:5px; font-weight:500;">Full Name</label>
-                            <input type="text" value="${userName}" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
-                        </div>
-                        <div style="margin-bottom:15px;">
-                            <label style="display:block; margin-bottom:5px; font-weight:500;">Email</label>
-                            <input type="email" value="${userEmail}" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
-                        </div>
-                        <div style="margin-bottom:15px;">
-                            <label style="display:block; margin-bottom:5px; font-weight:500;">Role</label>
-                            <select style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
-                                <option>Regular User</option>
-                                <option>Admin</option>
-                                <option>Responder</option>
-                            </select>
-                        </div>
-                        <div style="text-align:right; margin-top:20px;">
-                            <button type="button" onclick="this.closest('.modal').remove()" style="padding:8px 15px; background:transparent; border:1px solid #ddd; border-radius:6px; cursor:pointer; margin-right:10px;">Cancel</button>
-                            <button type="submit" style="padding:8px 20px; border:none; background:var(--primary-color); color:white; border-radius:6px; cursor:pointer;">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        });
-    });
-
-    // Delete User Confirmation
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            if (confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) {
-                const row = this.closest('tr');
-                row.style.opacity = '0.5';
-                setTimeout(() => row.remove(), 500);
-                alert('User deleted.');
-            }
-        });
-    });
-
-    // Suspend/Activate Toggle
-    document.querySelectorAll('.suspend-btn, .activate-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const action = this.classList.contains('suspend-btn') ? 'suspend' : 'activate';
-            if (confirm(`Are you sure you want to ${action} this user?`)) {
-                alert(`User ${action}ed successfully.`);
-                location.reload();
-            }
-        });
-    });
-
-    // Notification function
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <span class="notification-icon">
-                ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
-            </span>
-            <span class="notification-message">${message}</span>
-        `;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            backdrop-filter: blur(10px);
-            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
-            animation: slideIn 0.3s ease-out;
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-in forwards';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    // Add CSS for notifications
-    if (!document.getElementById('notification-styles')) {
-        const style = document.createElement('style');
-        style.id = 'notification-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    window.manageUsersConfig = {
+        addUserUrl: "{% url 'aid_app:add_user' %}",
+        bulkActionUrl: "{% url 'aid_app:bulk_action_users' %}"
+    };
 </script>
+<script src="{% static 'js/admin/manage_users.js' %}"></script>
 {% endblock %}

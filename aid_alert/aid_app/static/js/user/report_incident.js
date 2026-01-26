@@ -1,100 +1,156 @@
-// Report Incident Page JavaScript
-
-document.addEventListener('DOMContentLoaded', function() {
-    setupIncidentForm();
-});
-
-function setupIncidentForm() {
-    const form = document.getElementById('incidentForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitIncident();
-        });
-    }
-}
-
-function submitIncident() {
-    // Get form data
-    const incidentType = document.getElementById('incidentType').value;
-    const description = document.getElementById('description').value;
-    const location = document.getElementById('location').value;
-    const severity = document.getElementById('severity').value;
-    
-    // Validation
-    if (!incidentType || !description || !location || !severity) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-    
-    // Create incident data
-    const incidentData = {
-        id: Date.now().toString(),
-        type: incidentType,
-        description: description,
-        location: location,
-        severity: severity,
-        timestamp: new Date().toISOString(),
-        status: 'reported'
-    };
-    
-    // Save incident to localStorage
-    let existingIncidents = JSON.parse(localStorage.getItem('aidalert_incidents') || '[]');
-    existingIncidents.unshift(incidentData);
-    localStorage.setItem('aidalert_incidents', JSON.stringify(existingIncidents));
-    
-    // Increment incident count
-    incrementIncidentCount();
-    
-    // Show success message
-    showSuccessMessage('Incident reported successfully! Help is on the way.');
-    
-    // Reset form
+function resetForm() {
     document.getElementById('incidentForm').reset();
-    
-    // Redirect to dashboard after 2 seconds
-    setTimeout(() => {
-        window.location.href = '/dashboard/';
-    }, 2000);
+    showNotification('Form cleared successfully');
 }
 
-function incrementIncidentCount() {
-    const currentCount = parseInt(localStorage.getItem('aidalert_incident_count') || '0');
-    const newCount = currentCount + 1;
-    localStorage.setItem('aidalert_incident_count', newCount.toString());
-}
-
-function showSuccessMessage(message) {
-    // Remove any existing messages
-    const existingMessage = document.querySelector('.alert-message');
-    if (existingMessage) {
-        existingMessage.remove();
+function callEmergency(number) {
+    if (confirm(`Are you sure you want to call emergency number ${number}?`)) {
+        showNotification(`Calling ${number}...`);
+        // In a real app, this would initiate a phone call
+        setTimeout(() => {
+            showNotification(`Emergency dial initiated for ${number}`);
+        }, 1000);
     }
-    
-    // Create success message
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'alert alert-success alert-dismissible fade show';
-    messageDiv.style.cssText = `
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'glass-card'; // Reuse glass card style for notification
+    notification.textContent = message;
+    notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        max-width: 500px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        background: rgba(230, 57, 70, 0.9);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        font-weight: 500;
     `;
-    messageDiv.innerHTML = `
-        <i class="fas fa-check-circle me-2"></i>${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    // Add to page
-    document.body.appendChild(messageDiv);
-    
-    // Auto-dismiss after 5 seconds
+
+    document.body.appendChild(notification);
+
     setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.remove();
-        }
-    }, 5000);
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Form submission
+    const incidentForm = document.getElementById('incidentForm');
+    if (incidentForm) {
+        incidentForm.addEventListener('submit', function (e) {
+            const formData = new FormData(this);
+            const incidentData = Object.fromEntries(formData);
+
+            // Validate required fields
+            if (!incidentData.incidentType || !incidentData.severity || !incidentData.location || !incidentData.description) {
+                e.preventDefault();
+                showNotification('Please fill in all required fields');
+                return;
+            }
+
+            // Validate phone number - exactly 10 digits
+            if (!incidentData.contactPhone || incidentData.contactPhone.length !== 10 || !/^[0-9]{10}$/.test(incidentData.contactPhone)) {
+                e.preventDefault();
+                showNotification('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // Allow form to submit normally
+            showNotification('Submitting report...');
+        });
+    }
+
+    // Phone number validation - only allow numbers and limit to 10 digits
+    const phoneInput = document.getElementById('contactPhone');
+
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function () {
+            // Remove any non-numeric characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Limit to 10 digits
+            if (this.value.length > 10) {
+                this.value = this.value.slice(0, 10);
+            }
+        });
+
+        // Prevent paste of non-numeric characters
+        phoneInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+            const numericData = pastedData.replace(/[^0-9]/g, '').slice(0, 10);
+            this.value = numericData;
+        });
+    }
+
+    // Location detection functionality
+    const detectLocationBtn = document.getElementById('detectLocation');
+    const locationInput = document.getElementById('location');
+
+    if (detectLocationBtn && locationInput) {
+        detectLocationBtn.addEventListener('click', function () {
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                showNotification('Geolocation is not supported by your browser');
+                return;
+            }
+
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<span class="material-icons-round">hourglass_empty</span>';
+            showNotification('Detecting your location...');
+
+            // Get current position
+            navigator.geolocation.getCurrentPosition(
+                // Success callback
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    // Reverse geocoding
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.display_name) {
+                                locationInput.value = data.display_name;
+                                showNotification('Location detected successfully!');
+                            } else {
+                                locationInput.value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                                showNotification('Coordinates detected.');
+                            }
+                        })
+                        .catch(error => {
+                            locationInput.value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                            showNotification('Coordinates detected.');
+                        })
+                        .finally(() => {
+                            detectLocationBtn.disabled = false;
+                            detectLocationBtn.innerHTML = '<span class="material-icons-round">my_location</span>';
+                        });
+                },
+                // Error callback
+                function (error) {
+                    showNotification('Unable to detect location. Please allow access.');
+                    detectLocationBtn.disabled = false;
+                    detectLocationBtn.innerHTML = '<span class="material-icons-round">my_location</span>';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+
+        locationInput.addEventListener('click', function () {
+            if (!this.value) {
+                detectLocationBtn.click();
+            }
+        });
+    }
+});

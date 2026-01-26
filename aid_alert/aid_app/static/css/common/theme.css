@@ -262,9 +262,11 @@ h6 {
 }
 
 .menu-link:hover,
-.menu-item.active .menu-link {
-    background: rgba(230, 57, 70, 0.1);
+.menu-item.active .menu-link,
+.menu-link.active {
+    background: rgba(255, 107, 53, 0.1);
     color: var(--primary-color);
+    font-weight: 600;
 }
 
 .menu-icon {

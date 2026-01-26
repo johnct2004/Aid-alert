@@ -13,41 +13,41 @@
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon emergency-icon">
-            <span class="material-icons-round">emergency</span>
+            <span class="material-icons-round">schedule</span>
         </div>
         <div>
-            <h3 class="stat-label">Active Assignments</h3>
-            <p class="stat-value">{{ stats.active_incidents }}</p>
+            <h3 class="stat-label">Available Today</h3>
+            <p class="stat-value">{{ stats.available_today }}</p>
         </div>
     </div>
 
     <div class="stat-card">
         <div class="stat-icon rating-icon">
-            <span class="material-icons-round">thumb_up</span>
+            <span class="material-icons-round">emergency</span>
         </div>
         <div>
-            <h3 class="stat-label">Average Rating</h3>
-            <p class="stat-value">{{ stats.average_rating }}/5</p>
+            <h3 class="stat-label">Incidents Handled</h3>
+            <p class="stat-value">{{ stats.incidents_handled }}</p>
         </div>
     </div>
 
     <div class="stat-card">
         <div class="stat-icon completed-icon">
-            <span class="material-icons-round">task_alt</span>
+            <span class="material-icons-round">speed</span>
         </div>
         <div>
-            <h3 class="stat-label">Completed Incidents</h3>
-            <p class="stat-value">{{ stats.total_completed }}</p>
+            <h3 class="stat-label">Avg Response Time</h3>
+            <p class="stat-value">{{ stats.avg_response_time }}</p>
         </div>
     </div>
 
     <div class="stat-card">
         <div class="stat-icon response-icon">
-            <span class="material-icons-round">speed</span>
+            <span class="material-icons-round">star</span>
         </div>
         <div>
-            <h3 class="stat-label">Completed Today</h3>
-            <p class="stat-value">{{ stats.completed_today }}</p>
+            <h3 class="stat-label">Today's Rating</h3>
+            <p class="stat-value">{{ stats.todays_rating }}</p>
         </div>
     </div>
 </div>
@@ -76,6 +76,13 @@
                     onclick="navigateToLocation('{{ active_assignment.location }}')">Navigate</button>
                 <button class="btn-action btn-secondary"
                     onclick="contactUser('{{ active_assignment.contact_phone }}')">Contact</button>
+
+                <!-- NEW: Critical Alert Button -->
+                <button class="btn-action" style="background: #e74c3c; box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);"
+                    onclick="triggerUrgentAlert('{{ active_assignment.incident_id }}')">
+                    <span class="material-icons-round" style="font-size: 18px; margin-right: 5px;">bloodtype</span>
+                    Report Blood Loss
+                </button>
             </div>
         </div>
 
@@ -128,64 +135,5 @@
 </div>
 {% endblock %}
 
-{% block responder_js %}
-<script>
-    // Availability toggle functionality (matches base template id)
-    const headerToggle = document.getElementById('header-availability-toggle');
-
-    if (headerToggle) {
-        headerToggle.addEventListener('change', function () {
-            const isChecked = this.checked;
-            const toggleText = this.nextElementSibling.querySelector('.toggle-text');
-
-            // Update UI
-            if (toggleText) toggleText.textContent = isChecked ? 'Available' : 'Unavailable';
-
-            // Save to localStorage
-            localStorage.setItem('responderAvailability', isChecked ? 'available' : 'unavailable');
-
-            // Show notification
-            showNotification(`Status changed to ${isChecked ? 'Available' : 'Unavailable'}`);
-        });
-
-        // Initialize state
-        const savedAvailability = localStorage.getItem('responderAvailability');
-        if (savedAvailability === 'unavailable') {
-            headerToggle.checked = false;
-            // update text if present
-        }
-    }
-
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'glass-alert notification-toast';
-        notification.textContent = message;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
-    }
-
-    // Navigate to location using Google Maps
-    function navigateToLocation(location) {
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
-        window.open(mapsUrl, '_blank');
-        showNotification(`Opening navigation to: ${location}`);
-    }
-
-    // Contact user via phone
-    function contactUser(phoneNumber) {
-        if (phoneNumber && phoneNumber !== 'Pending') {
-            window.open(`tel:${phoneNumber}`, '_self');
-            showNotification(`Dialing: ${phoneNumber}`);
-        } else {
-            showNotification('Phone number not available');
-        }
-    }
-</script>
-{% endblock %}
+<script src="{% static 'js/responder/responder_dashboard.js' %}"></script>
+<script src="{% static 'js/responder/urgent_alert.js' %}"></script>

@@ -18,7 +18,7 @@
         <div class="stat-content">
             <h3 class="stat-title">Total Users</h3>
             <p class="stat-value">{{ total_users }}</p>
-            <span class="stat-info">+{{ user_growth }}% Growth</span>
+            <span class="stat-info">{% if user_growth > 0 %}+{% endif %}{{ user_growth }}% Growth</span>
         </div>
     </div>
     <div class="stat-card">
@@ -53,11 +53,43 @@
     </div>
 </div>
 
+<!-- Charts Section -->
+<div class="charts-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px;">
+    <!-- Activity Trend Chart -->
+    <div class="glass-card" style="min-height: 400px; padding: 24px;">
+        <h2 class="card-title" style="margin-bottom: 20px;">System Activity Trends (Last 7 Days)</h2>
+        <div style="position: relative; height: 320px; width:100%;">
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Incident Status Chart -->
+    <div class="glass-card" style="min-height: 400px; padding: 24px;">
+        <h2 class="card-title" style="margin-bottom: 20px;">Incident Resolution</h2>
+        <div style="position: relative; height: 250px; width:100%; display:flex; justify-content:center;">
+            <canvas id="statusChart"></canvas>
+        </div>
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+            <div style="text-align: center;">
+                <h3 style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">{{ incident_open }}</h3>
+                <span style="font-size: 0.85rem; color: #666;">Open</span>
+            </div>
+            <div style="text-align: center;">
+                <h3 style="margin: 0; font-size: 1.5rem; color: #10b981;">{{ incident_resolved }}</h3>
+                <span style="font-size: 0.85rem; color: #666;">Resolved</span>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Reports Table Section -->
 <div class="glass-card">
     <div class="card-header-row">
         <h2 class="card-title">Recent Reports</h2>
         <div class="filters-wrapper">
+            <button class="btn-primary btn-sm" onclick="openGenerateModal()">
+                <span class="material-icons-round" style="font-size: 18px;">add_chart</span>
+                Generate New Report
+            </button>
             <div class="search-box">
                 <span class="material-icons-round search-icon">search</span>
                 <input type="text" class="search-input" placeholder="Search Reports">
@@ -106,10 +138,10 @@
                     <td>{{ report.generated_at|date:"Y-m-d h:i A" }}</td>
                     <td>
                         <select class="status-select status-{{ report.status }}" onchange="updateReportStatus(this)">
-                            <option value="completed" {% if report.status == "completed" %}selected{% endif %}>Completed</option>
-                            <option value="processing" {% if report.status == "processing" %}selected{% endif %}>Processing</option>
-                            <option value="scheduled" {% if report.status == "scheduled" %}selected{% endif %}>Scheduled</option>
-                            <option value="failed" {% if report.status == "failed" %}selected{% endif %}>Failed</option>
+                            <option value="completed" {% if report.status == "completed" %} selected {% endif %}>Completed</option>
+                            <option value="processing" {% if report.status == "processing" %} selected {% endif %}>Processing</option>
+                            <option value="scheduled" {% if report.status == "scheduled" %} selected {% endif %}>Scheduled</option>
+                            <option value="failed" {% if report.status == "failed" %} selected {% endif %}>Failed</option>
                         </select>
                     </td>
                     <td>
@@ -131,127 +163,89 @@
 {% endblock %}
 
 {% block admin_js %}
+<!-- Screen Reader / No-JS fallback -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    window.systemReportData = {
+        chartDates: JSON.parse('{{ chart_dates|safe }}'),
+        incidentTrend: JSON.parse('{{ incident_trend|safe }}'),
+        userTrend: JSON.parse('{{ user_trend|safe }}'),
+        orderTrend: JSON.parse('{{ order_trend|safe }}'),
+        incidentOpen: parseInt('{{ incident_open }}'),
+        incidentResolved: parseInt('{{ incident_resolved }}')
+    };
+</script>
+<script src="{% static 'js/admin/system_reports.js' %}"></script>
+
 <!-- Report Details Modal -->
 <div id="reportModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">Report Details</h2>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title">Report Details</h3>
         </div>
-        <div class="modal-body">
-            <div class="report-info">
-                <div class="info-row">
-                    <span class="info-label">Report ID:</span>
-                    <span class="info-value" id="modalReportId">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Type:</span>
-                    <span class="info-value" id="modalReportType">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Title:</span>
-                    <span class="info-value" id="modalReportTitle">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Generated:</span>
-                    <span class="info-value" id="modalReportDate">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Status:</span>
-                    <span class="info-value" id="modalReportStatus">-</span>
-                </div>
-            </div>
 
-            <div class="report-summary" style="margin-top: 20px;">
-                <h3 style="font-size: 1rem; margin-bottom: 10px;">Executive Summary</h3>
-                <p id="modalReportSummary" style="color: #555; line-height: 1.5;">This report provides comprehensive
-                    analysis of system performance and
-                    user engagement metrics over the selected period. Key findings include improved response times
-                    and increased user activity.</p>
-            </div>
-
-            <div class="report-metrics">
-                <h3 style="font-size: 1rem; margin-bottom: 10px; margin-top: 20px;">Key Metrics</h3>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="metric-label">Total Records</span>
-                        <span class="metric-value">1,293</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">Completion Rate</span>
-                        <span class="metric-value">94.2%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">Avg Response Time</span>
-                        <span class="metric-value">2.3 min</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">User Satisfaction</span>
-                        <span class="metric-value">4.6/5.0</span>
-                    </div>
-                </div>
+        <div class="info-row">
+            <div class="metric-item" style="padding: 15px; border-radius: 10px;">
+                <p style="color: #666; font-size: 0.85rem; margin-bottom: 5px;">Report ID</p>
+                <h4 id="modalReportId" style="margin: 0; color: var(--primary-color);"></h4>
             </div>
         </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+            <div class="metric-item" style="padding: 15px; border-radius: 10px;">
+                <p style="color: #666; font-size: 0.85rem; margin-bottom: 5px;">Type</p>
+                <p id="modalReportType" style="margin: 0; font-weight: 600;"></p>
+            </div>
+            <div class="metric-item" style="padding: 15px; border-radius: 10px;">
+                <p style="color: #666; font-size: 0.85rem; margin-bottom: 5px;">Status</p>
+                <p id="modalReportStatus" style="margin: 0; font-weight: 600;"></p>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <p style="color: #666; font-size: 0.85rem; margin-bottom: 5px;">Title</p>
+            <p id="modalReportTitle" style="margin: 0; font-weight: 500; font-size: 1.1rem;"></p>
+        </div>
+
+        <div class="info-row" style="border: none;">
+            <p style="color: #666; font-size: 0.85rem; margin-bottom: 5px;">Generated On</p>
+            <p id="modalReportDate" style="margin: 0;"></p>
+        </div>
+
         <div class="modal-footer">
-            <button class="btn btn-secondary"
-                style="padding: 8px 15px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;"
-                onclick="closeModal()">Close</button>
-            <button class="btn btn-primary"
-                style="padding: 8px 15px; border: none; background: var(--primary-color); color: white; border-radius: 6px; cursor: pointer;"
-                onclick="downloadReport()">Download Report</button>
+            <button class="btn-secondary" onclick="closeModal()">Close</button>
+            <button class="btn-primary" onclick="downloadReport()">
+                <span class="material-icons-round" style="font-size: 18px;">download</span>
+                Download
+            </button>
         </div>
     </div>
 </div>
 
-<script>
-    function updateReportStatus(select) {
-        const newStatus = select.value;
-        const row = select.closest('tr');
-        const reportId = row.querySelector('td:first-child').textContent;
-        // Optionally update styling class
-        showNotification(`Report ${reportId} status updated!`);
-    }
+<!-- Generate Report Modal -->
+<div id="generateReportModal" class="modal"
+    style="display:none; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(0,0,0,0.5); z-index:2000;">
+    <div
+        style="background:white; padding:30px; border-radius:15px; width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <h2 style="margin-top:0; margin-bottom:20px;">Generate New Report</h2>
 
-    function viewReport(btn) {
-        // Populate modal with report data
-        document.getElementById('modalReportId').textContent = btn.dataset.id;
-        document.getElementById('modalReportType').textContent = btn.dataset.type;
-        document.getElementById('modalReportTitle').textContent = btn.dataset.title;
-        document.getElementById('modalReportDate').textContent = btn.dataset.date;
+        <div style="margin-bottom:20px;">
+            <label style="display:block; margin-bottom:8px; font-weight:600; color:#555;">Report Type</label>
+            <select id="newReportType" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                <option value="system_performance">System Performance</option>
+                <option value="user_activity">User Activity</option>
+                <option value="incident_summary">Incident Summary</option>
+                <option value="marketplace_stats">Marketplace Stats</option>
+            </select>
+        </div>
 
-        const status = btn.dataset.status;
-        document.getElementById('modalReportStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
-
-        // Show modal
-        document.getElementById('reportModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-        document.getElementById('reportModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    function downloadReport() {
-        const reportId = document.getElementById('modalReportId').textContent;
-        showNotification(`Downloading report ${reportId}...`);
-        setTimeout(() => {
-            showNotification(`Report ${reportId} downloaded successfully!`);
-        }, 1500);
-    }
-
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed; top: 20px; right: 20px;
-            background-color: var(--primary-color); color: white;
-            padding: 12px 20px; border-radius: 8px; z-index: 1000;
-            display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        `;
-        notification.innerHTML = `<span class="material-icons-round">check_circle</span> ${message}`;
-        document.body.appendChild(notification);
-        setTimeout(() => { notification.remove(); }, 3000);
-    }
-</script>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button onclick="closeGenerateModal()"
+                style="padding:10px 20px; border:none; background:none; cursor:pointer; color:#666;">Cancel</button>
+            <button id="generateBtn" onclick="handleGenerateReport()"
+                style="padding:10px 20px; border:none; background:var(--primary-color); color:white; border-radius:8px; cursor:pointer; font-weight:600;">Generate</button>
+        </div>
+    </div>
+</div>
 {% endblock %}

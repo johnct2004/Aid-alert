@@ -133,21 +133,5 @@
 {% endblock %}
 
 {% block responder_js %}
-<script>
-    function viewDetails(incidentId, description) {
-        alert(`Incident Details: ${incidentId}\n\nDescription: ${description}`);
-    }
-
-    // Simple client-side search (optional enhancement for existing rows)
-    document.getElementById('searchInput').addEventListener('input', function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#historyTableBody tr');
-
-        rows.forEach(row => {
-            if (row.classList.contains('empty-state')) return;
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-    });
-</script>
+<script src="{% static 'js/responder/responder_history.js' %}"></script>
 {% endblock %}

@@ -65,33 +65,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Combine OTP inputs into single field before submission
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const otpInputs = document.querySelectorAll('.otp-field');
-        let otpCode = '';
-        otpInputs.forEach(input => {
-            otpCode += input.value;
-        });
-        document.getElementById('otp_code_combined').value = otpCode;
-    });
-
-    // Auto-focus next input
-    document.querySelectorAll('.otp-field').forEach((input, index) => {
-        input.addEventListener('input', function (e) {
-            if (e.target.value.length === 1) {
-                if (index < 5) {
-                    document.querySelectorAll('.otp-field')[index + 1].focus();
-                }
-            }
-        });
-
-        // Handle backspace
-        input.addEventListener('keydown', function (e) {
-            if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
-                document.querySelectorAll('.otp-field')[index - 1].focus();
-            }
-        });
-    });
-</script>
+<script src="{% static 'js/common/otp.js' %}"></script>
 {% endblock %}

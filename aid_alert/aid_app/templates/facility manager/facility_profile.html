@@ -1,388 +1,277 @@
+{% extends 'facility manager/base_facility.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facility Profile - Aid Alert</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/facility manager/facility_dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'css/facility manager/facility_profile.css' %}">
-</head>
+{% block page_title %}Facility Profile{% endblock %}
+{% block content_title %}Facility Profile{% endblock %}
 
-<body>
-    <div class="dashboard-container">
-        <!-- Sidebar (Standard) -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="#" class="brand">
-                    <span class="material-icons-round brand-icon">health_and_safety</span>
-                    <span class="brand-text">Aid Alert</span>
-                </a>
-            </div>
+{% block facility_css %}
+<link rel="stylesheet" href="{% static 'css/facility manager/facility_profile.css' %}">
+{% endblock %}
 
-            <ul class="menu">
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:facility_dashboard' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">dashboard</span>
-                        <span>Home</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:manage_kits' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">inventory_2</span>
-                        <span>Manage Kits</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:stock_tracking' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">show_chart</span>
-                        <span>Stock Tracking</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:assign_responders' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">person_add</span>
-                        <span>Assign Responders</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:facility_incident_log' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">article</span>
-                        <span>Facility Incident Log</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:facility_reports' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">analytics</span>
-                        <span>Facility Reports</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'aid_app:facility_notifications' %}" class="menu-link">
-                        <span class="material-icons-round menu-icon">notifications</span>
-                        <span>Facility Notifications</span>
-                    </a>
-                </li>
+{% block facility_content %}
 
-                <li class="menu-item mt-auto">
-                    <a href="{% url 'aid_app:logout' %}" class="menu-link logout-link">
-                        <span class="material-icons-round menu-icon">logout</span>
-                        <span>Log Out</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
+<!-- Profile Overview -->
+<div class="glass-card profile-section-card">
+    <div class="card-header-row">
+        <h2 class="card-title">Profile Overview</h2>
 
-        <main class="main-content">
-            <header class="top-bar">
-                <h1 class="page-title">Facility Profile</h1>
-                <a href="{% url 'aid_app:facility_profile' %}" class="user-profile">
-                    <span class="user-name">{{ user.username|default:"Facility Manager" }}</span>
-                    <div class="avatar-circle">
-                        <span class="material-icons-round">person</span>
-                    </div>
-                </a>
-            </header>
-
-            <div class="content-wrapper">
-
-                <!-- Profile Overview -->
-                <section class="glass-card profile-section-card">
-                    <div class="card-header-row">
-                        <h2 class="card-title">Profile Overview</h2>
-                        <div class="profile-actions">
-                            <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
-                                <span class="material-icons-round">edit</span> Edit
-                            </button>
-                            <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
-                                <span class="material-icons-round">save</span> Save
-                            </button>
-                            <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit(this)">
-                                <span class="material-icons-round">close</span> Cancel
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="profile-overview">
-                        <div class="profile-avatar">
-                            <div class="avatar-large">
-                                <span class="material-icons-round">business</span>
-                            </div>
-                        </div>
-                        <div class="profile-info">
-                            <div class="info-grid single-column">
-                                <div class="info-item">
-                                    <h3 class="info-label">Facility Name</h3>
-                                    <p class="info-value text-large">{{ user.profile.facility_name|default:"Main
-                                        Facility" }}</p>
-                                    <input type="text" class="info-input hidden"
-                                        value="{{ user.profile.facility_name|default:'Main Facility' }}">
-                                </div>
-                                <div class="info-item">
-                                    <h3 class="info-label">Facility Type</h3>
-                                    <p class="info-value">{{ user.profile.facility_type|default:"Medical Facility" }}
-                                    </p>
-                                    <input type="text" class="info-input hidden"
-                                        value="{{ user.profile.facility_type|default:'Medical Facility' }}">
-                                </div>
-                                <div class="info-item no-border-padding">
-                                    <div class="profile-badges">
-                                        <span class="status-badge active">Active</span>
-                                        <span class="status-badge available">Verified</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2-Column Layout for Details -->
-                <div class="admin-info-layout">
-                    <!-- Basic Information -->
-                    <section class="glass-card profile-section-card mb-0">
-                        <div class="card-header-row">
-                            <h2 class="card-title">Basic Information</h2>
-                            <div class="profile-actions">
-                                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
-                                    <span class="material-icons-round">edit</span>
-                                </button>
-                                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
-                                    <span class="material-icons-round">save</span>
-                                </button>
-                                <button class="btn-secondary cancel-profile-btn hidden"
-                                    onclick="cancelProfileEdit(this)">
-                                    <span class="material-icons-round">close</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="info-grid single-column">
-                            <div class="info-item">
-                                <h3 class="info-label">License Number</h3>
-                                <p class="info-value">{{ user.profile.license_number|default:"MED-2024-001" }}</p>
-                                <input type="text" class="info-input hidden"
-                                    value="{{ user.profile.license_number|default:'MED-2024-001' }}">
-                            </div>
-                            <div class="info-item">
-                                <h3 class="info-label">Registration Date</h3>
-                                <p class="info-value">{{ user.date_joined|date:"M d, Y" }}</p>
-                                <p class="info-input hidden text-muted">Cannot be edited</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Contact Information -->
-                    <section class="glass-card profile-section-card mb-0">
-                        <div class="card-header-row">
-                            <h2 class="card-title">Contact Information</h2>
-                            <div class="profile-actions">
-                                <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
-                                    <span class="material-icons-round">edit</span>
-                                </button>
-                                <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
-                                    <span class="material-icons-round">save</span>
-                                </button>
-                                <button class="btn-secondary cancel-profile-btn hidden"
-                                    onclick="cancelProfileEdit(this)">
-                                    <span class="material-icons-round">close</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="info-grid single-column">
-                            <div class="info-item">
-                                <h3 class="info-label">Email</h3>
-                                <p class="info-value">{{ user.email|default:"facility@example.com" }}</p>
-                                <input type="email" class="info-input hidden" value="{{ user.email }}">
-                            </div>
-                            <div class="info-item">
-                                <h3 class="info-label">Phone</h3>
-                                <p class="info-value">{{ user.profile.phone|default:"+1 (555) 123-4567" }}</p>
-                                <input type="tel" class="info-input hidden"
-                                    value="{{ user.profile.phone|default:'+1 (555) 123-4567' }}">
-                            </div>
-                            <div class="info-item">
-                                <h3 class="info-label">Address</h3>
-                                <p class="info-value">{{ user.profile.address|default:"123 Medical Center Drive" }}</p>
-                                <input type="text" class="info-input hidden"
-                                    value="{{ user.profile.address|default:'123 Medical Center Drive' }}">
-                            </div>
-                            <div class="info-item">
-                                <h3 class="info-label">Website</h3>
-                                <p class="info-value">{{ user.profile.website|default:"www.facility-website.com" }}</p>
-                                <input type="text" class="info-input hidden"
-                                    value="{{ user.profile.website|default:'www.facility-website.com' }}">
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Operational Information (Full Width) -->
-                <section class="glass-card profile-section-card">
-                    <div class="card-header-row">
-                        <h2 class="card-title">Operational Information</h2>
-                        <div class="profile-actions">
-                            <button class="btn-secondary edit-profile-btn" onclick="toggleProfileEdit(this)">
-                                <span class="material-icons-round">edit</span> Edit
-                            </button>
-                            <button class="btn-primary save-profile-btn hidden" onclick="saveProfileInfo(this)">
-                                <span class="material-icons-round">save</span> Save
-                            </button>
-                            <button class="btn-secondary cancel-profile-btn hidden" onclick="cancelProfileEdit(this)">
-                                <span class="material-icons-round">close</span> Cancel
-                            </button>
-                        </div>
-                    </div>
-                    <div class="info-grid grid-tight">
-                        <div class="info-item">
-                            <h3 class="info-label">Operating Hours</h3>
-                            <p class="info-value">{{ user.profile.operating_hours|default:"24/7" }}</p>
-                            <input type="text" class="info-input hidden"
-                                value="{{ user.profile.operating_hours|default:'24/7' }}">
-                        </div>
-                        <div class="info-item">
-                            <h3 class="info-label">Emergency Services</h3>
-                            <p class="info-value">{{ user.profile.emergency_services|default:"Available" }}</p>
-                            <select class="info-input hidden">
-                                <option value="Available" selected>Available</option>
-                                <option value="Limited">Limited</option>
-                                <option value="Unavailable">Unavailable</option>
-                            </select>
-                        </div>
-                        <div class="info-item">
-                            <h3 class="info-label">Bed Capacity</h3>
-                            <p class="info-value">{{ user.profile.bed_capacity|default:"150" }}</p>
-                            <input type="number" class="info-input hidden"
-                                value="{{ user.profile.bed_capacity|default:'150' }}">
-                        </div>
-                        <div class="info-item">
-                            <h3 class="info-label">Staff Count</h3>
-                            <p class="info-value">{{ user.profile.staff_count|default:"250" }}</p>
-                            <input type="number" class="info-input hidden"
-                                value="{{ user.profile.staff_count|default:'250' }}">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Quick Actions -->
-                <section class="glass-card profile-action-card">
-                    <h2 class="card-title mb-20">Quick Actions</h2>
-                    <div class="account-actions-grid">
-                        <a href="{% url 'aid_app:facility_dashboard' %}" class="action-btn">
-                            <span class="material-icons-round">dashboard</span>
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="{% url 'aid_app:facility_incident_log' %}" class="action-btn">
-                            <span class="material-icons-round">article</span>
-                            <span>Incident Log</span>
-                        </a>
-                        <a href="{% url 'aid_app:manage_kits' %}" class="action-btn">
-                            <span class="material-icons-round">inventory_2</span>
-                            <span>Manage Kits</span>
-                        </a>
-                        <a href="{% url 'aid_app:contact' %}" class="action-btn">
-                            <span class="material-icons-round">support_agent</span>
-                            <span>Support</span>
-                        </a>
-                    </div>
-                </section>
-
-            </div>
-        </main>
     </div>
 
-    <!-- Joint JS Logic -->
-    <script>
-        // Scoped functions to handle section-specific editing
-        function toggleProfileEdit(btn) {
-            const container = btn.closest('.glass-card');
-            if (!container) return;
+    <div class="profile-overview">
+        <div class="profile-avatar">
+            <div class="avatar-large">
+                <span class="material-icons-round">business</span>
+            </div>
+        </div>
 
-            container.querySelectorAll('.info-value').forEach(el => el.classList.add('hidden'));
-            container.querySelectorAll('.info-input').forEach(el => el.classList.remove('hidden'));
+        <div class="profile-info">
+            <div class="info-grid">
 
-            container.querySelectorAll('.edit-profile-btn').forEach(b => b.classList.add('hidden'));
-            container.querySelectorAll('.save-profile-btn').forEach(b => b.classList.remove('hidden'));
-            container.querySelectorAll('.cancel-profile-btn').forEach(b => b.classList.remove('hidden'));
-        }
+                <div class="info-item">
+                    <h3 class="info-label">Facility Name</h3>
+                    <p class="info-value" id="overview-name">{{ user.get_full_name|default:user.username }}</p>
+                    <input type="text" class="info-input hidden" id="overview-name-input"
+                        value="{{ user.get_full_name|default:user.username }}">
+                </div>
+                <div class="info-item">
+                    <h3 class="info-label">Email</h3>
+                    <p class="info-value" id="overview-email">{{ user.email }}</p>
+                    <input type="email" class="info-input hidden" id="overview-email-input" value="{{ user.email }}">
+                </div>
 
-        function cancelProfileEdit(btn) {
-            const container = btn.closest('.glass-card');
-            if (!container) return;
+                <div class="info-item">
+                    <h3 class="info-label">Status</h3>
+                    <p class="info-value" id="overview-status">Active</p>
+                    <select class="info-input hidden" id="overview-status-input">
+                        <option value="Active" selected>Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            container.querySelectorAll('.info-input').forEach(el => el.classList.add('hidden'));
-            container.querySelectorAll('.info-value').forEach(el => el.classList.remove('hidden'));
+<!-- Facility Information -->
+<div class="glass-card profile-section-card">
+    <form method="POST" style="width: 100%;">
+        {% csrf_token %}
+        <div class="card-header-row">
+            <h2 class="card-title">Facility Information</h2>
+            <div class="profile-actions facility-actions">
+                <button type="button" class="btn-secondary edit-facility-btn" onclick="toggleFacilityEdit(this)">
+                    <span class="material-icons-round">edit</span> Edit
+                </button>
+                <button type="submit" class="btn-primary save-facility-btn hidden">
+                    <span class="material-icons-round">save</span> Save
+                </button>
+                <button type="button" class="btn-secondary cancel-facility-btn hidden"
+                    onclick="cancelFacilityEdit(this)">
+                    <span class="material-icons-round">close</span> Cancel
+                </button>
+            </div>
+        </div>
 
-            container.querySelectorAll('.edit-profile-btn').forEach(b => b.classList.remove('hidden'));
-            container.querySelectorAll('.save-profile-btn').forEach(b => b.classList.add('hidden'));
-            container.querySelectorAll('.cancel-profile-btn').forEach(b => b.classList.add('hidden'));
-        }
+        <div class="facility-info facility-info-layout">
+            <div class="info-section">
+                <h3 class="section-title">Basic Details</h3>
+                <div class="info-grid single-column">
 
-        function saveProfileInfo(btn) {
-            const container = btn.closest('.glass-card');
-            if (!container) return;
 
-            const inputs = container.querySelectorAll('.info-input');
-            const values = container.querySelectorAll('.info-value');
+                    <div class="info-item">
+                        <h4 class="info-label">Facility Name</h4>
+                        <p class="info-value">{{ user.facility_profile.facility_name|default:user.get_full_name }}</p>
+                        <p class="info-input hidden text-muted">Cannot be edited directly</p>
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Registration Date</h4>
+                        <p class="info-value" id="registration-date">{{ user.date_joined|date:"M d, Y" }}</p>
+                        <p class="info-input hidden text-muted">Cannot be edited</p>
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Capacity</h4>
+                        <p class="info-value" id="capacity">{{ user.facility_profile.capacity|default:"0" }} beds</p>
+                        <input type="text" class="info-input hidden" id="capacity-input" name="capacity"
+                            value="{{ user.facility_profile.capacity|default:'0' }}">
+                    </div>
+                </div>
+            </div>
 
-            // Simple UI update simulation
-            inputs.forEach((input, index) => {
-                if (values[index]) {
-                    if (input.tagName === 'SELECT') {
-                        values[index].textContent = input.value;
-                    } else if (input.value) {
-                        values[index].textContent = input.value;
-                    }
-                }
-            });
+            <div class="info-section">
+                <h3 class="section-title">Contact Information</h3>
+                <div class="info-grid single-column">
+                    <div class="info-item">
+                        <h4 class="info-label">Official Email</h4>
+                        <p class="info-value" id="official-email">{{ user.email }}</p>
+                        <input type="email" class="info-input hidden" id="official-email-input"
+                            value="{{ user.email }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Phone Number</h4>
+                        <p class="info-value" id="phone-number">{{ user.profile.phone|default:"Not Provided" }}</p>
+                        <input type="text" class="info-input hidden" id="phone-number-input" name="phone"
+                            value="{{ user.profile.phone|default:'' }}">
+                    </div>
+                    <div class="info-item">
+                        <h4 class="info-label">Address</h4>
+                        <p class="info-value" id="address">{{ user.facility_profile.address|default:"Not Provided" }}
+                        </p>
+                        <input type="text" class="info-input hidden" id="address-input" name="address"
+                            value="{{ user.facility_profile.address|default:'' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+</form>
+</div>
 
-            cancelProfileEdit(btn);
-            showNotification('Changes saved successfully!');
-        }
+<!-- System Access & Actions Grid -->
+<div class="facility-info-layout">
+    <!-- Facility Settings -->
+    <div class="glass-card profile-action-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Facility Settings</h2>
+        </div>
+        <div class="settings-list">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4 class="setting-title">Emergency Notifications</h4>
+                    <p class="setting-description">Receive alerts for critical incidents</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4 class="setting-title">Auto-Assignment</h4>
+                    <p class="setting-description">Automatically assign nearby responders</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4 class="setting-title">Stock Alerts</h4>
+                    <p class="setting-description">Low inventory notifications</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4 class="setting-title" style="color: #dc3545;">Delete Account</h4>
+                    <p class="setting-description">Permanently remove your account</p>
+                </div>
+                <button class="btn-secondary" style="color: #dc3545; border-color: #dc3545;"
+                    onclick="showDeleteModal()">
+                    <span class="material-icons-round">delete_forever</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'glass-alert';
-            notification.innerHTML = `<span class="material-icons-round">check_circle</span> <span>${message}</span>`;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--primary-color);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                font-weight: 500;
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                animation: slideIn 0.3s ease-out;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                backdrop-filter: blur(10px);
-            `;
+    <!-- Quick Actions -->
+    <div class="glass-card profile-action-card">
+        <div class="card-header-row">
+            <h2 class="card-title">Quick Actions</h2>
+        </div>
+        <div class="action-buttons">
+            <a href="{% url 'aid_app:manage_kits' %}" class="action-btn">
+                <span class="material-icons-round">inventory_2</span>
+                <span>Manage First Aid Kits</span>
+            </a>
+            <a href="{% url 'aid_app:assign_responders' %}" class="action-btn">
+                <span class="material-icons-round">person_add</span>
+                <span>Assign Responders</span>
+            </a>
+            <a href="{% url 'aid_app:facility_reports' %}" class="action-btn">
+                <span class="material-icons-round">analytics</span>
+                <span>View Reports</span>
+            </a>
+            <a href="{% url 'aid_app:facility_incident_log' %}" class="action-btn">
+                <span class="material-icons-round">article</span>
+                <span>Incident Log</span>
+            </a>
+        </div>
+    </div>
+</div>
+</div>
 
-            document.body.appendChild(notification);
+<!-- Delete Account Modal -->
+<div id="delete-account-modal" class="modal-overlay hidden">
+    <div class="glass-card modal-box">
+        <h3 class="modal-title" style="color: #dc3545;">Delete Account</h3>
+        <p class="modal-text" style="color: #333; margin: 20px 0;">Do you want to delete account?</p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="hideDeleteModal()">No</button>
+            <form action="{% url 'aid_app:delete_facility_account' %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary"
+                    style="background-color: #dc3545; border-color: #dc3545;">Yes</button>
+            </form>
+        </div>
+    </div>
+</div>
 
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
 
-        // Add minimal animation keyframes
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
-</body>
+{% endblock %}
 
-</html>
+{% block facility_js %}
+<script>
+    function toggleFacilityEdit(button) {
+        const card = button.closest('.profile-section-card');
+        const inputs = card.querySelectorAll('.info-input');
+        const values = card.querySelectorAll('.info-value');
+        const saveBtn = card.querySelector('.save-facility-btn');
+        const cancelBtn = card.querySelector('.cancel-facility-btn');
+        const editBtns = card.querySelectorAll('.edit-facility-btn');
+
+        // Show inputs, hide values
+        inputs.forEach(input => input.classList.remove('hidden'));
+        values.forEach(value => value.classList.add('hidden'));
+
+        // Show save/cancel, hide edit buttons
+        saveBtn.classList.remove('hidden');
+        cancelBtn.classList.remove('hidden');
+        editBtns.forEach(btn => btn.classList.add('hidden'));
+    }
+
+    function cancelFacilityEdit(button) {
+        const card = button.closest('.profile-section-card');
+        const inputs = card.querySelectorAll('.info-input');
+        const values = card.querySelectorAll('.info-value');
+        const saveBtn = card.querySelector('.save-facility-btn');
+        const cancelBtn = card.querySelector('.cancel-facility-btn');
+        const editBtns = card.querySelectorAll('.edit-facility-btn');
+
+        // Hide inputs, show values
+        inputs.forEach(input => input.classList.add('hidden'));
+        values.forEach(value => value.classList.remove('hidden'));
+
+        // Hide save/cancel, show edit buttons
+        saveBtn.classList.add('hidden');
+        cancelBtn.classList.add('hidden');
+        editBtns.forEach(btn => btn.classList.remove('hidden'));
+    }
+
+    function saveFacilityInfo(button) {
+        // Add save logic here
+        cancelFacilityEdit(button);
+    }
+    function showDeleteModal() {
+        document.getElementById('delete-account-modal').classList.remove('hidden');
+    }
+
+    function hideDeleteModal() {
+        document.getElementById('delete-account-modal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

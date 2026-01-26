@@ -54,9 +54,9 @@
 {% endblock %}
 
 {% block user_js %}
+<script src="{% static 'js/user/order_history.js' %}"></script>
 <script>
-    // Inject Django Data
-    const orders = [
+    const ordersData = [
         {% for order in orders %}
     {
         id: '{{ order.order_id }}',
@@ -64,182 +64,16 @@
         date: '{{ order.created_at|date:"Y-m-d" }}',
             displayDate: '{{ order.created_at|date:"M d, Y" }}',
                 items: [
-                    { name: '{{ order.product.name|escapejs }}', quantity: {{ order.quantity }}, price: { { order.product.price } } }
-        ],
-    total: { { order.total_price } },
+                    { name: '{{ order.product.name|escapejs }}', quantity: {{ order.quantity }}, price: { { order.product.price |default: 0 } } }
+            ],
+    total: { { order.total_price |default: 0 } },
     status: '{{ order.status }}'
-    },
+        },
     {% endfor %}
     ];
 
-    let currentFilter = 'all';
-
     document.addEventListener('DOMContentLoaded', function () {
-        renderOrders();
-        setupEventListeners();
+        initOrderHistory(ordersData);
     });
-
-    function setupEventListeners() {
-        document.getElementById('searchInput').addEventListener('input', function (e) {
-            searchOrders(e.target.value);
-        });
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentFilter = this.dataset.filter;
-                renderOrders();
-            });
-        });
-    }
-
-    function renderOrders() {
-        const tbody = document.getElementById('ordersTableBody');
-        const emptyState = document.getElementById('emptyState');
-        const tableContainer = document.getElementById('tableContainer');
-        const filteredOrders = filterOrders();
-
-        if (filteredOrders.length === 0) {
-            // Only show empty state if truly no orders match criteria
-            if (orders.length === 0 && currentFilter === 'all') {
-                emptyState.style.display = 'flex';
-                tableContainer.style.display = 'none';
-            } else {
-                // If we have orders but filter matches none, show table with empty body or message
-                // For now, let's keep it simple: show empty state if nothing matches filter
-                // But strictly speaking "No Orders Yet" implies never ordered. 
-                // We'll reuse the empty state for now but maybe change text dynamically if needed.
-                emptyState.style.display = 'flex';
-                tableContainer.style.display = 'none';
-            }
-            return;
-        }
-
-        emptyState.style.display = 'none';
-        tableContainer.style.display = 'block';
-
-        tbody.innerHTML = filteredOrders.map(order => `
-            <tr>
-                <td><span class="order-id">#${order.id}</span></td>
-                <td>${order.displayDate}</td>
-                <td>${order.items[0].name} (x${order.items[0].quantity})</td>
-                <td class="order-total">$${order.total.toFixed(2)}</td>
-                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                <td>
-                    <button class="action-btn" onclick="viewOrderDetails('${order.id}')" title="View Details">
-                        <span class="material-icons-round">visibility</span>
-                    </button>
-                    ${order.status === 'shipped' ? `
-                    <button class="action-btn" onclick="trackOrder('${order.id}')" title="Track Order">
-                        <span class="material-icons-round">location_on</span>
-                    </button>` : ''}
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    function filterOrders() {
-        if (currentFilter === 'all') return orders;
-        return orders.filter(order => order.status === currentFilter);
-    }
-
-    function searchOrders(query) {
-        const lowerQuery = query.toLowerCase();
-        const filtered = orders.filter(order =>
-            order.id.toLowerCase().includes(lowerQuery) ||
-            order.status.toLowerCase().includes(lowerQuery) ||
-            order.items.some(item => item.name.toLowerCase().includes(lowerQuery))
-        );
-
-        // Re-use logic (simplified: direct render call with hacked global or just pass filtered list)
-        // Since renderOrders calls filterOrders which uses global 'orders' and 'currentFilter',
-        // implementing valid search combined with filter is tricky structure-wise here.
-        // Let's just update the view directly for search for now.
-
-        const tbody = document.getElementById('ordersTableBody');
-        tbody.innerHTML = filtered.map(order => `
-            <tr>
-                <td><span class="order-id">#${order.id}</span></td>
-                <td>${order.displayDate}</td>
-                <td>${order.items[0].name} (x${order.items[0].quantity})</td>
-                <td class="order-total">$${order.total.toFixed(2)}</td>
-                <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                <td>
-                    <button class="action-btn" onclick="viewOrderDetails('${order.id}')">
-                        <span class="material-icons-round">visibility</span>
-                    </button>
-                     ${order.status === 'shipped' ? `
-                    <button class="action-btn" onclick="trackOrder('${order.id}')">
-                        <span class="material-icons-round">location_on</span>
-                    </button>` : ''}
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    function viewOrderDetails(orderId) {
-        const order = orders.find(o => o.id === orderId);
-        if (!order) return;
-
-        const modalBody = document.getElementById('modalBody');
-        modalBody.innerHTML = `
-            <div class="order-info-grid">
-                <div class="info-group">
-                    <label>Order ID</label>
-                    <p>#${order.id}</p>
-                </div>
-                <div class="info-group">
-                    <label>Date</label>
-                    <p>${order.displayDate}</p>
-                </div>
-                <div class="info-group">
-                    <label>Status</label>
-                    <p class="status-text ${order.status}">${order.status.toUpperCase()}</p>
-                </div>
-                <div class="info-group">
-                    <label>Total Amount</label>
-                    <p>$${order.total.toFixed(2)}</p>
-                </div>
-            </div>
-            
-            <div class="products-list">
-                <h4>Items</h4>
-                ${order.items.map(item => `
-                    <div class="product-row">
-                        <span>${item.name}</span>
-                        <span>x${item.quantity}</span>
-                        <span>$${(item.price * item.quantity).toFixed(2)}</span>
-                    </div>
-                `).join('')}
-            </div>
-            
-            <div class="modal-actions" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                 ${(order.status === 'pending' || order.status === 'processing') ? `
-                    <a href="/aid_app/order/cancel/${order.db_id}/" class="btn btn-danger" onclick="return confirm('Cancel this order?')">Cancel Order</a>
-                 ` : ''}
-                 ${(order.status === 'delivered') ? `
-                    <a href="/aid_app/order/return/${order.db_id}/" class="btn btn-warning" onclick="return confirm('Return this order?')">Return Order</a>
-                 ` : ''}
-            </div>
-        `;
-        document.getElementById('orderModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('orderModal').style.display = 'none';
-    }
-
-    function trackOrder(id) {
-        alert("Tracking #" + id);
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function (event) {
-        const modal = document.getElementById('orderModal');
-        if (event.target === modal) {
-            closeModal();
-        }
-    }
 </script>
 {% endblock %}

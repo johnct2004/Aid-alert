@@ -37,7 +37,8 @@
                     <span>Incident History</span>
                 </a>
             </li>
-            <li class="menu-item {% if 'book_responder' in request.resolver_match.url_name %}active{% endif %}">
+            <li
+                class="menu-item {% if 'book_responder' in request.resolver_match.url_name or 'track_responder' in request.resolver_match.url_name %}active{% endif %}">
                 <a href="{% url 'aid_app:book_responder' %}" class="menu-link">
                     <span class="material-icons-round menu-icon">location_on</span>
                     <span>Track Responder</span>
@@ -49,7 +50,8 @@
                     <span>First Aid Guides</span>
                 </a>
             </li>
-            <li class="menu-item {% if 'buy_products' in request.resolver_match.url_name %}active{% endif %}">
+            <li
+                class="menu-item {% if 'buy_products' in request.resolver_match.url_name or 'checkout' in request.resolver_match.url_name or 'shipping' in request.resolver_match.url_name or 'payment' in request.resolver_match.url_name or 'confirmation' in request.resolver_match.url_name %}active{% endif %}">
                 <a href="{% url 'aid_app:buy_products' %}" class="menu-link">
                     <span class="material-icons-round menu-icon">shopping_bag</span>
                     <span>Buy Products</span>
@@ -61,7 +63,8 @@
                     <span>Order History</span>
                 </a>
             </li>
-            <li class="menu-item {% if 'give_feedback' in request.resolver_match.url_name %}active{% endif %}">
+            <li
+                class="menu-item {% if 'give_feedback' in request.resolver_match.url_name or 'my_feedback' in request.resolver_match.url_name %}active{% endif %}">
                 <a href="{% url 'aid_app:give_feedback' %}" class="menu-link">
                     <span class="material-icons-round menu-icon">rate_review</span>
                     <span>Give Feedback</span>
@@ -83,7 +86,7 @@
             <h1 class="page-title">{% block page_title %}User Dashboard{% endblock %}</h1>
             {% block header_profile %}
             <div class="profile-dropdown-container">
-                <div class="user-profile-trigger" onclick="toggleProfileMenu()">
+                <div class="user-profile-trigger">
                     <div class="user-profile">
                         <span class="user-name" style="font-weight: 500;">{{ user.first_name }}</span>
                         <div class="avatar-circle">
@@ -110,21 +113,6 @@
                 </div>
             </div>
 
-            <script>
-                function toggleProfileMenu() {
-                    const menu = document.getElementById('profileDropdown');
-                    menu.classList.toggle('show');
-                }
-
-                // Close dropdown when clicking outside
-                window.addEventListener('click', function (e) {
-                    const container = document.querySelector('.profile-dropdown-container');
-                    const menu = document.getElementById('profileDropdown');
-                    if (!container.contains(e.target)) {
-                        menu.classList.remove('show');
-                    }
-                });
-            </script>
             {% endblock %}
         </header>
 
@@ -134,5 +122,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/user/base_user.js' %}"></script>
 {% block user_js %}{% endblock %}
 {% endblock %}

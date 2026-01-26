@@ -1,8 +1,8 @@
 {% extends 'seller/base_seller.html' %}
 {% load static %}
 
-{% block page_title %}Seller Dashboard{% endblock %}
-{% block content_title %}Seller Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content_title %}Dashboard{% endblock %}
 
 {% block seller_css %}
 <link rel="stylesheet" href="{% static 'css/seller/seller_dashboard.css' %}">
@@ -17,12 +17,12 @@
                 <span class="material-icons-round">attach_money</span>
             </div>
             <div class="stat-change positive">
-                <span class="material-icons-round">trending_up</span>
-                <span>No recent orders</span>
+                <!-- <span class="material-icons-round">trending_up</span> -->
+                <span>Total earned</span>
             </div>
         </div>
         <h3 class="stat-label">Total Revenue</h3>
-        <p class="stat-value" id="totalRevenue">$0</p>
+        <p class="stat-value" id="totalRevenue">${{ total_revenue|floatformat:2 }}</p>
     </div>
 
     <div class="glass-card stat-card">
@@ -31,12 +31,12 @@
                 <span class="material-icons-round">shopping_bag</span>
             </div>
             <div class="stat-change positive">
-                <span class="material-icons-round">trending_up</span>
-                <span>No recent orders</span>
+                <!-- <span class="material-icons-round">trending_up</span> -->
+                <span>All time orders</span>
             </div>
         </div>
         <h3 class="stat-label">Total Orders</h3>
-        <p class="stat-value" id="totalOrders">0</p>
+        <p class="stat-value" id="totalOrders">{{ total_orders }}</p>
     </div>
 
     <div class="glass-card stat-card">
@@ -45,12 +45,12 @@
                 <span class="material-icons-round">inventory_2</span>
             </div>
             <div class="stat-change negative">
-                <span class="material-icons-round">trending_down</span>
-                <span>All products available</span>
+                <!-- <span class="material-icons-round">trending_down</span> -->
+                <span>Currently active</span>
             </div>
         </div>
         <h3 class="stat-label">Active Products</h3>
-        <p class="stat-value" id="activeProducts">12</p>
+        <p class="stat-value" id="activeProducts">{{ active_products }}</p>
     </div>
 
     <div class="glass-card stat-card">
@@ -59,12 +59,12 @@
                 <span class="material-icons-round">local_shipping</span>
             </div>
             <div class="stat-change positive">
-                <span class="material-icons-round">trending_up</span>
-                <span>No deliveries</span>
+                <!-- <span class="material-icons-round">trending_up</span> -->
+                <span>To be delivered</span>
             </div>
         </div>
         <h3 class="stat-label">Pending Deliveries</h3>
-        <p class="stat-value" id="pendingDeliveries">0</p>
+        <p class="stat-value" id="pendingDeliveries">{{ pending_deliveries }}</p>
     </div>
 </div>
 
@@ -81,10 +81,58 @@
         </div>
 
         <div class="orders-list">
+            {% if recent_orders %}
+            <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                        <th style="padding: 10px;">Order ID</th>
+                        <th style="padding: 10px;">Product</th>
+                        <th style="padding: 10px;">Amount</th>
+                        <th style="padding: 10px;">Status</th>
+                        <th style="padding: 10px;">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <td style="padding: 12px 10px;">#{{ order.order_id }}</td>
+                        <td style="padding: 12px 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                {% if order.product.image %}
+                                <img src="{{ order.product.image.url }}" alt=""
+                                    style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
+                                {% else %}
+                                <div
+                                    style="width: 32px; height: 32px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-icons-round"
+                                        style="font-size: 16px; color: #888;">image</span>
+                                </div>
+                                {% endif %}
+                                <span>{{ order.product.name|truncatechars:20 }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 12px 10px; font-weight: 600;">${{ order.total_price }}</td>
+                        <td style="padding: 12px 10px;">
+                            <span class="status-badge {{ order.status }}" style="padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; 
+                                      {% if order.status == 'delivered' %}background: #d4edda; color: #155724;
+                                      {% elif order.status == 'shipped' %}background: #cce5ff; color: #004085;
+                                      {% elif order.status == 'processing' %}background: #fff3cd; color: #856404;
+                                      {% elif order.status == 'cancelled' %}background: #f8d7da; color: #721c24;
+                                      {% else %}background: #e2e3e5; color: #383d41;{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </td>
+                        <td style="padding: 12px 10px; color: #666; font-size: 0.9rem;">{{ order.created_at|date:"M d,Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
             <div class="no-orders-message">
                 <span class="material-icons-round">shopping_cart</span>
                 <p>No orders yet. Your products are ready for customers!</p>
             </div>
+            {% endif %}
         </div>
     </section>
 
@@ -100,53 +148,34 @@
         </div>
 
         <div class="products-grid">
+            {% if top_products %}
+            {% for item in top_products %}
             <div class="product-item">
                 <div class="product-info">
                     <div class="product-image">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt=""
+                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                        {% else %}
                         <span class="material-icons-round">medical_services</span>
+                        {% endif %}
                     </div>
                     <div class="product-details">
-                        <h4 class="product-name">Complete First Aid Kit</h4>
-                        <p class="product-category">First Aid</p>
+                        <h4 class="product-name">{{ item.product.name }}</h4>
+                        <p class="product-category">{{ item.product.category }}</p>
                     </div>
                 </div>
                 <div class="product-stats">
-                    <p class="product-sales">0 sold</p>
-                    <p class="product-revenue">$0</p>
+                    <p class="product-sales">{{ item.units_sold }} sold</p>
+                    <p class="product-revenue">${{ item.revenue }}</p>
                 </div>
             </div>
-
-            <div class="product-item">
-                <div class="product-info">
-                    <div class="product-image">
-                        <span class="material-icons-round">emergency</span>
-                    </div>
-                    <div class="product-details">
-                        <h4 class="product-name">Emergency Radio</h4>
-                        <p class="product-category">Emergency</p>
-                    </div>
-                </div>
-                <div class="product-stats">
-                    <p class="product-sales">0 sold</p>
-                    <p class="product-revenue">$0</p>
-                </div>
+            {% endfor %}
+            {% else %}
+            <div style="text-align: center; padding: 20px; color: #666;">
+                <p>No sales data available yet.</p>
             </div>
-
-            <div class="product-item">
-                <div class="product-info">
-                    <div class="product-image">
-                        <span class="material-icons-round">healing</span>
-                    </div>
-                    <div class="product-details">
-                        <h4 class="product-name">Medical Gloves Box</h4>
-                        <p class="product-category">Medical</p>
-                    </div>
-                </div>
-                <div class="product-stats">
-                    <p class="product-sales">0 sold</p>
-                    <p class="product-revenue">$0</p>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </section>
 

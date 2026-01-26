@@ -25,27 +25,7 @@
     width: 100%;
 }
 
-.search-bar {
-    display: flex;
-    align-items: center;
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 8px 15px;
-    flex: 1;
-    min-width: 250px;
-}
-
-.search-input {
-    border: none;
-    outline: none;
-    width: 100%;
-    margin-left: 10px;
-}
-
-.search-icon {
-    color: #999;
-}
+/* Search styles moved to active section below */
 
 .filter-select {
     padding: 8px 15px;
@@ -194,9 +174,14 @@
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
-    padding: 8px 15px;
-    display: flex;
-    align-items: center;
+    padding: 0 15px;
+    /* Moved vertical padding to height control */
+    height: 45px;
+    /* Fixed height for better vertical alignment */
+    display: flex !important;
+    align-items: center !important;
+    flex-flow: row nowrap !important;
+    gap: 0;
     flex: 1;
     min-width: 250px;
     transition: all 0.3s ease;
@@ -209,15 +194,22 @@
 }
 
 .search-input {
-    background: transparent;
-    border: none;
-    outline: none;
-    width: 100%;
-    margin-left: 10px;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    width: 100% !important;
+    flex: 1 !important;
+    margin: 0 !important;
     font-family: inherit;
     font-size: 0.95rem;
     color: #333;
+    padding: 0 !important;
+    line-height: normal;
+    /* Fix for vertical alignment issues */
+    height: 100%;
 }
+
+/* Icon Removed */
 
 .filter-select {
     padding: 8px 15px;
